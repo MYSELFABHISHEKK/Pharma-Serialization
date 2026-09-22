@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BT SN Portal | Serialization & Track Trace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=20260916_10">
+</head>
+<body>
+    <div class="regulatory-ticker">
+        <span>🛡️ US FDA DSCSA 2024 Compliant</span> • 
+        <span>🇪🇺 EU FMD (2011/62/EU) Certified</span> • 
+        <span>🇮🇳 DGFT iVEDA Serialization</span> • 
+        <span>⚡ GS1 SGTIN-96 Standard</span> • 
+        <span>🔒 21 CFR Part 11 Electronic Records</span>
+    </div>
+
+    <header class="site-header">
+        <a class="brand" href="#top" aria-label="BT SN Portal home">
+            <span class="brand-mark">BT</span>
+            <span>BT SN Portal</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+            <a href="#compliance">Compliance</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#operations">Operations</a>
+            <a href="#process">Workflow</a>
+            <a href="#serialization" class="nav-cta" style="color: #ffffff;">Open Portal</a>
+        </nav>
+    </header>
+
+    <main id="top">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Enterprise Pharmaceutical Track & Trace</p>
+                <h1>Autonomous Serialization & Integrity Network for Global Pharma.</h1>
+                <p class="hero-text">
+                    BT SN Portal provides high-throughput cryptographic serialization, parent-child packaging aggregation,
+                    and tamper-evident traceability across solid orals, injectables, and biologics from manufacturing line to dispensary.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn primary-btn" href="#serialization">Open Portal Console</a>
+                    <a class="btn secondary-btn" href="#operations">Explore Operations</a>
+                </div>
+            </div>
+            <div class="hero-media" aria-label="Pharmaceutical packaging cleanroom">
+                <img src="/static/img/pharma_cleanroom.jpg" alt="Automated pharmaceutical packaging line in cleanroom">
+                <div class="live-card">
+                    <span class="status-indicator online" id="db-status-dot"></span>
+                    <span id="db-status-text">Packaging Line 04 • System online</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="metrics-band" aria-label="Portal capabilities">
+            <div>
+                <span>Unit Identity</span>
+                <strong>CSPRNG Randomized Serials</strong>
+            </div>
+            <div>
+                <span>Read Rate</span>
+                <strong>99.999% Vision OCR Accuracy</strong>
+            </div>
+            <div>
+                <span>Line Throughput</span>
+                <strong>1,000,000+ Codes / Hour</strong>
+            </div>
+            <div>
+                <span>Compliance Standard</span>
+                <strong>GS1 SGTIN-96 & EPCIS 1.2</strong>
+            </div>
+        </section>
+
+        <!-- Global Regulatory Compliance Frameworks -->
+        <section class="compliance-section" id="compliance">
+            <div class="section-heading">
+                <p class="eyebrow">Global Mandates</p>
+                <h2>Validated against international regulatory requirements.</h2>
+                <p>Engineered to ensure zero-friction pharmaceutical export compliance across all major global health authorities.</p>
+            </div>
+            <div class="compliance-grid">
+                <article class="compliance-card">
+                    <div class="compliance-icon">🇺🇸</div>
+                    <h3>US FDA DSCSA (2024)</h3>
+                    <p>Enforces 100% interoperable package-level electronic tracing, verification router service (VRS) readiness, exception handling, and transaction data exchange.</p>
+                </article>
+                <article class="compliance-card">
+                    <div class="compliance-icon">🇪🇺</div>
+                    <h3>EU FMD (2011/62/EU)</h3>
+                    <p>End-to-end verification supporting Point-of-Dispense decommission, anti-tampering device verification, and integration with the European EMVO hub.</p>
+                </article>
+                <article class="compliance-card">
+                    <div class="compliance-icon">🇮🇳</div>
+                    <h3>India DGFT iVEDA</h3>
+                    <p>Full primary blister/strip unique coding, secondary shipper carton parent-child aggregation, and tertiary pallet track-and-trace export conformity.</p>
+                </article>
+                <article class="compliance-card">
+                    <div class="compliance-icon">🔒</div>
+                    <h3>21 CFR Part 11 & GAMP 5</h3>
+                    <p>Cryptographically secured audit logs, automated before-and-after JSON change data capture, strict role separation, and electronic batch record traceability.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Multi-Level Architecture Showcase -->
+        <section class="architecture-section" id="architecture">
+            <div class="section-heading">
+                <p class="eyebrow">ISA-95 Architecture</p>
+                <h2>End-to-End 5-Level Serialization Integration.</h2>
+                <p>Seamless bidirectional data flow connecting shop-floor printing heads directly to government reporting portals.</p>
+            </div>
+            <div class="architecture-pipeline">
+                <article class="arch-card">
+                    <span class="arch-badge">Level 1</span>
+                    <h4>Device Hardware</h4>
+                    <p>Industrial thermal inkjet, laser marking heads, and high-speed Cognex/Keyence camera vision stations.</p>
+                </article>
+                <article class="arch-card">
+                    <span class="arch-badge">Level 2</span>
+                    <h4>Line Automation</h4>
+                    <p>Packaging line controllers, pneumatic carton rejector mechanisms, and semi-automated bundling stations.</p>
+                </article>
+                <article class="arch-card">
+                    <span class="arch-badge">Level 3</span>
+                    <h4>Site Server (MES)</h4>
+                    <p>Plant batch management, work order scheduling, recipe configuration, and local sequence buffers.</p>
+                </article>
+                <article class="arch-card">
+                    <span class="arch-badge">Level 4</span>
+                    <h4>BT SN Enterprise</h4>
+                    <p>Centralized SGTIN serial repository, GS1 EPCIS event generator, partner portals, and verification state engine.</p>
+                </article>
+                <article class="arch-card">
+                    <span class="arch-badge">Level 5</span>
+                    <h4>Government Hubs</h4>
+                    <p>Direct compliance reporting to US FDA, European Medicines Hub (EMVS), and national health databases.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Real-World Pharma Operations & Deep Dives -->
+        <section class="pharma-showcase-section" id="operations">
+            <div class="section-heading">
+                <p class="eyebrow">Operational Capabilities</p>
+                <h2>Purpose-Built for Pharmaceutical Manufacturing Operations.</h2>
+            </div>
+
+            <!-- Deep Dive 1: In-line Vision -->
+            <div class="pharma-showcase-item">
+                <div class="showcase-media">
+                    <img src="/static/img/pharma_serialization_scanner.jpg" alt="High-speed vision inspection and printing station">
+                    <span class="showcase-media-tag">Packaging Line 02 • High-Speed Inspection</span>
+                </div>
+                <div class="showcase-content">
+                    <h3>High-Speed In-Line Vision & 2D DataMatrix Inspection</h3>
+                    <p class="lead-text">
+                        Ensures every single carton printed on high-speed packaging lines conforms to GS1 print quality standards before leaving the cleanroom.
+                    </p>
+                    <ul class="pharma-points-list">
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>ISO/IEC 15415 Print Quality Grading:</strong> Real-time grading (Grades A & B) evaluating axial non-uniformity, contrast, and modulation.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Simultaneous OCR/OCV Verification:</strong> Optical character recognition cross-examines human-readable text (Lot, Exp, GTIN, Serial) against the 2D DataMatrix.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Pneumatic Defect Rejection:</strong> Instantly ejects unreadable or duplicate cartons at line speeds of up to 450 packs per minute.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Deep Dive 2: Warehouse Aggregation -->
+            <div class="pharma-showcase-item reverse">
+                <div class="showcase-content">
+                    <h3>Multi-Tier Parent-Child Packaging Aggregation</h3>
+                    <p class="lead-text">
+                        Maintains verifiable hierarchical relationships across packaging levels, enabling distributors to scan a single pallet without opening sealed cases.
+                    </p>
+                    <ul class="pharma-points-list">
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Unit-to-Case-to-Pallet Hierarchy:</strong> Seamless mapping of Primary units into Bundles, Shipper Cases, and Pallets with unique SSCC-18 identifiers.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Dynamic De-Aggregation & Rework:</strong> Supports unbundling, quarantine extraction, and re-packing workflows without corrupting serialization genealogy.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Warehouse Radio-Frequency Scanning:</strong> Compatible with all standard industrial handheld RF barcode terminals and automated warehouse AGVs.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="showcase-media">
+                    <img src="/static/img/pharma_warehouse_logistics.jpg" alt="Pharmaceutical warehouse pallet tracking with SSCC label">
+                    <span class="showcase-media-tag">Distribution Hub 01 • Pallet SSCC Verification</span>
+                </div>
+            </div>
+
+            <!-- Deep Dive 3: Quality Lab & Audit -->
+            <div class="pharma-showcase-item">
+                <div class="showcase-media">
+                    <img src="/static/img/pharma_lab_quality.jpg" alt="Pharmaceutical QA laboratory inspecting digital batch records">
+                    <span class="showcase-media-tag">QA Compliance Lab • 21 CFR Part 11 Audit Review</span>
+                </div>
+                <div class="showcase-content">
+                    <h3>Analytical Quality Assurance & Immutable Audit Trails</h3>
+                    <p class="lead-text">
+                        Enforces rigorous Good Automated Manufacturing Practice (GAMP 5) with comprehensive audit coverage for Qualified Person (QP) batch release.
+                    </p>
+                    <ul class="pharma-points-list">
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Change Data Capture (CDC) Logging:</strong> Every record mutation in Products, GTIN Store, and Batches writes an unalterable audit log with actor ID and timestamp.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Side-by-Side JSON Diff Inspector:</strong> Interactive inspection interface showing exact before-and-after states for internal auditors and FDA/EMA inspections.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Targeted Mock Recall Execution:</strong> Locates contaminated or recalled units across distribution networks within 60 seconds.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="process-section" id="process">
+            <div class="section-heading">
+                <p class="eyebrow">How it works</p>
+                <h2>Four steps from secure code creation to supply-chain visibility.</h2>
+            </div>
+            <div class="process-grid">
+                <article class="step-card">
+                    <span>1</span>
+                    <h3>Generate</h3>
+                    <p>Unique serial numbers are created against a product profile and reserved sequence range.</p>
+                </article>
+                <article class="step-card">
+                    <span>2</span>
+                    <h3>Print</h3>
+                    <p>GTIN, serial, lot, and expiry data can be encoded for product and packaging line use.</p>
+                </article>
+                <article class="step-card">
+                    <span>3</span>
+                    <h3>Dispatch</h3>
+                    <p>Batches move from generated to allocated and shipped with a visible event trail.</p>
+                </article>
+                <article class="step-card">
+                    <span>4</span>
+                    <h3>Verify</h3>
+                    <p>Each serial can be checked and updated as it moves through downstream events.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="serialization-section" id="serialization">
+            <div class="section-heading">
+                <p class="eyebrow">Live Portal Facility</p>
+                <h2>BT SN Portal Management Console</h2>
+                <p>Register products, configure GTIN structures, generate serial batches, view audit changelogs, and run verification.</p>
+            </div>
+
+            <!-- Dashboard Sub Navigation -->
+            <nav class="portal-nav">
+                <button class="portal-nav-btn active" data-view="view-dashboard">Dashboard Home</button>
+                <button class="portal-nav-btn" data-view="view-sgtin">SGTIN CSV</button>
+                <div class="portal-nav-dropdown">
+                    <button class="portal-nav-btn portal-nav-toggle">Product Master <span class="arrow-down">▼</span></button>
+                    <div class="portal-nav-dropdown-content">
+                        <button class="portal-nav-sub-btn" data-view="view-product-add" id="sub-add-product">Add Product</button>
+                        <button class="portal-nav-sub-btn" data-view="view-product-list">Manage Products</button>
+                    </div>
+                </div>
+                <div class="portal-nav-dropdown">
+                    <button class="portal-nav-btn portal-nav-toggle">GTIN Master <span class="arrow-down">▼</span></button>
+                    <div class="portal-nav-dropdown-content">
+                        <button class="portal-nav-sub-btn" data-view="view-gtin-add" id="sub-add-gtin">Add GTIN</button>
+                        <button class="portal-nav-sub-btn" data-view="view-gtin-list">Manage GTIN Store</button>
+                    </div>
+                </div>
+                <div class="portal-nav-dropdown">
+                    <button class="portal-nav-btn portal-nav-toggle">Batch Master <span class="arrow-down">▼</span></button>
+                    <div class="portal-nav-dropdown-content">
+                        <button class="portal-nav-sub-btn" data-view="view-batch-add" id="sub-add-batch">Add Batch</button>
+                        <button class="portal-nav-sub-btn" data-view="view-batch-list">Manage Batches</button>
+                    </div>
+                </div>
+                <button class="portal-nav-btn" data-view="view-verification">Verification</button>
+                <div class="portal-nav-dropdown">
+                    <button class="portal-nav-btn portal-nav-toggle">Reports <span class="arrow-down">▼</span></button>
+                    <div class="portal-nav-dropdown-content">
+                        <button class="portal-nav-sub-btn" data-view="view-audit-logs" id="sub-audit-logs">Audit Trail Logs</button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="portal-view-container">
+
+                <!-- 1. DASHBOARD HOME VIEW -->
+                <div class="portal-view" id="view-dashboard">
+                    <div class="dashboard-grid">
+                        <div class="dash-card">
+                            <h4>Total Registered Products</h4>
+                            <p class="dash-metric" id="dash-prod-count">0</p>
+                        </div>
+                        <div class="dash-card">
+                            <h4>Active GTIN Maps</h4>
+                            <p class="dash-metric" id="dash-gtin-count">0</p>
+                        </div>
+                        <div class="dash-card">
+                            <h4>Total Batches Generated</h4>
+                            <p class="dash-metric" id="dash-batch-count">0</p>
+                        </div>
+                    </div>
+                    <div class="info-block mt-4">
+                        <h3>Welcome to BT SN Portal</h3>
+                        <p>Select any workflow option from the menu bar above to begin registering masters or generating serial packages.</p>
+                    </div>
+                </div>
+
+                <!-- 2. SGTIN CSV GENERATOR VIEW -->
+                <div class="portal-view hidden" id="view-sgtin">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>SGTIN CSV Generation</h3>
+                            <p>Generate 20-character serial numbers from GTIN and quantity, then download the CSV.</p>
+                        </div>
+                        <form id="sgtin-form" class="card-body">
+                            <div class="form-row">
+                                <div class="form-group flex-1">
+                                    <label for="sgtin-gtin">GTIN</label>
+                                    <input type="text" id="sgtin-gtin" placeholder="08901234567890" maxlength="14" required autocomplete="off" inputmode="numeric">
+                                </div>
+                                <div class="form-group small-field">
+                                    <label for="sgtin-qty">Quantity</label>
+                                    <input type="number" id="sgtin-qty" value="5" min="1" max="1000000" required>
+                                </div>
+                                <div class="form-group small-field">
+                                    <label for="sgtin-start-seq">Start sequence</label>
+                                    <input type="number" id="sgtin-start-seq" value="1" min="1" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group flex-1">
+                                    <label for="sgtin-len">Serial length</label>
+                                    <select id="sgtin-len">
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                        <option value="19">19</option>
+                                        <option value="20" selected>20</option>
+                                    </select>
+                                </div>
+                                <div class="form-group flex-1">
+                                    <label for="sgtin-type">Character type</label>
+                                    <select id="sgtin-type">
+                                        <option value="alphanumeric" selected>Alphanumeric</option>
+                                        <option value="numeric">Numerical only</option>
+                                        <option value="alpha">Alphabet only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="rule-strip">
+                                <span>Configurable length & character set</span>
+                                <span>No 0, 1, I, L, O, U</span>
+                                <span>Unique characters per serial</span>
+                                <span>SGTIN = GTIN + SN</span>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn primary-btn">Generate CSV</button>
+                                <span class="form-message" id="sgtin-message"></span>
+                            </div>
+                            <div class="csv-preview hidden" id="sgtin-preview">
+                                <div class="csv-preview-header">
+                                    <strong>CSV Preview</strong>
+                                    <a href="#" id="sgtin-download-link" download>Download CSV</a>
+                                </div>
+                                <div class="table-container">
+                                    <table class="table compact-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Sequence</th>
+                                                <th>GTIN</th>
+                                                <th>Serial Number</th>
+                                                <th>SGTIN</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="sgtin-preview-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 3. PRODUCT ADD VIEW -->
+                <div class="portal-view hidden" id="view-product-add">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 id="product-form-title">Add Product</h3>
+                            <p>Register a product master and define its packaging rules.</p>
+                        </div>
+                        <form id="product-form" class="card-body" novalidate>
+                            <!-- Section: Product Classification -->
+                            <div class="form-section-panel">
+                                <h4>Product Classification</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-regulatory">Regulatory Authority *</label>
+                                        <select id="prod-regulatory">
+                                            <option value="" disabled selected>-- Select Regulatory --</option>
+                                            <option value="DSCSA">DSCSA (US)</option>
+                                            <option value="EUFMD">EUFMD (Europe)</option>
+                                            <option value="DGFT">DGFT (India)</option>
+                                            <option value="OTHER">Other / Global</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-codeprovider">Code Provider *</label>
+                                        <select id="prod-codeprovider">
+                                            <option value="" disabled selected>-- Select Code Provider --</option>
+                                            <option value="GS1">GS1</option>
+                                            <option value="HIBCC">HIBCC</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-manufacturer">Manufacturer *</label>
+                                        <select id="prod-manufacturer">
+                                            <option value="" disabled selected>-- Select Manufacturer --</option>
+                                            <option value="TEST PHARMA">TEST PHARMA</option>
+                                            <option value="TEST PHARMA DGFT">TEST PHARMA DGFT</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-plant">Plant *</label>
+                                        <select id="prod-plant">
+                                            <option value="" disabled selected>-- Select Plant --</option>
+                                            <option value="TESTPLANT">TESTPLANT</option>
+                                            <option value="TESTPLANT_DGFT">TESTPLANT_DGFT</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-marketinglevel">Marketing Level *</label>
+                                        <select id="prod-marketinglevel">
+                                            <option value="" disabled selected>-- Select Marketing Level --</option>
+                                            <option value="Export">Export</option>
+                                            <option value="Domestic">Domestic</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section: Product Details -->
+                            <div class="form-section-panel mt-4">
+                                <h4>Product Details</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-id">Product Code *</label>
+                                        <input type="text" id="prod-id" placeholder="ATOR-20" required autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-name">Product Name 1 *</label>
+                                        <input type="text" id="prod-name" placeholder="Atorvastatin Calcium 20mg" required autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-name2">Product Name 2</label>
+                                        <input type="text" id="prod-name2" placeholder="Secondary Name / Language" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-name3">Product Name 3</label>
+                                        <input type="text" id="prod-name3" placeholder="Additional details" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-stk">STK</label>
+                                        <input type="text" id="prod-stk" placeholder="STK Number" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-mfgby">Manufactured By</label>
+                                        <input type="text" id="prod-mfgby" placeholder="Manufacturing Entity" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-distby">Distributed By</label>
+                                        <input type="text" id="prod-distby" placeholder="Distribution Entity" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-storage">Storage Condition</label>
+                                        <input type="text" id="prod-storage" placeholder="Store under 25°C" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-license">License</label>
+                                        <input type="text" id="prod-license" placeholder="Mfg License No" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-generic">Generic Name</label>
+                                        <input type="text" id="prod-generic" placeholder="Atorvastatin" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-composition">Composition</label>
+                                        <input type="text" id="prod-composition" placeholder="Excipients/Active Ingr" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-usagedose">Usage/Dose</label>
+                                        <input type="text" id="prod-usagedose" placeholder="As directed by physician" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-remark">Remark</label>
+                                        <input type="text" id="prod-remark" placeholder="Special comments" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-price">Unit Price</label>
+                                        <input type="text" id="prod-price" placeholder="10.50" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-gtin">GTIN (Global Trade Item Number) *</label>
+                                        <input type="text" id="prod-gtin" placeholder="08901072000534" maxlength="14" required autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <!-- Conditional fields for DSCSA -->
+                                <div class="form-row hidden" id="panel-dscsa">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-ndc">NDC *</label>
+                                        <input type="text" id="prod-ndc" placeholder="3-4-2 NDC format" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-ndctype">NDC Type *</label>
+                                        <select id="prod-ndctype">
+                                            <option value="" disabled selected>-- Select NDCType --</option>
+                                            <option value="10-digit">10 Digit NDC</option>
+                                            <option value="11-digit">11 Digit NDC</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Conditional fields for EUFMD -->
+                                <div class="form-row hidden" id="panel-eufmd">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-countrycode-type">Country Drug Code Type *</label>
+                                        <select id="prod-countrycode-type">
+                                            <option value="" disabled selected>-- Select Country Code Type --</option>
+                                            <option value="PPN">PPN (Germany)</option>
+                                            <option value="CIP">CIP (France)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-countrycode">Country Drug Code *</label>
+                                        <input type="text" id="prod-countrycode" placeholder="National Code" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-materialnumber">Internal Material Number</label>
+                                        <input type="text" id="prod-materialnumber" placeholder="MAT-10293" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-nnhrn">NNHRN</label>
+                                        <input type="text" id="prod-nnhrn" placeholder="National Registry Number" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-nhrnai-type">NHRN AI Type</label>
+                                        <select id="prod-nhrnai-type">
+                                            <option value="" disabled selected>-- Select AI Type --</option>
+                                            <option value="AI-710">AI-710</option>
+                                            <option value="AI-711">AI-711</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="prod-itemcode-type">ITEM Code Type *</label>
+                                        <select id="prod-itemcode-type">
+                                            <option value="" disabled selected>-- Select ITEM Code Type --</option>
+                                            <option value="GTIN">GTIN</option>
+                                            <option value="NTIN">NTIN</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-itemcode">Item Code *</label>
+                                        <input type="text" id="prod-itemcode" placeholder="Item Code string" required autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section: Product Image -->
+                            <div class="form-section-panel mt-4">
+                                <h4>Product Image</h4>
+                                <div class="form-group">
+                                    <label for="prod-image">Upload Image (Max 3KB) *</label>
+                                    <input type="file" id="prod-image" accept="image/*">
+                                    <div class="img-preview-container mt-2">
+                                        <img id="prod-img-preview" src="" alt="No Image Selected" class="hidden">
+                                        <span id="prod-img-size-info" class="hint"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section: Serialization Profile settings -->
+                            <div class="accordion mt-4">
+                                <div class="accordion-header" id="profile-toggle">
+                                    <span>Serialization profile</span>
+                                    <span class="arrow">Show</span>
+                                </div>
+                                <div class="accordion-content hidden" id="profile-settings">
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label for="prof-len">Serial length</label>
+                                            <input type="number" id="prof-len" value="20" min="10" max="30">
+                                        </div>
+                                        <div class="form-group flex-1">
+                                            <label for="prof-dups">Character repeats</label>
+                                            <select id="prof-dups">
+                                                <option value="false">Unique only</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section: Activate State & Fields -->
+                            <div class="form-section-panel mt-4">
+                                <h4>Other Details</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label>Activate Product *</label>
+                                        <div class="radio-group">
+                                            <label><input type="radio" name="prod-active" value="true" checked> Yes</label>
+                                            <label><input type="radio" name="prod-active" value="false"> No</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-add1">Additional field 1</label>
+                                        <input type="text" id="prod-add1" placeholder="Custom Data 1" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="prod-add2">Additional field 2</label>
+                                        <input type="text" id="prod-add2" placeholder="Custom Data 2" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="btn primary-btn">Save</button>
+                                <button type="button" class="btn secondary-btn" id="prod-import-btn">Import Products</button>
+                                <button type="button" class="btn cancel-btn" id="prod-cancel-btn">Cancel</button>
+                                <span class="form-message" id="prod-message"></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 4. PRODUCT LIST VIEW -->
+                <div class="portal-view hidden" id="view-product-list">
+                    <div class="card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h3>Manage Products</h3>
+                                <p>Search and manage registered product profiles.</p>
+                            </div>
+                            <button class="btn primary-btn btn-sm" id="btn-goto-add-product">Add Product</button>
+                        </div>
+                        <div class="card-body">
+                            <!-- Filters panel -->
+                            <div class="filter-row">
+                                <select id="filt-prod-mfg">
+                                    <option value="">-- Select Manufacturer --</option>
+                                    <option value="TEST PHARMA">TEST PHARMA</option>
+                                    <option value="TEST PHARMA DGFT">TEST PHARMA DGFT</option>
+                                </select>
+                                <select id="filt-prod-plant">
+                                    <option value="">-- Select Plant --</option>
+                                    <option value="TESTPLANT">TESTPLANT</option>
+                                    <option value="TESTPLANT_DGFT">TESTPLANT_DGFT</option>
+                                </select>
+                                <select id="filt-prod-mkt">
+                                    <option value="">-- Select Marketing Level --</option>
+                                    <option value="Export">Export</option>
+                                    <option value="Domestic">Domestic</option>
+                                </select>
+                                <select id="filt-prod-reg">
+                                    <option value="">-- Select Regulatory --</option>
+                                    <option value="DSCSA">DSCSA</option>
+                                    <option value="EUFMD">EUFMD</option>
+                                    <option value="DGFT">DGFT</option>
+                                </select>
+                                <input type="text" id="filt-prod-search" placeholder="Search product code/name...">
+                                <button class="btn primary-btn" id="btn-filter-products">Go</button>
+                            </div>
+
+                            <div class="table-container mt-4">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Manufacturer</th>
+                                            <th>Plant</th>
+                                            <th>Product Code</th>
+                                            <th>Product Name</th>
+                                            <th>Marketing Level</th>
+                                            <th>Status</th>
+                                            <th>Options</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="prod-list-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. GTIN ADD VIEW -->
+                <div class="portal-view hidden" id="view-gtin-add">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 id="gtin-form-title">Add GTIN</h3>
+                            <p>Register a GTIN layout mapping for standard pack sizes.</p>
+                        </div>
+                        <form id="gtin-form" class="card-body" novalidate>
+                            <!-- Panel: Selection Details -->
+                            <div class="form-section-panel">
+                                <h4>Selection Details</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-manufacturer">Select Manufacturer *</label>
+                                        <select id="gtin-manufacturer">
+                                            <option value="" disabled selected>-- Select Manufacturer --</option>
+                                            <option value="TEST PHARMA">TEST PHARMA</option>
+                                            <option value="TEST PHARMA DGFT">TEST PHARMA DGFT</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-plant">Select Plant *</label>
+                                        <select id="gtin-plant">
+                                            <option value="" disabled selected>-- Select Plant --</option>
+                                            <option value="TESTPLANT">TESTPLANT</option>
+                                            <option value="TESTPLANT_DGFT">TESTPLANT_DGFT</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-product-input"><span class="required-star">*</span> Select Product</label>
+                                        <input type="text" id="gtin-product-input" list="gtin-product-datalist" placeholder="-- Select or type Product --" autocomplete="off">
+                                        <datalist id="gtin-product-datalist"></datalist>
+                                        <input type="hidden" id="gtin-product-id">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-pkglevel">Select Packaging Level *</label>
+                                        <select id="gtin-pkglevel">
+                                            <option value="" disabled selected>-- Select Packaging Level --</option>
+                                            <option value="Primary">Primary</option>
+                                            <option value="Secondary">Secondary</option>
+                                            <option value="Inner">Inner</option>
+                                            <option value="Tertiary">Tertiary</option>
+                                            <option value="Case GTIN">Case GTIN</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel: Product Details -->
+                            <div class="form-section-panel mt-4">
+                                <h4>Product Details</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-productcode">Product Code</label>
+                                        <input type="text" id="gtin-productcode" readonly class="readonly-input">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-pkgsize">Packaging Size *</label>
+                                        <input type="text" id="gtin-pkgsize" placeholder="10x10 Tablets" required autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel: GTIN Details -->
+                            <div class="form-section-panel mt-4">
+                                <h4>GTIN Details</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-val">GTIN *</label>
+                                        <input type="text" id="gtin-val" placeholder="08901234567892" maxlength="14" required autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label>Enable GTIN *</label>
+                                        <div class="radio-group">
+                                            <label><input type="radio" name="gtin-enabled" value="true" checked> Yes</label>
+                                            <label><input type="radio" name="gtin-enabled" value="false"> No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel: Additional Details -->
+                            <div class="form-section-panel mt-4">
+                                <h4>Additional Details</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-caseqty">Case Quantity (Mandatory for Primary) *</label>
+                                        <input type="number" id="gtin-caseqty" placeholder="0" min="0">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-limit">Limit *</label>
+                                        <input type="number" id="gtin-limit" placeholder="1000" min="1" required>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="gtin-codelen">Code Length *</label>
+                                        <input type="number" id="gtin-codelen" value="20" min="5" max="30" required>
+                                    </div>
+                                </div>
+
+                                <!-- Subsection: SERIAL NO TYPE -->
+                                <div class="form-subsection mt-4 pt-3" style="border-top: 1px solid var(--line);">
+                                    <h5 style="font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--primary);">🏷️</span> SERIAL NO TYPE
+                                    </h5>
+                                    <p class="hint" style="margin-bottom: 14px; font-size: 0.82rem; color: var(--muted);">
+                                        Configure serialization identity standard and packaging level category (SGTIN vs SSCC):
+                                    </p>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label><span class="required-star">*</span> Serial No Type Standard</label>
+                                            <div class="radio-group" style="margin-top: 6px;">
+                                                <label style="cursor: pointer;">
+                                                    <input type="radio" name="gtin-serial-type" value="SGTIN" checked>
+                                                    <strong>SGTIN</strong> (Item-Level Unit)
+                                                </label>
+                                                <label style="cursor: pointer; margin-left: 14px;">
+                                                    <input type="radio" name="gtin-serial-type" value="SSCC">
+                                                    <strong>SSCC</strong> (Logistics / Shipper Unit)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group flex-1">
+                                            <label for="gtin-pkgcategory"><span class="required-star">*</span> Packaging Category</label>
+                                            <select id="gtin-pkgcategory" required>
+                                                <optgroup label="SGTIN Category (Item Level Unit)" id="optgroup-sgtin">
+                                                    <option value="Primary" selected>Primary Packaging (Blister, Bottle, Vial, Ampoule)</option>
+                                                    <option value="Secondary">Secondary Packaging (Monocarton, Unit Box)</option>
+                                                    <option value="Inner">Inner Packaging (Intermediate Box, Bundle)</option>
+                                                </optgroup>
+                                                <optgroup label="SSCC Category (Logistics / Container Unit)" id="optgroup-sscc">
+                                                    <option value="Tertiary">Tertiary Packaging (Shipper Case / Master Carton)</option>
+                                                    <option value="Pallet">Pallet Packaging (Logistics Pallet Container)</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div id="serial-type-helper" style="padding: 10px 14px; border-radius: 6px; font-size: 0.84rem; margin-top: 10px; background: #eaf4fe; border: 1px solid #d0e7fc; color: #08445f;">
+                                        <span id="serial-type-helper-text">
+                                            <strong>SGTIN Mode Active:</strong> Encodes AI (01) GTIN + AI (21) Serial Number for saleable trade packaging (Primary / Secondary / Inner).
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="btn primary-btn">Save</button>
+                                <button type="button" class="btn secondary-btn" id="gtin-import-btn">Import GTINs</button>
+                                <button type="button" class="btn cancel-btn" id="gtin-cancel-btn">Cancel</button>
+                                <span class="form-message" id="gtin-message"></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 6. GTIN LIST VIEW -->
+                <div class="portal-view hidden" id="view-gtin-list">
+                    <div class="card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h3>Manage GTIN Store</h3>
+                                <p>View and manage packaging GTIN layout mappings.</p>
+                            </div>
+                            <button class="btn primary-btn btn-sm" id="btn-goto-add-gtin">Add GTIN</button>
+                        </div>
+                        <div class="card-body">
+                            <!-- Filters panel -->
+                            <div class="filter-row">
+                                <select id="filt-gtin-mfg">
+                                    <option value="">-- Select Manufacturer --</option>
+                                    <option value="TEST PHARMA">TEST PHARMA</option>
+                                    <option value="TEST PHARMA DGFT">TEST PHARMA DGFT</option>
+                                </select>
+                                <select id="filt-gtin-plant">
+                                    <option value="">-- Select Plant --</option>
+                                    <option value="TESTPLANT">TESTPLANT</option>
+                                    <option value="TESTPLANT_DGFT">TESTPLANT_DGFT</option>
+                                </select>
+                                <input type="text" id="filt-gtin-search" placeholder="Search by GTIN or Code...">
+                                <button class="btn primary-btn" id="btn-filter-gtins">Go</button>
+                            </div>
+
+                            <div class="table-container mt-4">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Manufacturer</th>
+                                            <th>Plant</th>
+                                            <th>Product</th>
+                                            <th>Product Code</th>
+                                            <th>Packaging Level</th>
+                                            <th>Packaging Size</th>
+                                            <th>GTIN</th>
+                                            <th>Serial No Type</th>
+                                            <th>Limit</th>
+                                            <th>Case Qty</th>
+                                            <th>Status</th>
+                                            <th>Options</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gtin-list-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. BATCH ADD VIEW -->
+                <div class="portal-view hidden" id="view-batch-add">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 id="batch-form-title">Add Batch</h3>
+                            <p>Register a batch, set expiry criteria, and trigger serial code generation.</p>
+                        </div>
+                        <form id="batch-form" class="card-body" novalidate>
+                            <div class="mandatory-alert">
+                                <span class="info-icon">ℹ</span> Fields marked with <span class="required-star">*</span> are mandatory.
+                            </div>
+                            <!-- Panel: Selection Details -->
+                            <div class="form-section-panel">
+                                <h4><svg class="panel-header-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1. Selection Details</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="batch-manufacturer"><span class="required-star">*</span> Select Manufacturer</label>
+                                        <select id="batch-manufacturer">
+                                            <option value="" disabled selected>-- Select Manufacturer --</option>
+                                            <option value="TEST PHARMA">TEST PHARMA</option>
+                                            <option value="TEST PHARMA DGFT">TEST PHARMA DGFT</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-plant"><span class="required-star">*</span> Select Plant</label>
+                                        <select id="batch-plant">
+                                            <option value="" disabled selected>-- Select Plant --</option>
+                                            <option value="TESTPLANT">TESTPLANT</option>
+                                            <option value="TESTPLANT_DGFT">TESTPLANT_DGFT</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-pkglevel"><span class="required-star">*</span> Select Packaging Level</label>
+                                        <select id="batch-pkglevel">
+                                            <option value="" disabled selected>-- Select Packaging Level --</option>
+                                            <option value="Primary">Primary</option>
+                                            <option value="Secondary">Secondary</option>
+                                            <option value="Inner">Inner</option>
+                                            <option value="Tertiary">Tertiary</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="batch-product-input"><span class="required-star">*</span> Select Product</label>
+                                        <input type="text" id="batch-product-input" list="batch-product-datalist" placeholder="-- Select or type Product --" autocomplete="off">
+                                        <datalist id="batch-product-datalist"></datalist>
+                                        <input type="hidden" id="batch-product-id">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-pkgsize"><span class="required-star">*</span> Packaging Size</label>
+                                        <select id="batch-pkgsize">
+                                            <option value="" disabled selected>-- Select Packaging Size --</option>
+                                            <option value="10x10 Tablets">10x10 Tablets</option>
+                                            <option value="10x15 Tablets">10x15 Tablets</option>
+                                            <option value="1x1 Vial">1x1 Vial</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel: Batch Information -->
+                            <div class="form-section-panel mt-4">
+                                <h4><svg class="panel-header-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 16 21 21 3 21 3 16"></polyline><polyline points="10 21 10 14 14 14 14 21"></polyline><polyline points="3 10 12 3 21 10"></polyline></svg>2. Batch Information</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="batch-workorder"><span class="required-star">*</span> Enter Work Order No.</label>
+                                        <input type="text" id="batch-workorder" placeholder="ENTER WORK ORDER NO." required autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-num"><span class="required-star">*</span> Batch Number</label>
+                                        <input type="text" id="batch-num" placeholder="Enter Batch Number" required autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-gtin">
+                                            <span class="required-star">*</span> GTIN
+                                            <span id="batch-gtin-type-badge" class="badge badge-info hidden" style="font-size:0.75rem; padding: 2px 7px; margin-left: 6px;"></span>
+                                        </label>
+                                        <input type="text" id="batch-gtin" placeholder="Enter GTIN" required autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="batch-mfgdate"><span class="required-star">*</span> Manufacturing Date</label>
+                                        <input type="date" id="batch-mfgdate" required>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-expiry"><span class="required-star">*</span> Expiry Date</label>
+                                        <input type="date" id="batch-expiry" required>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-qty"><span class="required-star">*</span> Quantity to Generate</label>
+                                        <input type="number" id="batch-qty" value="10" min="1" max="1000000" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label><span class="required-star">*</span> Aggregated Batch</label>
+                                        <div class="radio-group">
+                                            <label><input type="radio" name="batch-aggregated" value="true"> Yes</label>
+                                            <label><input type="radio" name="batch-aggregated" value="false" checked> No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="batch-idempotency">
+                            </div>
+
+                            <!-- Panel: Batch Settings -->
+                            <div class="form-section-panel mt-4">
+                                <h4><svg class="panel-header-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>3. Batch Settings</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label><span class="required-star">*</span> Enable Batch</label>
+                                        <div class="radio-group">
+                                            <label><input type="radio" name="batch-enabled" value="true" checked> Yes</label>
+                                            <label><input type="radio" name="batch-enabled" value="false"> No</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group flex-2 mt-4">
+                                        <label class="checkbox-label"><input type="checkbox" id="batch-aggregation"> Check to Enable Package Aggregation</label>
+                                        <label class="checkbox-label mt-2"><input type="checkbox" id="batch-parentcode"> Parent Code Required</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions-centered mt-4">
+                                <div class="button-row">
+                                    <button type="submit" class="btn primary-btn">
+                                        <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Save
+                                    </button>
+                                    <button type="button" class="btn secondary-btn" id="batch-import-btn">
+                                        <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Import Batches
+                                    </button>
+                                </div>
+                                <div class="cancel-row mt-2">
+                                    <a href="#" id="batch-cancel-btn" class="cancel-link">Cancel</a>
+                                </div>
+                                <span class="form-message" id="batch-message"></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 8. BATCH LIST VIEW -->
+                <div class="portal-view hidden" id="view-batch-list">
+                    <div class="card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h3>Manage Batches</h3>
+                                <p>Track batch history, code ranges, and generation statuses.</p>
+                            </div>
+                            <button class="btn primary-btn btn-sm" id="btn-goto-add-batch" onclick="window.goToAddBatch()">Add Batch</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table" id="batches-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Batch ID</th>
+                                            <th>Product ID</th>
+                                            <th>Requested Qty</th>
+                                            <th>Generated Qty</th>
+                                            <th>Sequence Range</th>
+                                            <th>Lot Number</th>
+                                            <th>Expiry</th>
+                                            <th>Status</th>
+                                            <th>Aggregated</th>
+                                            <th>Options</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="batches-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 9. SERIAL VERIFICATION VIEW -->
+                <div class="portal-view hidden" id="view-verification">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Verification</h3>
+                            <p>Lookup a serial, inspect lifecycle, and update status.</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="search-serial">Serial number or GS1 matrix string</label>
+                                <div class="input-with-action">
+                                    <input type="text" id="search-serial" placeholder="7K4M9Q2X8C5R3T6WHPZN" autocomplete="off">
+                                    <button type="button" class="btn primary-btn" id="search-btn">Verify</button>
+                                </div>
+                            </div>
+
+                            <div class="report-box hidden" id="scan-report">
+                                <div class="report-status" id="scan-status-banner">
+                                    <span class="report-title">✓ Serial & Batch Verified</span>
+                                </div>
+
+                                <!-- Verification Breakdown Grid -->
+                                <div class="form-section-panel mt-3">
+                                    <h4>Product & Packaging Details</h4>
+                                    <div class="report-details">
+                                        <div class="detail-row"><span>Product Name</span> <strong id="rep-product-name"></strong></div>
+                                        <div class="detail-row"><span>Product Code</span> <strong id="rep-product"></strong></div>
+                                        <div class="detail-row"><span>GTIN</span> <strong id="rep-gtin" style="color: #0f5d7f; font-family: monospace;"></strong></div>
+                                        <div class="detail-row"><span>Manufacturer</span> <strong id="rep-mfg"></strong></div>
+                                        <div class="detail-row"><span>Plant</span> <strong id="rep-plant"></strong></div>
+                                        <div class="detail-row"><span>Packaging Level</span> <strong id="rep-pkglevel"></strong></div>
+                                        <div class="detail-row"><span>Packaging Size</span> <strong id="rep-pkgsize"></strong></div>
+                                        <div class="detail-row"><span>Serial No Standard</span> <strong id="rep-serial-type"></strong></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section-panel mt-3">
+                                    <h4>Batch Information</h4>
+                                    <div class="report-details">
+                                        <div class="detail-row"><span>Batch ID</span> <strong id="rep-batch-id"></strong></div>
+                                        <div class="detail-row"><span>Batch Number / Lot</span> <strong id="rep-lot"></strong></div>
+                                        <div class="detail-row"><span>Work Order No.</span> <strong id="rep-workorder"></strong></div>
+                                        <div class="detail-row"><span>Manufacturing Date</span> <strong id="rep-mfgdate"></strong></div>
+                                        <div class="detail-row"><span>Expiry Date</span> <strong id="rep-expiry"></strong></div>
+                                        <div class="detail-row"><span>Aggregated Batch</span> <strong id="rep-aggregated"></strong></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section-panel mt-3">
+                                    <h4>Serialized Unit Details</h4>
+                                    <div class="report-details">
+                                        <div class="detail-row"><span>Serial Number</span> <strong id="rep-serial-num" style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; color: #0f5d7f;"></strong></div>
+                                        <div class="detail-row"><span>Sequence No.</span> <strong id="rep-seq"></strong></div>
+                                        <div class="detail-row"><span>Current Status</span> <span class="badge status-badge" id="rep-status-badge"></span></div>
+                                        <div class="detail-row full-width-row">
+                                            <span>Full GS1 DataMatrix String</span>
+                                            <code id="rep-gs1-full" style="display:block; padding:10px 14px; background:#f4f7fb; border:1px solid #c9d4e2; border-radius:6px; margin-top:6px; font-weight:600; color:#0f5d7f; word-break:break-all;"></code>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="matrix-simulation-box mt-3" id="matrix-box">
+                                    <canvas id="matrix-canvas" width="120" height="120"></canvas>
+                                    <div class="matrix-parsed-data">
+                                        <h4>GS1 2D DataMatrix Simulation</h4>
+                                        <div class="barcode-parsed-list">
+                                            <div><span class="ai">(01)</span> <span id="bar-gtin"></span></div>
+                                            <div><span class="ai">(21)</span> <span id="bar-serial"></span></div>
+                                            <div><span class="ai">(10)</span> <span id="bar-lot"></span></div>
+                                            <div><span class="ai">(17)</span> <span id="bar-expiry"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Batch Serials Table if multiple -->
+                                <div class="form-section-panel mt-3 hidden" id="rep-batch-serials-panel">
+                                    <h4>All Serials in Batch (<span id="rep-batch-serials-count"></span>)</h4>
+                                    <div class="table-container mt-2">
+                                        <table class="table compact-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Seq #</th>
+                                                    <th>Serial Number</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="rep-batch-serials-body"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="transition-actions mt-4">
+                                    <label for="target-state">Update Lifecycle Status</label>
+                                    <div class="input-with-action">
+                                        <select id="target-state">
+                                            <option value="" disabled selected>Choose transition</option>
+                                            <option value="ALLOCATED">Allocate</option>
+                                            <option value="SHIPPED">Ship</option>
+                                            <option value="SOLD">Mark sold</option>
+                                            <option value="DECOMMISSIONED">Decommission</option>
+                                        </select>
+                                        <button type="button" class="btn secondary-btn" id="update-status-btn">Apply</button>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-container mt-4">
+                                    <h3>Lifecycle History</h3>
+                                    <ul class="timeline" id="lifecycle-timeline"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 10. AUDIT TRAIL LOGS VIEW -->
+                <div class="portal-view hidden" id="view-audit-logs">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Audit Trail Logs</h3>
+                            <p>Verifiable log of all Product, GTIN, and Batch changes captured inside the database.</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table compact-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>Event</th>
+                                            <th>Table</th>
+                                            <th>Record ID</th>
+                                            <th>Performed By</th>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="audit-logs-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="benefits-section" id="benefits">
+            <div class="section-heading">
+                <p class="eyebrow">Key benefits</p>
+                <h2>Built for practical product protection.</h2>
+            </div>
+            <div class="benefit-grid">
+                <article>
+                    <h3>Secure each unit</h3>
+                    <p>Assign a distinct serial identity to every product unit and maintain a verifiable record.</p>
+                </article>
+                <article>
+                    <h3>Track key events</h3>
+                    <p>Follow generated, allocated, shipped, sold, and decommissioned states from one screen.</p>
+                </article>
+                <article>
+                    <h3>Support recalls</h3>
+                    <p>Use batch and lot context to narrow investigation scope when field action is needed.</p>
+                </article>
+                <article>
+                    <h3>Improve visibility</h3>
+                    <p>Review batch counts and sequence ranges to detect operational gaps quickly.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Pharmaceutical Operations Knowledge Hub & FAQ -->
+        <section class="faq-section" id="faq">
+            <div class="section-heading">
+                <p class="eyebrow">Technical Knowledge Hub</p>
+                <h2>Frequently Asked Questions on Pharmaceutical Serialization.</h2>
+                <p>Standard operating guidance for packaging supervisors, QA compliance officers, and validation engineers.</p>
+            </div>
+            <div class="faq-grid">
+                <article class="faq-card">
+                    <h4><span>❓</span> How does the portal prevent duplicate serial numbers across high-speed packaging lines?</h4>
+                    <p>The serialization engine combines atomic database sequence reservation (using row-level locking on sequence counters) with an OS-level Cryptographically Secure Pseudo-Random Number Generator (CSPRNG). Candidates are cross-referenced across historical chunks, mathematically ensuring zero duplicate allocations.</p>
+                </article>
+                <article class="faq-card">
+                    <h4><span>❓</span> What is the difference between SGTIN-96, EPCIS, and 2D DataMatrix?</h4>
+                    <p><strong>GS1 2D DataMatrix</strong> is the physical two-dimensional barcode printed on the carton. <strong>SGTIN-96</strong> is the 96-bit global unique identifier combining GTIN and Serial Number. <strong>EPCIS (Electronic Product Code Information Services)</strong> is the XML/JSON standard for transmitting supply-chain events between trading partners.</p>
+                </article>
+                <article class="faq-card">
+                    <h4><span>❓</span> Why are look-alike characters (0, 1, I, L, O, U) excluded from serialization?</h4>
+                    <p>In accordance with GS1 General Specifications and global health authority recommendations, visually ambiguous characters are excluded from alphanumeric serialization to prevent Optical Character Recognition (OCR) misreads and human scanning confusion during clinical point-of-dispense.</p>
+                </article>
+                <article class="faq-card">
+                    <h4><span>❓</span> How does the portal support 21 CFR Part 11 and EU GMP Annex 11 inspections?</h4>
+                    <p>All database mutations (creates, updates, and status transitions) generate an immutable Change Data Capture (CDC) audit log containing UTC timestamps, actor usernames, and complete before-and-after JSON snapshots that cannot be modified or truncated by users.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div>
+            <a class="brand footer-brand" href="#top">
+                <span class="brand-mark">BT</span>
+                <span>BT SN Portal</span>
+            </a>
+            <p style="margin-top: 8px; max-width: 420px; font-size: 0.85rem; color: var(--muted);">
+                Enterprise Pharmaceutical Serialization, Track & Trace, and Regulatory Compliance System. Validated for US FDA DSCSA 2024, EU FMD, and DGFT iVEDA compliance.
+            </p>
+            <div style="margin-top: 14px; font-size: 0.78rem; color: var(--muted);">
+                <span>ISO 9001:2015</span> • <span>ISO 27001 Certified</span> • <span>GAMP 5 Category 4 Configured</span>
+            </div>
+        </div>
+        <div class="footer-links">
+            <a href="#compliance">Compliance</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#operations">Operations</a>
+            <a href="#serialization">Portal Console</a>
+            <a href="#faq">Knowledge Hub</a>
+            <a href="#benefits">Key Benefits</a>
+        </div>
+    </footer>
+
+    <!-- Modal for Excel Import Simulation -->
+    <div class="modal hidden" id="mock-import-modal">
+        <div class="modal-content">
+            <h3>Import From Excel</h3>
+            <p>Select a spreadsheet file to simulate bulk records import.</p>
+            <div class="form-group mt-3">
+                <input type="file" id="mock-excel-file" accept=".xls,.xlsx,.csv">
+            </div>
+            <div class="form-actions mt-4">
+                <button class="btn primary-btn" id="btn-mock-import-confirm">Import</button>
+                <button class="btn cancel-btn" id="btn-mock-import-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Audit Log Details Comparison -->
+    <div class="modal hidden" id="audit-details-modal">
+        <div class="modal-content large-modal">
+            <h3>Audit Record Details</h3>
+            <div class="audit-comparison mt-3">
+                <div class="comparison-pane">
+                    <h4>Previous Value</h4>
+                    <pre class="json-code" id="audit-prev-json"></pre>
+                </div>
+                <div class="comparison-pane">
+                    <h4>Updated Value</h4>
+                    <pre class="json-code" id="audit-new-json"></pre>
+                </div>
+            </div>
+            <div class="form-actions mt-4">
+                <button class="btn cancel-btn" id="btn-audit-modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=20260918_20"></script>
+</body>
+</html>
