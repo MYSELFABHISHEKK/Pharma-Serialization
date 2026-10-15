@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, JSON, DateTime, UniqueConstraint
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, JSON, DateTime, UniqueConstraint, Float
 from app.core.database import Base
 
 class Product(Base):
@@ -85,6 +85,18 @@ class Batch(Base):
     package_aggregation = Column(Boolean, default=False)
     parent_code_required = Column(Boolean, default=False)
     aggregated_batch = Column(Boolean, default=False)
+    line_id = Column(String, nullable=True)
+    secondary_ratio = Column(Integer, default=1, nullable=True)
+    tertiary_ratio = Column(Integer, default=1, nullable=True)
+    primary_quantity = Column(Integer, default=0, nullable=True)
+    secondary_quantity = Column(Integer, default=0, nullable=True)
+    tertiary_quantity = Column(Integer, default=0, nullable=True)
+    reconciled_good_count = Column(Integer, default=0, nullable=True)
+    reconciled_rejected_count = Column(Integer, default=0, nullable=True)
+    reconciled_unused_count = Column(Integer, default=0, nullable=True)
+    yield_percentage = Column(Float, default=0.0, nullable=True)
+    is_locked = Column(Boolean, default=False, nullable=True)
+    io_channel = Column(String, default="DIRECT_API", nullable=True)
 
 class Serial(Base):
     __tablename__ = "serials"
@@ -96,12 +108,42 @@ class Serial(Base):
     batch_lot = Column(String, nullable=False)
     expiry_date = Column(String(6), nullable=False)
     status = Column(String, default="GENERATED")
+    packaging_tier = Column(String, default="Primary", nullable=True) # Primary, Secondary, Tertiary
     created_at = Column(String, nullable=False)
     history = Column(JSON, default=list)
 
     __table_args__ = (
         UniqueConstraint('product_id', 'sequence_number', name='_product_sequence_uc'),
     )
+
+class PackagingLine(Base):
+    __tablename__ = "packaging_lines"
+
+    line_id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False) # e.g. "Blister Line 1"
+    plant = Column(String, nullable=False)
+    io_protocol = Column(String, default="DIRECT_API") # DIRECT_API, SHARED_FOLDER, SFTP
+    shared_folder_path = Column(String, nullable=True)
+    sftp_host = Column(String, nullable=True)
+    sftp_port = Column(Integer, default=22)
+    sftp_user = Column(String, nullable=True)
+    sftp_password = Column(String, nullable=True)
+    sftp_drop_folder = Column(String, nullable=True)
+    sftp_inbound_folder = Column(String, nullable=True)
+    api_endpoint = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(String, nullable=False)
+
+class CodePool(Base):
+    __tablename__ = "code_pool"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    gtin = Column(String(14), index=True, nullable=False)
+    serial_number = Column(String(30), unique=True, index=True, nullable=False)
+    packaging_tier = Column(String, default="Primary", nullable=False) # Primary, Secondary, Tertiary
+    status = Column(String, default="AVAILABLE", index=True, nullable=False) # AVAILABLE, RESERVED, COMMITTED, REJECTED
+    batch_id = Column(String, nullable=True, index=True)
+    imported_at = Column(String, nullable=False)
 
 class ProductSequence(Base):
     __tablename__ = "product_sequences"
@@ -156,3 +198,27 @@ class AuditLog(Base):
     updated_value = Column(String, nullable=True) # JSON String
     performed_by = Column(String, default="system")
     timestamp = Column(String, nullable=False)
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    full_name = Column(String(100), nullable=False)
+    role = Column(String(50), default="Packaging Line Supervisor", nullable=False)
+    plant = Column(String(50), default="TESTPLANT", nullable=True)
+    password_hash = Column(String(255), nullable=False)
+    salt = Column(String(64), nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(String, nullable=False)
+    last_login = Column(String, nullable=True)
+
+class UserSession(Base):
+    __tablename__ = "user_sessions"
+
+    token = Column(String(128), primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(String, nullable=False)
+    expires_at = Column(String, nullable=False)
+

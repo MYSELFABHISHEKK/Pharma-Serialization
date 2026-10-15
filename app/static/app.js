@@ -2,6 +2,7 @@
 
 let registeredProducts = [];
 let registeredGtins = [];
+let registeredLines = [];
 let currentProductFormMode = "ADD"; // "ADD" or "EDIT"
 let currentProductFormId = "";
 let currentGtinFormMode = "ADD"; // "ADD" or "EDIT"
@@ -17,6 +18,307 @@ function safeAddListener(id, event, handler) {
     }
 }
 
+// ----------------- 21 CFR Part 11 Authentication Manager -----------------
+const AUTH_TOKEN_KEY = "btsn_auth_token";
+const AUTH_USER_KEY = "btsn_auth_user";
+let currentAuthUser = null;
+
+function getAuthToken() {
+    return localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+function setAuthSession(token, user) {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+    currentAuthUser = user;
+}
+
+function clearAuthSession() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    currentAuthUser = null;
+}
+
+function getStoredUser() {
+    try {
+        const u = localStorage.getItem(AUTH_USER_KEY);
+        return u ? JSON.parse(u) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function updateAuthUI(user) {
+    const navBtn = document.getElementById("btn-open-auth-modal");
+    const badge = document.getElementById("user-profile-badge");
+    const nameEl = document.getElementById("user-display-name");
+    const roleEl = document.getElementById("user-display-role");
+    const avatarEl = document.getElementById("user-avatar-initials");
+
+    if (user) {
+        if (navBtn) navBtn.classList.add("hidden");
+        if (badge) badge.classList.remove("hidden");
+        if (nameEl) nameEl.textContent = user.full_name || user.username;
+        if (roleEl) roleEl.textContent = `${user.role || "Operator"} • ${user.plant || "TESTPLANT"}`;
+        
+        if (avatarEl) {
+            const names = (user.full_name || user.username || "U").trim().split(" ");
+            const initials = names.length > 1 ? (names[0][0] + names[names.length - 1][0]).toUpperCase() : names[0].slice(0, 2).toUpperCase();
+            avatarEl.textContent = initials;
+        }
+    } else {
+        if (navBtn) navBtn.classList.remove("hidden");
+        if (badge) badge.classList.add("hidden");
+    }
+}
+
+function showAuthOverlay() {
+    const overlay = document.getElementById("auth-overlay");
+    if (overlay) overlay.classList.remove("hidden");
+}
+
+function hideAuthOverlay() {
+    const overlay = document.getElementById("auth-overlay");
+    if (overlay) overlay.classList.add("hidden");
+}
+
+function showAuthAlert(message, type = "error") {
+    const el = document.getElementById("auth-alert-box");
+    if (!el) return;
+    el.textContent = message;
+    el.className = `auth-alert ${type}`;
+    el.classList.remove("hidden");
+}
+
+function clearAuthAlert() {
+    const el = document.getElementById("auth-alert-box");
+    if (el) el.classList.add("hidden");
+}
+
+async function doLogin(username, password) {
+    clearAuthAlert();
+
+    const submitBtn = document.getElementById("btn-submit-login");
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Signing in...";
+    }
+
+    try {
+        const res = await fetch("/api/v1/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            showAuthAlert(data.detail || "Authentication failed. Please verify your credentials.", "error");
+        } else {
+            setAuthSession(data.access_token, data.user);
+            updateAuthUI(data.user);
+            hideAuthOverlay();
+            showNotification(`Welcome back, ${data.user.full_name}!`, "success");
+            const consoleEl = document.getElementById("serialization");
+            if (consoleEl) consoleEl.scrollIntoView({ behavior: "smooth" });
+        }
+    } catch (err) {
+        showAuthAlert("Network connection error to authorization gateway.", "error");
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign in";
+        }
+    }
+}
+
+async function checkAuthSession() {
+    const token = getAuthToken();
+    const stored = getStoredUser();
+    if (stored) {
+        currentAuthUser = stored;
+        updateAuthUI(stored);
+    }
+
+    if (!token) {
+        showAuthOverlay();
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/v1/auth/me", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const user = await res.json();
+            setAuthSession(token, user);
+            updateAuthUI(user);
+        } else {
+            clearAuthSession();
+            updateAuthUI(null);
+            showAuthOverlay();
+        }
+    } catch (e) {
+        if (stored) {
+            updateAuthUI(stored);
+        } else {
+            showAuthOverlay();
+        }
+    }
+}
+
+function setupAuthHandlers() {
+    safeAddListener("btn-open-auth-modal", "click", () => {
+        showAuthOverlay();
+    });
+
+    safeAddListener("btn-close-auth", "click", () => {
+        hideAuthOverlay();
+    });
+
+    safeAddListener("nav-open-portal", "click", (e) => {
+        if (!getAuthToken()) {
+            e.preventDefault();
+            showAuthOverlay();
+        }
+    });
+
+    function setAuthMode(mode) {
+        clearAuthAlert();
+        const formLogin = document.getElementById("form-login");
+        const formSignup = document.getElementById("form-signup");
+        const title = document.getElementById("auth-card-title");
+        const subtitle = document.getElementById("auth-card-subtitle");
+
+        if (mode === "signup") {
+            if (formLogin) formLogin.classList.add("hidden");
+            if (formSignup) formSignup.classList.remove("hidden");
+            if (title) title.textContent = "Create account";
+            if (subtitle) subtitle.textContent = "to register as a portal user";
+        } else {
+            if (formSignup) formSignup.classList.add("hidden");
+            if (formLogin) formLogin.classList.remove("hidden");
+            if (title) title.textContent = "Sign in";
+            if (subtitle) subtitle.textContent = "to continue to BT SN Portal";
+        }
+    }
+
+    safeAddListener("btn-go-signup", "click", () => setAuthMode("signup"));
+    safeAddListener("btn-go-login", "click", () => setAuthMode("login"));
+
+    safeAddListener("toggle-login-pwd", "click", () => {
+        const pwdInput = document.getElementById("login-password");
+        if (pwdInput) {
+            pwdInput.type = pwdInput.type === "password" ? "text" : "password";
+        }
+    });
+
+    safeAddListener("btn-demo-admin", "click", () => {
+        const uInput = document.getElementById("login-username");
+        const pInput = document.getElementById("login-password");
+        if (uInput) uInput.value = "admin";
+        if (pInput) pInput.value = "Admin@1234";
+        doLogin("admin", "Admin@1234");
+    });
+
+    safeAddListener("btn-demo-operator", "click", () => {
+        const uInput = document.getElementById("login-username");
+        const pInput = document.getElementById("login-password");
+        if (uInput) uInput.value = "operator";
+        if (pInput) pInput.value = "Operator@1234";
+        doLogin("operator", "Operator@1234");
+    });
+
+    const formLogin = document.getElementById("form-login");
+    if (formLogin) {
+        formLogin.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const username = (document.getElementById("login-username")?.value || "").trim();
+            const password = document.getElementById("login-password")?.value || "";
+            await doLogin(username, password);
+        });
+    }
+
+    const formSignup = document.getElementById("form-signup");
+    if (formSignup) {
+        formSignup.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearAuthAlert();
+
+            const fullName = (document.getElementById("signup-fullname")?.value || "").trim();
+            const email = (document.getElementById("signup-email")?.value || "").trim();
+            let username = (document.getElementById("signup-username")?.value || "").trim();
+            const password = document.getElementById("signup-password")?.value || "";
+
+            if (!username && email) {
+                username = email.split("@")[0];
+            }
+
+            if (password.length < 6) {
+                showAuthAlert("Password must be at least 6 characters.", "error");
+                return;
+            }
+
+            const submitBtn = document.getElementById("btn-submit-signup");
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Creating account...";
+            }
+
+            try {
+                const res = await fetch("/api/v1/auth/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        full_name: fullName,
+                        username: username,
+                        email: email,
+                        password: password,
+                        role: "Packaging Line Supervisor",
+                        plant: "TESTPLANT"
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    showAuthAlert(data.detail || "Account creation failed.", "error");
+                } else {
+                    setAuthSession(data.access_token, data.user);
+                    updateAuthUI(data.user);
+                    hideAuthOverlay();
+                    showNotification(`Welcome to BT SN Portal, ${data.user.full_name}!`, "success");
+                    const consoleEl = document.getElementById("serialization");
+                    if (consoleEl) consoleEl.scrollIntoView({ behavior: "smooth" });
+                }
+            } catch (err) {
+                showAuthAlert("Network connection error.", "error");
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Create account";
+                }
+            }
+        });
+    }
+
+    safeAddListener("btn-sign-out", "click", async () => {
+        const token = getAuthToken();
+        if (token) {
+            try {
+                await fetch("/api/v1/auth/logout", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+            } catch (e) {
+                console.error("Logout request error", e);
+            }
+        }
+        clearAuthSession();
+        updateAuthUI(null);
+        showNotification("You have been signed out safely.", "info");
+        showAuthOverlay();
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initApp();
 });
@@ -25,11 +327,16 @@ function initApp() {
     checkSystemHealth();
     setInterval(checkSystemHealth, 10000);
     
+    // Setup authentication lifecycle
+    setupAuthHandlers();
+    checkAuthSession();
+
     // Setup routing and UI controls immediately
     setupRouting();
     setupDropdownToggles();
     setupProductDropdownListeners();
     setupSerialTypeHandlers();
+    setupStatusToggleListeners();
     setupEventListeners();
     setupFileHandlers();
     
@@ -94,6 +401,8 @@ function setupRouting() {
             if (btn.id === "sub-add-product") resetProductForm();
             if (btn.id === "sub-add-gtin")    resetGtinForm();
             if (btn.id === "sub-add-batch")   resetBatchForm();
+            if (btn.id === "sub-add-line")    resetLineForm();
+            if (btn.id === "sub-add-io")      populateIoForm();
 
             switchView(viewId);
         });
@@ -157,6 +466,7 @@ function loadAllData() {
     loadGtins();
     loadBatches();
     loadAuditLogs();
+    loadLines();
 }
 
 async function loadAllCounts() {
@@ -228,6 +538,81 @@ async function loadAuditLogs() {
         }
     } catch (e) {
         console.error("Failed to load audit logs", e);
+    }
+}
+
+async function loadLines() {
+    try {
+        const res = await fetch("/api/v1/lines");
+        if (res.ok) {
+            registeredLines = await res.json();
+            populateLineDropdown();
+            renderLineList(registeredLines);
+            populateIoLineDropdown();
+        }
+    } catch (e) {
+        console.error("Failed to load packaging lines", e);
+    }
+}
+
+function populateLineDropdown() {
+    const sel = document.getElementById("batch-line");
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = `<option value="" disabled selected>-- Select Packaging Line --</option>`;
+    registeredLines.forEach(l => {
+        const opt = document.createElement("option");
+        opt.value = l.line_id;
+        const lineName = l.name || l.line_name || l.line_id;
+        const proto = l.io_protocol || l.protocol || "DIRECT_API";
+        opt.textContent = `${lineName} (${l.line_id}) - ${proto}`;
+        sel.appendChild(opt);
+    });
+    if (currentVal) sel.value = currentVal;
+}
+
+function updateRecipeCalculation() {
+    const qtyInput = document.getElementById("batch-qty");
+    const secRatioInput = document.getElementById("batch-ratio-sec");
+    const terRatioInput = document.getElementById("batch-ratio-ter");
+    const prodIdInput = document.getElementById("batch-product-id");
+
+    const priEl = document.getElementById("calc-pri-qty");
+    const secEl = document.getElementById("calc-sec-qty");
+    const terEl = document.getElementById("calc-ter-qty");
+    const totalEl = document.getElementById("calc-total-qty");
+    const zeroNote = document.getElementById("recipe-zero-limit-note");
+
+    if (!qtyInput) return;
+
+    const qPri = Math.max(parseInt(qtyInput.value || 0, 10), 0);
+    const rSec = Math.max(parseInt(secRatioInput ? secRatioInput.value : 10, 10) || 1, 1);
+    const rTer = Math.max(parseInt(terRatioInput ? terRatioInput.value : 10, 10) || 1, 1);
+
+    let qSec = qPri > 0 ? Math.ceil(qPri / rSec) : 0;
+    let qTer = qSec > 0 ? Math.ceil(qSec / rTer) : 0;
+
+    let zeroLimitHit = false;
+    const productId = prodIdInput ? prodIdInput.value : "";
+    if (productId && registeredGtins && registeredGtins.length > 0) {
+        const productGtins = registeredGtins.filter(g => g.product_id === productId);
+        productGtins.forEach(g => {
+            const level = (g.packaging_level || "").toLowerCase();
+            if (g.limit === 0) {
+                zeroLimitHit = true;
+                if (level.includes("sec")) qSec = 0;
+                if (level.includes("ter")) qTer = 0;
+            }
+        });
+    }
+
+    if (priEl) priEl.textContent = qPri;
+    if (secEl) secEl.textContent = qSec;
+    if (terEl) terEl.textContent = qTer;
+    if (totalEl) totalEl.textContent = (qPri + qSec + qTer);
+    if (zeroNote) {
+        if (zeroLimitHit) zeroNote.classList.remove("hidden");
+        else zeroNote.classList.add("hidden");
     }
 }
 
@@ -313,15 +698,53 @@ function renderBatchList(batches) {
     tbody.innerHTML = "";
 
     if (batches.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center">No batch generations found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center">No batch generations found.</td></tr>`;
         return;
     }
 
     batches.forEach(b => {
         const tr = document.createElement("tr");
-        const statusClass = b.status === "COMPLETED" ? "badge-success" : (b.status === "FAILED" ? "badge-danger" : "badge-warning");
-        const seqRange = b.status === "COMPLETED" ? `${b.start_sequence} - ${b.end_sequence}` : "N/A";
         
+        let statusClass = "badge-secondary";
+        let statusLabel = b.status || "UNKNOWN";
+        if (b.status === "COMPLETED") { statusClass = "badge-success"; }
+        else if (b.status === "LOADED") { statusClass = "badge-info"; }
+        else if (b.status === "STARTED") { statusClass = "badge-warning"; }
+        else if (b.status === "RECONCILED") { statusClass = "badge-primary"; }
+        else if (b.status === "CLOSED") { statusClass = "badge-dark"; statusLabel = "🔒 CLOSED"; }
+        else if (b.status === "FAILED") { statusClass = "badge-danger"; }
+
+        const seqRange = (b.start_sequence && b.end_sequence) ? `${b.start_sequence} - ${b.end_sequence}` : "N/A";
+        
+        let actionButtons = [];
+        
+        // Phase 2: Load
+        if (b.status === "COMPLETED" || b.status === "CREATED") {
+            actionButtons.push(`<button class="btn primary-btn btn-sm" onclick="window.loadBatch('${b.batch_id}')" style="margin-right:4px;" title="Phase 2: Dispatch batch to Level 2 Line">Load</button>`);
+        }
+        // Phase 3: Start
+        else if (b.status === "LOADED") {
+            actionButtons.push(`<button class="btn primary-btn btn-sm" onclick="window.startBatch('${b.batch_id}')" style="margin-right:4px;" title="Phase 3: Trigger start on Level 2 Line">Start</button>`);
+        }
+        // Phase 3: Reconcile
+        else if (b.status === "STARTED") {
+            const totalSerials = b.generated_quantity || b.requested_quantity || 0;
+            actionButtons.push(`<button class="btn primary-btn btn-sm" onclick="window.openReconcileModal('${b.batch_id}', ${totalSerials})" style="margin-right:4px;" title="Phase 3: Submit Good/Rejected/Unused counts">Reconcile</button>`);
+        }
+        // Phase 4: Close
+        else if (b.status === "RECONCILED") {
+            actionButtons.push(`<button class="btn primary-btn btn-sm" onclick="window.closeBatch('${b.batch_id}')" style="margin-right:4px;" title="Phase 4: Close and lock batch">Close</button>`);
+        }
+
+        // Compliance Reports
+        if (b.status === "RECONCILED" || b.status === "CLOSED" || b.reconciled_good_count !== null) {
+            actionButtons.push(`<button class="btn secondary-btn btn-sm" onclick="window.downloadXmlReport('${b.batch_id}')" style="margin-right:4px;" title="Export GS1 EPCIS XML compliance report">XML</button>`);
+            actionButtons.push(`<button class="btn secondary-btn btn-sm" onclick="window.showBatchSummary('${b.batch_id}')" style="margin-right:4px;" title="View Batch Summary and Metrics">Summary</button>`);
+        }
+
+        // Always allow Verify
+        actionButtons.push(`<button class="btn secondary-btn btn-sm" onclick="window.verifyDirectSerial('${b.batch_id}')">Verify</button>`);
+
         tr.innerHTML = `
             <td><strong>${b.batch_id}</strong></td>
             <td>${b.product_id}</td>
@@ -330,12 +753,9 @@ function renderBatchList(batches) {
             <td><code>${seqRange}</code></td>
             <td>${b.batch_lot}</td>
             <td>${formatExpiryForDisplay(b.expiry_date)}</td>
-            <td><span class="badge ${statusClass}">${b.status}</span></td>
+            <td><span class="badge ${statusClass}">${statusLabel}</span></td>
             <td><span class="badge ${b.aggregated_batch ? 'badge-info' : 'badge-secondary'}">${b.aggregated_batch ? 'Yes' : 'No'}</span></td>
-            <td>
-                <button class="btn primary-btn btn-sm" onclick="window.verifyDirectSerial('${b.batch_id}')" style="margin-right: 4px;">Verify</button>
-                <button class="btn secondary-btn btn-sm" onclick="editBatch('${b.batch_id}')">Edit</button>
-            </td>
+            <td>${actionButtons.join(" ")}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -369,23 +789,6 @@ function renderAuditLogs(logs) {
     });
 }
 
-// ----------------- Routing & Tab Switching -----------------
-function setupRouting() {
-    document.querySelectorAll(".portal-nav-btn, .portal-nav-sub-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const viewId = btn.getAttribute("data-view");
-            if (viewId) {
-                // If clicking Add Product / Add GTIN / Add Batch from menu, set forms to ADD mode
-                if (btn.id === "sub-add-product") resetProductForm();
-                if (btn.id === "sub-add-gtin") resetGtinForm();
-                if (btn.id === "sub-add-batch") resetBatchForm();
-
-                switchView(viewId);
-            }
-        });
-    });
-}
-
 function switchView(viewId) {
     document.querySelectorAll(".portal-view").forEach(view => {
         view.classList.add("hidden");
@@ -412,6 +815,30 @@ function switchView(viewId) {
             const dropBtn = parentDropdown.querySelector(".portal-nav-btn");
             if (dropBtn) dropBtn.classList.add("active");
         }
+    }
+
+    // Auto-refresh data when landing on views
+    if (viewId === "view-line-list") {
+        loadLines();
+    } else if (viewId === "view-line-io") {
+        populateIoForm();
+    } else if (viewId === "view-sn-import") {
+        setupPoolImportView();
+        window.loadCodePoolStats();
+    } else if (viewId === "view-batch-xml") {
+        setupXmlReportView();
+    } else if (viewId === "view-report-summary") {
+        window.loadBatchSummaryReport();
+    } else if (viewId === "view-report-detail") {
+        setupBatchReportDetailView();
+    } else if (viewId === "view-product-list") {
+        loadProducts();
+    } else if (viewId === "view-gtin-list") {
+        loadGtins();
+    } else if (viewId === "view-batch-list") {
+        loadBatches();
+    } else if (viewId === "view-audit-logs") {
+        loadAuditLogs();
     }
 }
 
@@ -705,6 +1132,13 @@ function resetBatchForm() {
     if (prodId) prodId.value = "";
     const prodInput = document.getElementById("batch-product-input");
     if (prodInput) prodInput.value = "";
+    
+    const secRatio = document.getElementById("batch-ratio-sec");
+    if (secRatio) secRatio.value = 10;
+    const terRatio = document.getElementById("batch-ratio-ter");
+    if (terRatio) terRatio.value = 10;
+    updateRecipeCalculation();
+
     generateNewBatchIdempotencyKey();
 }
 
@@ -892,6 +1326,21 @@ function setupSerialTypeHandlers() {
     }
 }
 
+// ----------------- Segmented Status Toggle Listeners -----------------
+function setupStatusToggleListeners() {
+    document.querySelectorAll(".status-toggle-group input[type='radio']").forEach(radio => {
+        radio.addEventListener("change", () => {
+            const group = radio.closest(".status-toggle-group");
+            if (!group) return;
+            group.querySelectorAll(".status-toggle-btn").forEach(btn => btn.classList.remove("is-checked"));
+            const parentBtn = radio.closest(".status-toggle-btn");
+            if (parentBtn && radio.checked) {
+                parentBtn.classList.add("is-checked");
+            }
+        });
+    });
+}
+
 function updateBatchGtinFromStore() {
     const prodIdEl = document.getElementById("batch-product-id");
     const pkgLevelEl = document.getElementById("batch-pkglevel");
@@ -947,6 +1396,7 @@ function updateBatchGtinFromStore() {
             if (badgeEl) badgeEl.classList.add("hidden");
         }
     }
+    updateRecipeCalculation();
 }
 
 // ----------------- Image Base64 Conversion -----------------
@@ -1112,6 +1562,65 @@ function setupEventListeners() {
         if (e.key === "Enter") performSerialLookup();
     });
     safeAddListener("update-status-btn", "click", performSerialTransition);
+
+    // Reconcile and Summary Modal Buttons
+    safeAddListener("btn-submit-reconcile", "click", () => {
+        if (window.submitReconciliation) window.submitReconciliation();
+    });
+    safeAddListener("btn-close-reconcile-modal", "click", () => {
+        if (window.closeReconcileModal) window.closeReconcileModal();
+    });
+    safeAddListener("btn-close-summary-modal", "click", () => {
+        if (window.closeSummaryModal) window.closeSummaryModal();
+    });
+
+    // Live Recipe Calculation Listeners
+    safeAddListener("batch-qty", "input", updateRecipeCalculation);
+    safeAddListener("batch-ratio-sec", "input", updateRecipeCalculation);
+    safeAddListener("batch-ratio-ter", "input", updateRecipeCalculation);
+
+    // Packaging Lines & I/O Listeners
+    safeAddListener("line-form", "submit", handleLineSaveSubmit);
+    safeAddListener("line-io-form", "submit", handleLineIoSaveSubmit);
+    safeAddListener("btn-test-line-io", "click", () => window.testLineConnectivity());
+    safeAddListener("io-select-line", "change", (e) => populateIoForm(e.target.value));
+    safeAddListener("io-select-protocol", "change", (e) => toggleIoPanels(e.target.value));
+    safeAddListener("line-protocol-select", "change", (e) => {
+        const directInput = document.getElementById("line-api-endpoint");
+        const lineIdVal = (document.getElementById("line-id-input")?.value || "line-04").toLowerCase();
+        if (directInput && !directInput.value && e.target.value === "DIRECT_API") {
+            directInput.value = `http://127.0.0.1:8000/api/v1/l2/mock-controller/${lineIdVal}`;
+        }
+    });
+
+    // Code Pool Reservoir Listeners
+    safeAddListener("pool-import-form", "submit", handleCodePoolImportSubmit);
+    safeAddListener("pool-import-product", "change", (e) => {
+        const prodId = e.target.value;
+        const p = registeredProducts.find(prod => prod.product_id === prodId);
+        const gtinInput = document.getElementById("pool-import-gtin");
+        if (gtinInput && p && p.gtin) {
+            gtinInput.value = p.gtin;
+        } else {
+            const g = registeredGtins.find(gt => gt.product_id === prodId);
+            if (gtinInput && g && g.gtin) gtinInput.value = g.gtin;
+        }
+    });
+    safeAddListener("pool-import-file", "change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            const textarea = document.getElementById("pool-import-serials");
+            if (textarea) textarea.value = evt.target.result;
+        };
+        reader.readAsText(file);
+    });
+
+    // XML Report & Detailed Report Listeners
+    safeAddListener("btn-preview-xml", "click", previewSelectedXml);
+    safeAddListener("btn-download-selected-xml", "click", downloadSelectedXml);
+    safeAddListener("btn-load-detail-report", "click", loadDetailedBatchReport);
 }
 
 // ----------------- Save Handlers -----------------
@@ -1406,6 +1915,13 @@ async function handleBatchSaveSubmit(e) {
     const parentEl = document.getElementById("batch-parentcode");
     const parentCodeRequired = parentEl ? parentEl.checked : false;
 
+    const lineId = getVal("batch-line") || "Line 01";
+    const ioChannel = getVal("batch-io-channel") || "DIRECT_API";
+    const secRatioVal = getVal("batch-ratio-sec");
+    const terRatioVal = getVal("batch-ratio-ter");
+    const secRatio = secRatioVal ? parseInt(secRatioVal, 10) : 10;
+    const terRatio = terRatioVal ? parseInt(terRatioVal, 10) : 10;
+
     const payload = {
         manufacturer,
         plant,
@@ -1422,7 +1938,11 @@ async function handleBatchSaveSubmit(e) {
         package_aggregation: packageAggregation,
         parent_code_required: parentCodeRequired,
         aggregated_batch: isAggregatedBatch,
-        idempotency_key: idempotencyKey
+        idempotency_key: idempotencyKey,
+        line_id: lineId,
+        io_channel: ioChannel,
+        secondary_ratio: secRatio,
+        tertiary_ratio: terRatio
     };
 
     const msg = document.getElementById("batch-message");
@@ -1942,3 +2462,792 @@ function unescapeHtml(str) {
         .replace(/&quot;/g, '"')
         .replace(/&#039;/g, "'");
 }
+
+// ============================================================
+// Phase 2, 3, 4 Batch Execution Lifecycle Functions
+// ============================================================
+
+window.loadBatch = async function(batchId) {
+    if (!confirm(`Dispatch batch '${batchId}' to Level 2 packaging line controller?`)) return;
+    try {
+        const res = await fetch(`/api/v1/batches/${batchId}/load`, {
+            method: "POST"
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`Batch '${batchId}' successfully loaded to ${data.destination}.\nRecords Transmitted: ${data.total_records_transmitted}`);
+            loadBatches();
+            loadAuditLogs();
+        } else {
+            alert(`Load Batch Error: ${data.detail || "Failed to load batch."}`);
+        }
+    } catch (e) {
+        alert("Error: connection failed while loading batch.");
+    }
+};
+
+window.startBatch = async function(batchId) {
+    if (!confirm(`Trigger START signal for batch '${batchId}' on Level 2 packaging line?`)) return;
+    try {
+        const res = await fetch(`/api/v1/batches/${batchId}/start`, {
+            method: "POST"
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`Batch '${batchId}' started. Level 3 is now in execution monitoring state.`);
+            loadBatches();
+            loadAuditLogs();
+        } else {
+            alert(`Start Batch Error: ${data.detail || "Failed to start batch."}`);
+        }
+    } catch (e) {
+        alert("Error: connection failed while starting batch.");
+    }
+};
+
+window.openReconcileModal = function(batchId, totalCount) {
+    const modal = document.getElementById("batch-reconcile-modal");
+    if (!modal) return;
+    
+    document.getElementById("reconcile-batch-id").value = batchId;
+    document.getElementById("reconcile-modal-subtitle").textContent = `Submit physical inspection counts for Batch: ${batchId}`;
+    document.getElementById("reconcile-total-serials").textContent = totalCount;
+    
+    document.getElementById("reconcile-good-count").value = totalCount;
+    document.getElementById("reconcile-rejected-count").value = 0;
+    document.getElementById("reconcile-unused-count").value = 0;
+    
+    const msg = document.getElementById("reconcile-validation-msg");
+    if (msg) {
+        msg.textContent = "";
+        msg.className = "form-message";
+    }
+    
+    modal.classList.remove("hidden");
+};
+
+window.closeReconcileModal = function() {
+    const modal = document.getElementById("batch-reconcile-modal");
+    if (modal) modal.classList.add("hidden");
+};
+
+window.submitReconciliation = async function() {
+    const batchId = document.getElementById("reconcile-batch-id").value;
+    const totalCount = parseInt(document.getElementById("reconcile-total-serials").textContent || 0, 10);
+    const good = parseInt(document.getElementById("reconcile-good-count").value || 0, 10);
+    const rejected = parseInt(document.getElementById("reconcile-rejected-count").value || 0, 10);
+    const unused = parseInt(document.getElementById("reconcile-unused-count").value || 0, 10);
+    const msg = document.getElementById("reconcile-validation-msg");
+
+    if (good < 0 || rejected < 0 || unused < 0) {
+        msg.textContent = "Counts cannot be negative.";
+        msg.className = "form-message error";
+        return;
+    }
+
+    if ((good + rejected + unused) > totalCount) {
+        msg.textContent = `Total reconciled items (${good + rejected + unused}) cannot exceed batch total (${totalCount}).`;
+        msg.className = "form-message error";
+        return;
+    }
+
+    msg.textContent = "Submitting reconciliation...";
+    msg.className = "form-message";
+
+    try {
+        const res = await fetch(`/api/v1/batches/${batchId}/reconcile`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                good_count: good,
+                rejected_count: rejected,
+                unused_count: unused,
+                operator_id: "operator-01"
+            })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert(`Reconciliation complete for '${batchId}'.\nGood Units (COMMITTED): ${data.good_count}\nRejected Units: ${data.rejected_count}\nUnused Returned: ${data.unused_count}`);
+            window.closeReconcileModal();
+            loadBatches();
+            loadAuditLogs();
+        } else {
+            msg.textContent = `Error: ${data.detail || "Failed to reconcile batch."}`;
+            msg.className = "form-message error";
+        }
+    } catch (e) {
+        msg.textContent = "Error: connection failed.";
+        msg.className = "form-message error";
+    }
+};
+
+window.closeBatch = async function(batchId) {
+    if (!confirm(`Are you sure you want to CLOSE and LOCK batch '${batchId}'?\nThis will finalize production metrics and prepare compliance XML.`)) return;
+    try {
+        const res = await fetch(`/api/v1/batches/${batchId}/close`, {
+            method: "POST"
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`Batch '${batchId}' CLOSED and LOCKED.\nFinal Yield: ${data.yield_percentage}%\nStatus: CLOSED`);
+            loadBatches();
+            loadAuditLogs();
+        } else {
+            alert(`Close Batch Error: ${data.detail || "Failed to close batch."}`);
+        }
+    } catch (e) {
+        alert("Error: connection failed while closing batch.");
+    }
+};
+
+window.downloadXmlReport = function(batchId) {
+    window.open(`/api/v1/batches/${batchId}/xml-report`, "_blank");
+};
+
+window.showBatchSummary = async function(batchId) {
+    try {
+        const res = await fetch(`/api/v1/batches/${batchId}/summary`);
+        if (!res.ok) {
+            const err = await res.json();
+            alert(`Failed to load summary: ${err.detail || "Not found"}`);
+            return;
+        }
+        const b = await res.json();
+        
+        const modal = document.getElementById("batch-summary-modal");
+        const grid = document.getElementById("summary-metrics-grid");
+        const lockBadge = document.getElementById("summary-lock-badge");
+        const exportBtn = document.getElementById("btn-summary-export-xml");
+
+        if (lockBadge) {
+            lockBadge.textContent = b.is_locked ? "🔒 LOCKED & CLOSED" : b.status;
+            lockBadge.className = `badge ${b.is_locked ? "badge-dark" : "badge-info"}`;
+        }
+
+        if (exportBtn) {
+            exportBtn.onclick = () => window.downloadXmlReport(b.batch_id);
+        }
+
+        if (grid) {
+            grid.innerHTML = `
+                <div class="detail-row"><span>Batch ID</span> <strong>${b.batch_id}</strong></div>
+                <div class="detail-row"><span>Product Code</span> <strong>${b.product_id}</strong></div>
+                <div class="detail-row"><span>Lot Number</span> <strong>${b.batch_lot}</strong></div>
+                <div class="detail-row"><span>Work Order</span> <strong>${b.work_order_no || 'N/A'}</strong></div>
+                <div class="detail-row"><span>Packaging Line</span> <strong>${b.line_id || 'Line 01'}</strong></div>
+                <div class="detail-row"><span>Transfer Protocol</span> <strong>${b.io_channel || 'DIRECT_API'}</strong></div>
+                <div class="detail-row"><span>Requested Qty</span> <strong>${b.requested_quantity}</strong></div>
+                <div class="detail-row"><span>Generated Qty</span> <strong>${b.generated_quantity}</strong></div>
+                <div class="detail-row"><span>Primary / Sec / Ter Ratios</span> <strong>1 : ${b.secondary_ratio || 10} : ${b.tertiary_ratio || 10}</strong></div>
+                <div class="detail-row"><span>Tier Breakdown</span> <strong>Pri: ${b.primary_quantity || 0} | Sec: ${b.secondary_quantity || 0} | Ter: ${b.tertiary_quantity || 0}</strong></div>
+                <div class="detail-row" style="background:#e6f4ea;"><span>Reconciled Good</span> <strong style="color:#137333;">${b.reconciled_good_count !== null ? b.reconciled_good_count : 'N/A'}</strong></div>
+                <div class="detail-row" style="background:#fce8e6;"><span>Reconciled Rejected</span> <strong style="color:#c5221f;">${b.reconciled_rejected_count !== null ? b.reconciled_rejected_count : 'N/A'}</strong></div>
+                <div class="detail-row"><span>Unused Pool Units</span> <strong>${b.reconciled_unused_count !== null ? b.reconciled_unused_count : 'N/A'}</strong></div>
+                <div class="detail-row" style="background:#e0f2fe;"><span>Yield Percentage</span> <strong style="color:#0369a1; font-size:1.1rem;">${b.yield_percentage !== null ? b.yield_percentage + '%' : 'Pending'}</strong></div>
+            `;
+        }
+
+        if (modal) modal.classList.remove("hidden");
+    } catch (e) {
+        alert("Error loading batch summary.");
+    }
+};
+
+window.closeSummaryModal = function() {
+    const modal = document.getElementById("batch-summary-modal");
+    if (modal) modal.classList.add("hidden");
+};
+
+// ============================================================
+// Packaging Line Equipment & I/O Communication Route Handlers
+// ============================================================
+
+function resetLineForm() {
+    const idInput = document.getElementById("line-id-input");
+    const nameInput = document.getElementById("line-name-input");
+    const plantInput = document.getElementById("line-plant-input");
+    const protoSelect = document.getElementById("line-protocol-select");
+    const apiInput = document.getElementById("line-api-endpoint");
+    const msg = document.getElementById("line-form-msg");
+
+    if (idInput) { idInput.value = ""; idInput.readOnly = false; }
+    if (nameInput) nameInput.value = "";
+    if (plantInput) plantInput.value = "TESTPLANT";
+    if (protoSelect) protoSelect.value = "DIRECT_API";
+    if (apiInput) apiInput.value = "";
+    if (msg) { msg.textContent = ""; msg.className = "form-message"; }
+
+    const activeRadios = document.getElementsByName("line-active");
+    activeRadios.forEach(r => {
+        if (r.value === "true") {
+            r.checked = true;
+            r.dispatchEvent(new Event("change"));
+        } else {
+            r.checked = false;
+        }
+    });
+}
+
+async function handleLineSaveSubmit(e) {
+    e.preventDefault();
+    const lineId = (document.getElementById("line-id-input")?.value || "").trim().toUpperCase();
+    const lineName = (document.getElementById("line-name-input")?.value || "").trim();
+    const plant = document.getElementById("line-plant-input")?.value || "TESTPLANT";
+    const protocol = document.getElementById("line-protocol-select")?.value || "DIRECT_API";
+    const apiEndpoint = (document.getElementById("line-api-endpoint")?.value || "").trim();
+    const activeRadio = document.querySelector('input[name="line-active"]:checked');
+    const isActive = activeRadio ? activeRadio.value === "true" : true;
+    const msg = document.getElementById("line-form-msg");
+
+    if (!lineId) return alert("Please enter Packaging Line ID (e.g. LINE-04).");
+    if (!lineName) return alert("Please enter Packaging Line Name.");
+    if (!plant) return alert("Please select Plant.");
+
+    const payload = {
+        line_id: lineId,
+        name: lineName,
+        plant: plant,
+        io_protocol: protocol,
+        api_endpoint: apiEndpoint || null,
+        is_active: isActive
+    };
+
+    if (msg) {
+        msg.textContent = "Saving packaging line...";
+        msg.className = "form-message";
+    }
+
+    try {
+        const res = await fetch("/api/v1/lines", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+            if (msg) {
+                msg.textContent = `Packaging Line ${data.line_id} registered successfully!`;
+                msg.className = "form-message success";
+            }
+            await loadLines();
+            loadAuditLogs();
+            setTimeout(() => {
+                switchView("view-line-list");
+                resetLineForm();
+            }, 1000);
+        } else {
+            if (msg) {
+                msg.textContent = `Error: ${data.detail || "Failed to register line."}`;
+                msg.className = "form-message error";
+            }
+        }
+    } catch (err) {
+        if (msg) {
+            msg.textContent = `Error: ${err.message || "Connection failed."}`;
+            msg.className = "form-message error";
+        }
+    }
+}
+
+function renderLineList(lines) {
+    const tbody = document.getElementById("lines-list-body");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    if (!lines || lines.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center">No packaging lines registered.</td></tr>`;
+        return;
+    }
+
+    lines.forEach(l => {
+        const tr = document.createElement("tr");
+        const proto = l.io_protocol || l.protocol || "DIRECT_API";
+        const lineName = l.name || l.line_name || l.line_id;
+
+        let protoBadge = "badge-info";
+        if (proto === "SHARED_FOLDER") protoBadge = "badge-warning";
+        if (proto === "SFTP") protoBadge = "badge-primary";
+
+        let dest = "N/A";
+        if (proto === "DIRECT_API") {
+            dest = l.api_endpoint || `http://127.0.0.1:8000/api/v1/l2/mock-controller/${l.line_id.toLowerCase()}`;
+        } else if (proto === "SHARED_FOLDER") {
+            dest = l.shared_folder_path || `l2_io/shared_folder/${l.line_id.toLowerCase()}`;
+        } else if (proto === "SFTP") {
+            dest = `${l.sftp_user || 'line_op'}@${l.sftp_host || 'sftp.local'}:${l.sftp_drop_folder || '/var/drop'}`;
+        }
+
+        tr.innerHTML = `
+            <td><strong>${l.line_id}</strong></td>
+            <td>${escapeHtml(lineName)}</td>
+            <td>${escapeHtml(l.plant)}</td>
+            <td><span class="badge ${protoBadge}">${proto}</span></td>
+            <td><code style="font-size:0.8rem;">${escapeHtml(dest)}</code></td>
+            <td><span class="badge ${l.is_active ? 'badge-success' : 'badge-secondary'}">${l.is_active ? 'ACTIVE' : 'INACTIVE'}</span></td>
+            <td>
+                <button class="btn secondary-btn btn-sm" onclick="window.configureLineIo('${l.line_id}')">Configure I/O</button>
+                <button class="btn primary-btn btn-sm" onclick="window.testLineConnectivity('${l.line_id}')" style="margin-left: 4px;">Test Route</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function populateIoLineDropdown() {
+    const sel = document.getElementById("io-select-line");
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = `<option value="" disabled selected>-- Select Packaging Line to Configure --</option>`;
+    registeredLines.forEach(l => {
+        const opt = document.createElement("option");
+        opt.value = l.line_id;
+        const lineName = l.name || l.line_name || l.line_id;
+        opt.textContent = `${lineName} (${l.line_id}) - ${l.plant}`;
+        sel.appendChild(opt);
+    });
+    if (currentVal) sel.value = currentVal;
+}
+
+window.configureLineIo = function(lineId) {
+    switchView("view-line-io");
+    populateIoForm(lineId);
+};
+
+function populateIoForm(preselectedLineId) {
+    populateIoLineDropdown();
+    const sel = document.getElementById("io-select-line");
+    const targetLineId = preselectedLineId || (sel ? sel.value : null);
+    if (!targetLineId) return;
+
+    if (sel) sel.value = targetLineId;
+    const line = registeredLines.find(l => l.line_id === targetLineId);
+    if (!line) return;
+
+    const proto = line.io_protocol || line.protocol || "DIRECT_API";
+    const protoSel = document.getElementById("io-select-protocol");
+    if (protoSel) protoSel.value = proto;
+
+    toggleIoPanels(proto);
+
+    // Populate paths & endpoints
+    const sharedOut = document.getElementById("io-shared-path");
+    const sharedIn = document.getElementById("io-shared-inbound");
+    if (sharedOut) sharedOut.value = line.shared_folder_path || `l2_io/shared_folder/${line.line_id.toLowerCase()}/outbound`;
+    if (sharedIn) sharedIn.value = line.sftp_inbound_folder || `l2_io/shared_folder/${line.line_id.toLowerCase()}/inbound`;
+
+    const sftpHost = document.getElementById("io-sftp-host");
+    const sftpPort = document.getElementById("io-sftp-port");
+    const sftpUser = document.getElementById("io-sftp-user");
+    const sftpPass = document.getElementById("io-sftp-pass");
+    const sftpDrop = document.getElementById("io-sftp-drop");
+    const sftpIn = document.getElementById("io-sftp-inbound");
+
+    if (sftpHost) sftpHost.value = line.sftp_host || "sftp.pharma.local";
+    if (sftpPort) sftpPort.value = line.sftp_port || 22;
+    if (sftpUser) sftpUser.value = line.sftp_user || `${line.line_id.toLowerCase()}_op`;
+    if (sftpPass) sftpPass.value = line.sftp_password || "";
+    if (sftpDrop) sftpDrop.value = line.sftp_drop_folder || `/var/drop/${line.line_id.toLowerCase()}/outbound`;
+    if (sftpIn) sftpIn.value = line.sftp_inbound_folder || `/var/drop/${line.line_id.toLowerCase()}/inbound`;
+
+    const directApi = document.getElementById("io-direct-endpoint");
+    if (directApi) directApi.value = line.api_endpoint || `http://127.0.0.1:8000/api/v1/l2/mock-controller/${line.line_id.toLowerCase()}`;
+
+    const msg = document.getElementById("io-form-msg");
+    if (msg) { msg.textContent = ""; msg.className = "form-message"; }
+}
+
+function toggleIoPanels(protocol) {
+    const pShared = document.getElementById("io-panel-shared");
+    const pSftp = document.getElementById("io-panel-sftp");
+    const pDirect = document.getElementById("io-panel-direct");
+
+    if (pShared) pShared.classList.add("hidden");
+    if (pSftp) pSftp.classList.add("hidden");
+    if (pDirect) pDirect.classList.add("hidden");
+
+    if (protocol === "SHARED_FOLDER" && pShared) pShared.classList.remove("hidden");
+    else if (protocol === "SFTP" && pSftp) pSftp.classList.remove("hidden");
+    else if (pDirect) pDirect.classList.remove("hidden");
+}
+
+async function handleLineIoSaveSubmit(e) {
+    e.preventDefault();
+    const lineId = document.getElementById("io-select-line")?.value;
+    if (!lineId) return alert("Please select a Packaging Line.");
+
+    const protocol = document.getElementById("io-select-protocol")?.value || "DIRECT_API";
+    const msg = document.getElementById("io-form-msg");
+
+    const payload = {
+        io_protocol: protocol
+    };
+
+    if (protocol === "DIRECT_API") {
+        payload.api_endpoint = document.getElementById("io-direct-endpoint")?.value.trim() || null;
+    } else if (protocol === "SHARED_FOLDER") {
+        payload.shared_folder_path = document.getElementById("io-shared-path")?.value.trim() || null;
+        payload.sftp_inbound_folder = document.getElementById("io-shared-inbound")?.value.trim() || null;
+    } else if (protocol === "SFTP") {
+        payload.sftp_host = document.getElementById("io-sftp-host")?.value.trim() || null;
+        payload.sftp_port = parseInt(document.getElementById("io-sftp-port")?.value || "22", 10);
+        payload.sftp_user = document.getElementById("io-sftp-user")?.value.trim() || null;
+        payload.sftp_password = document.getElementById("io-sftp-pass")?.value || null;
+        payload.sftp_drop_folder = document.getElementById("io-sftp-drop")?.value.trim() || null;
+        payload.sftp_inbound_folder = document.getElementById("io-sftp-inbound")?.value.trim() || null;
+    }
+
+    if (msg) {
+        msg.textContent = "Saving communication routes...";
+        msg.className = "form-message";
+    }
+
+    try {
+        const res = await fetch(`/api/v1/lines/${encodeURIComponent(lineId)}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+            if (msg) {
+                msg.textContent = `I/O communication routes for Line ${lineId} saved successfully!`;
+                msg.className = "form-message success";
+            }
+            await loadLines();
+            loadAuditLogs();
+        } else {
+            if (msg) {
+                msg.textContent = `Error: ${data.detail || "Failed to update line route."}`;
+                msg.className = "form-message error";
+            }
+        }
+    } catch (err) {
+        if (msg) {
+            msg.textContent = `Error: ${err.message || "Connection failed."}`;
+            msg.className = "form-message error";
+        }
+    }
+}
+
+window.testLineConnectivity = async function(lineId) {
+    if (!lineId) {
+        const sel = document.getElementById("io-select-line");
+        lineId = sel ? sel.value : null;
+    }
+    if (!lineId) return alert("Please select a Packaging Line to test connection.");
+
+    const msg = document.getElementById("io-form-msg");
+    if (msg) {
+        msg.textContent = `Testing communication pathway for Line ${lineId}...`;
+        msg.className = "form-message";
+    }
+
+    try {
+        const res = await fetch(`/api/v1/lines/${encodeURIComponent(lineId)}/test-io`, {
+            method: "POST"
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`[CONNECTION SUCCESS]\nLine: ${data.line_id} (${data.line_name})\nProtocol: ${data.io_protocol}\nStatus: ${data.status}\nMessage: ${data.message}`);
+            if (msg) {
+                msg.textContent = `Route Verified: ${data.message}`;
+                msg.className = "form-message success";
+            }
+        } else {
+            alert(`[CONNECTION ERROR]\n${data.detail || "Route unreachable."}`);
+            if (msg) {
+                msg.textContent = `Test Failed: ${data.detail || "Unreachable"}`;
+                msg.className = "form-message error";
+            }
+        }
+    } catch (err) {
+        alert("Connection test error: server unreachable.");
+    }
+};
+
+// ============================================================
+// Code Pool Reservoir Functions (Import S/N)
+// ============================================================
+
+function setupPoolImportView() {
+    const sel = document.getElementById("pool-import-product");
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = `<option value="" disabled selected>-- Select Product --</option>`;
+    registeredProducts.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.product_id;
+        opt.textContent = `${p.name} (${p.product_id})`;
+        sel.appendChild(opt);
+    });
+    if (currentVal) sel.value = currentVal;
+}
+
+window.loadCodePoolStats = async function() {
+    try {
+        const res = await fetch("/api/v1/code-pool/stats");
+        if (res.ok) {
+            const data = await res.json();
+            const totalEl = document.getElementById("pool-stat-total");
+            const availEl = document.getElementById("pool-stat-available");
+            const resEl = document.getElementById("pool-stat-reserved");
+            const comEl = document.getElementById("pool-stat-committed");
+
+            if (totalEl) totalEl.textContent = (data.total_codes || 0).toLocaleString();
+            if (availEl) availEl.textContent = (data.available_codes || 0).toLocaleString();
+            if (resEl) resEl.textContent = (data.reserved_codes || 0).toLocaleString();
+            if (comEl) comEl.textContent = (data.committed_codes || 0).toLocaleString();
+        }
+    } catch (e) {
+        console.error("Failed to load Code Pool reservoir stats", e);
+    }
+};
+
+async function handleCodePoolImportSubmit(e) {
+    e.preventDefault();
+    const productId = document.getElementById("pool-import-product")?.value;
+    const gtin = (document.getElementById("pool-import-gtin")?.value || "").trim();
+    const tier = document.getElementById("pool-import-tier")?.value || "Primary";
+    const rawSerials = document.getElementById("pool-import-serials")?.value || "";
+    const msg = document.getElementById("pool-import-msg");
+
+    if (!productId) return alert("Please select a Product.");
+    if (!/^\d{14}$/.test(gtin)) return alert("Please enter a valid 14-digit GTIN.");
+
+    const serialList = rawSerials
+        .split(/[\r\n,]+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+    if (serialList.length === 0) {
+        return alert("Please enter or upload at least 1 serial number.");
+    }
+
+    if (msg) {
+        msg.textContent = `Importing ${serialList.length} serial numbers into reservoir...`;
+        msg.className = "form-message";
+    }
+
+    const payload = {
+        gtin: gtin,
+        packaging_tier: tier,
+        serials: serialList
+    };
+
+    try {
+        const res = await fetch("/api/v1/code-pool/import", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+            if (msg) {
+                msg.textContent = `Successfully imported ${data.imported_count} serials (${data.skipped_duplicates} duplicate skipped).`;
+                msg.className = "form-message success";
+            }
+            alert(`Code Pool Import Complete!\nImported: ${data.imported_count}\nDuplicates Skipped: ${data.skipped_duplicates}\nTarget GTIN: ${gtin}`);
+            document.getElementById("pool-import-serials").value = "";
+            const fileInput = document.getElementById("pool-import-file");
+            if (fileInput) fileInput.value = "";
+            window.loadCodePoolStats();
+            loadAuditLogs();
+        } else {
+            if (msg) {
+                msg.textContent = `Import error: ${data.detail || "Failed to import codes."}`;
+                msg.className = "form-message error";
+            }
+        }
+    } catch (err) {
+        if (msg) {
+            msg.textContent = `Error: ${err.message || "Connection failed."}`;
+            msg.className = "form-message error";
+        }
+    }
+}
+
+// ============================================================
+// Regulatory XML Report & Batch Summaries
+// ============================================================
+
+function setupXmlReportView() {
+    const sel = document.getElementById("xml-select-batch");
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = `<option value="" disabled selected>-- Select Batch to Generate XML Report --</option>`;
+
+    fetch("/api/v1/serialization/batches")
+        .then(r => r.json())
+        .then(batches => {
+            batches.forEach(b => {
+                const opt = document.createElement("option");
+                opt.value = b.batch_id;
+                opt.textContent = `${b.batch_id} - Lot: ${b.batch_lot} (${b.status})`;
+                sel.appendChild(opt);
+            });
+            if (currentVal) sel.value = currentVal;
+        })
+        .catch(console.error);
+}
+
+async function previewSelectedXml() {
+    const sel = document.getElementById("xml-select-batch");
+    const batchId = sel ? sel.value : null;
+    const viewer = document.getElementById("xml-viewer-code");
+    if (!batchId) return alert("Please select a batch from the dropdown.");
+
+    if (viewer) viewer.textContent = `Fetching EPCIS 1.2 XML report for batch ${batchId}...`;
+
+    try {
+        const res = await fetch(`/api/v1/batches/${encodeURIComponent(batchId)}/xml-report`);
+        if (res.ok) {
+            const xmlText = await res.text();
+            if (viewer) viewer.textContent = xmlText;
+        } else {
+            const err = await res.text();
+            if (viewer) viewer.textContent = `Error fetching XML report: ${err}`;
+        }
+    } catch (e) {
+        if (viewer) viewer.textContent = `Connection error loading XML report: ${e.message}`;
+    }
+}
+
+function downloadSelectedXml() {
+    const sel = document.getElementById("xml-select-batch");
+    const batchId = sel ? sel.value : null;
+    if (!batchId) return alert("Please select a batch first.");
+    window.downloadXmlReport(batchId);
+}
+
+window.loadBatchSummaryReport = async function() {
+    const tbody = document.getElementById("report-summary-body");
+    if (!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="12" class="text-center">Loading batch summaries...</td></tr>`;
+
+    try {
+        const res = await fetch("/api/v1/reports/batch-summary");
+        if (!res.ok) throw new Error("Failed to load batch summary");
+        const list = await res.json();
+        tbody.innerHTML = "";
+
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="12" class="text-center">No batch records found.</td></tr>`;
+            return;
+        }
+
+        list.forEach(b => {
+            const tr = document.createElement("tr");
+            let statusBadge = "badge-secondary";
+            if (b.status === "CLOSED") statusBadge = "badge-dark";
+            else if (b.status === "RECONCILED") statusBadge = "badge-primary";
+            else if (b.status === "STARTED") statusBadge = "badge-warning";
+            else if (b.status === "LOADED") statusBadge = "badge-info";
+
+            const tierBreakdown = `${b.primary_quantity || 0} / ${b.secondary_quantity || 0} / ${b.tertiary_quantity || 0}`;
+
+            tr.innerHTML = `
+                <td><strong>${b.batch_id}</strong></td>
+                <td>${b.product_id}</td>
+                <td>${b.batch_lot}</td>
+                <td>${b.line_id || 'Line 01'}</td>
+                <td>${b.total_requested}</td>
+                <td>${b.total_generated}</td>
+                <td><small>${tierBreakdown}</small></td>
+                <td><strong style="color: #137333;">${b.reconciled_good_count}</strong></td>
+                <td><strong style="color: #c5221f;">${b.reconciled_rejected_count}</strong></td>
+                <td>${b.reconciled_unused_count}</td>
+                <td><strong style="color: #0369a1;">${b.yield_percentage !== null ? b.yield_percentage + '%' : 'Pending'}</strong></td>
+                <td><span class="badge ${statusBadge}">${b.is_locked ? '🔒 CLOSED' : b.status}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="12" class="text-center text-danger">Error loading batch summary report.</td></tr>`;
+    }
+};
+
+function setupBatchReportDetailView() {
+    const sel = document.getElementById("report-detail-select-batch");
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = `<option value="" disabled selected>-- Select Batch to Inspect Detailed Report --</option>`;
+
+    fetch("/api/v1/serialization/batches")
+        .then(r => r.json())
+        .then(batches => {
+            batches.forEach(b => {
+                const opt = document.createElement("option");
+                opt.value = b.batch_id;
+                opt.textContent = `${b.batch_id} - Lot: ${b.batch_lot} (${b.status})`;
+                sel.appendChild(opt);
+            });
+            if (currentVal) sel.value = currentVal;
+        })
+        .catch(console.error);
+}
+
+async function loadDetailedBatchReport() {
+    const sel = document.getElementById("report-detail-select-batch");
+    const batchId = sel ? sel.value : null;
+    if (!batchId) return alert("Please select a batch from the dropdown.");
+
+    const panel = document.getElementById("batch-detail-report-panel");
+    const metricsDiv = document.getElementById("detail-report-metrics");
+    const xmlBtn = document.getElementById("btn-detail-report-xml");
+
+    try {
+        const res = await fetch(`/api/v1/batches/${encodeURIComponent(batchId)}/summary`);
+        if (!res.ok) {
+            const err = await res.json();
+            return alert(`Error: ${err.detail || "Batch not found"}`);
+        }
+        const b = await res.json();
+
+        if (xmlBtn) {
+            xmlBtn.onclick = () => window.downloadXmlReport(b.batch_id);
+        }
+
+        if (metricsDiv) {
+            metricsDiv.innerHTML = `
+                <div class="dashboard-grid mb-3">
+                    <div class="dash-card">
+                        <h4>Lifecycle Status</h4>
+                        <p class="dash-metric" style="font-size: 1.25rem;">${b.is_locked ? '🔒 CLOSED & LOCKED' : b.status}</p>
+                    </div>
+                    <div class="dash-card">
+                        <h4>Yield Percentage</h4>
+                        <p class="dash-metric" style="color: #0369a1;">${b.yield_percentage !== null ? b.yield_percentage + '%' : 'Pending'}</p>
+                    </div>
+                    <div class="dash-card">
+                        <h4>Good Units Released</h4>
+                        <p class="dash-metric" style="color: #137333;">${b.reconciled_good_count !== null ? b.reconciled_good_count : 'Pending'}</p>
+                    </div>
+                    <div class="dash-card">
+                        <h4>Defective / Scrapped</h4>
+                        <p class="dash-metric" style="color: #c5221f;">${b.reconciled_rejected_count !== null ? b.reconciled_rejected_count : 0}</p>
+                    </div>
+                </div>
+
+                <div class="table-container mt-3">
+                    <table class="table">
+                        <tbody>
+                            <tr><th>Batch / Production Order</th><td><strong>${b.batch_id}</strong></td><th>Product Item Code</th><td>${b.product_id}</td></tr>
+                            <tr><th>Lot / Control Number</th><td>${b.batch_lot}</td><th>Work Order Reference</th><td>${b.work_order_no || 'N/A'}</td></tr>
+                            <tr><th>Packaging Line Identifier</th><td>${b.line_id || 'Line 01'}</td><th>I/O Transfer Route</th><td><code>${b.io_channel || 'DIRECT_API'}</code></td></tr>
+                            <tr><th>Primary Requested Target</th><td>${b.requested_quantity} units</td><th>Total Serials Generated</th><td>${b.generated_quantity} units</td></tr>
+                            <tr><th>Packaging Tier Distribution</th><td colspan="3">Primary: <strong>${b.primary_quantity || 0}</strong> | Secondary: <strong>${b.secondary_quantity || 0}</strong> | Tertiary: <strong>${b.tertiary_quantity || 0}</strong> (Ratio: 1 : ${b.secondary_ratio || 10} : ${b.tertiary_ratio || 10})</td></tr>
+                            <tr><th>Unused Codes Returned to Reservoir</th><td>${b.reconciled_unused_count !== null ? b.reconciled_unused_count : 'N/A'}</td><th>Audit Certificate</th><td><span class="badge badge-success">✓ 21 CFR Part 11 Compliant</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        if (panel) panel.classList.remove("hidden");
+    } catch (e) {
+        alert("Connection error loading detailed batch report.");
+    }
+}
+
+

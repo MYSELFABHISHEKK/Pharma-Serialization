@@ -47,6 +47,18 @@ class BatchRepository:
             "package_aggregation": b.package_aggregation,
             "parent_code_required": b.parent_code_required,
             "aggregated_batch": getattr(b, "aggregated_batch", False),
+            "line_id": getattr(b, "line_id", None),
+            "secondary_ratio": getattr(b, "secondary_ratio", 1) or 1,
+            "tertiary_ratio": getattr(b, "tertiary_ratio", 1) or 1,
+            "primary_quantity": getattr(b, "primary_quantity", 0) or 0,
+            "secondary_quantity": getattr(b, "secondary_quantity", 0) or 0,
+            "tertiary_quantity": getattr(b, "tertiary_quantity", 0) or 0,
+            "reconciled_good_count": getattr(b, "reconciled_good_count", 0) or 0,
+            "reconciled_rejected_count": getattr(b, "reconciled_rejected_count", 0) or 0,
+            "reconciled_unused_count": getattr(b, "reconciled_unused_count", 0) or 0,
+            "yield_percentage": getattr(b, "yield_percentage", 0.0) or 0.0,
+            "is_locked": getattr(b, "is_locked", False) or False,
+            "io_channel": getattr(b, "io_channel", "DIRECT_API") or "DIRECT_API",
         }
 
     @staticmethod
@@ -71,7 +83,19 @@ class BatchRepository:
             is_enabled=batch_dict.get("is_enabled", True),
             package_aggregation=batch_dict.get("package_aggregation", False),
             parent_code_required=batch_dict.get("parent_code_required", False),
-            aggregated_batch=batch_dict.get("aggregated_batch", False)
+            aggregated_batch=batch_dict.get("aggregated_batch", False),
+            line_id=batch_dict.get("line_id"),
+            secondary_ratio=batch_dict.get("secondary_ratio", 1),
+            tertiary_ratio=batch_dict.get("tertiary_ratio", 1),
+            primary_quantity=batch_dict.get("primary_quantity", 0),
+            secondary_quantity=batch_dict.get("secondary_quantity", 0),
+            tertiary_quantity=batch_dict.get("tertiary_quantity", 0),
+            reconciled_good_count=batch_dict.get("reconciled_good_count", 0),
+            reconciled_rejected_count=batch_dict.get("reconciled_rejected_count", 0),
+            reconciled_unused_count=batch_dict.get("reconciled_unused_count", 0),
+            yield_percentage=batch_dict.get("yield_percentage", 0.0),
+            is_locked=batch_dict.get("is_locked", False),
+            io_channel=batch_dict.get("io_channel", "DIRECT_API")
         )
         db.add(db_batch)
         db.commit()
@@ -98,34 +122,17 @@ class BatchRepository:
 
         prev_val = BatchRepository.serialize_batch(db_batch)
 
-        if "manufacturer" in batch_dict:
-            db_batch.manufacturer = batch_dict["manufacturer"]
-        if "plant" in batch_dict:
-            db_batch.plant = batch_dict["plant"]
-        if "packaging_level" in batch_dict:
-            db_batch.packaging_level = batch_dict["packaging_level"]
-        if "packaging_size" in batch_dict:
-            db_batch.packaging_size = batch_dict["packaging_size"]
-        if "work_order_no" in batch_dict:
-            db_batch.work_order_no = batch_dict["work_order_no"]
-        if "batch_lot" in batch_dict:
-            db_batch.batch_lot = batch_dict["batch_lot"]
-        if "expiry_date" in batch_dict:
-            db_batch.expiry_date = batch_dict["expiry_date"]
-        if "mfg_date" in batch_dict:
-            db_batch.mfg_date = batch_dict["mfg_date"]
-        if "is_enabled" in batch_dict:
-            db_batch.is_enabled = batch_dict["is_enabled"]
-        if "package_aggregation" in batch_dict:
-            db_batch.package_aggregation = batch_dict["package_aggregation"]
-        if "parent_code_required" in batch_dict:
-            db_batch.parent_code_required = batch_dict["parent_code_required"]
-        if "aggregated_batch" in batch_dict:
-            db_batch.aggregated_batch = batch_dict["aggregated_batch"]
-        if "status" in batch_dict:
-            db_batch.status = batch_dict["status"]
-        if "generated_quantity" in batch_dict:
-            db_batch.generated_quantity = batch_dict["generated_quantity"]
+        for col in [
+            "manufacturer", "plant", "packaging_level", "packaging_size", "work_order_no",
+            "batch_lot", "expiry_date", "mfg_date", "is_enabled", "package_aggregation",
+            "parent_code_required", "aggregated_batch", "status", "generated_quantity",
+            "line_id", "secondary_ratio", "tertiary_ratio", "primary_quantity",
+            "secondary_quantity", "tertiary_quantity", "reconciled_good_count",
+            "reconciled_rejected_count", "reconciled_unused_count", "yield_percentage",
+            "is_locked", "io_channel"
+        ]:
+            if col in batch_dict:
+                setattr(db_batch, col, batch_dict[col])
 
         db.commit()
         db.refresh(db_batch)

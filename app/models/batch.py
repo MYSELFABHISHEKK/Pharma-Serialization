@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from typing import Optional, List
 
 class BatchCreate(BaseModel):
     product_id: str = Field(...)
@@ -25,6 +25,10 @@ class BatchMasterCreate(BaseModel):
     parent_code_required: bool = Field(default=False)
     aggregated_batch: bool = Field(default=False)
     idempotency_key: Optional[str] = None
+    line_id: Optional[str] = None
+    secondary_ratio: Optional[int] = Field(default=1, ge=1)
+    tertiary_ratio: Optional[int] = Field(default=1, ge=1)
+    io_channel: Optional[str] = Field(default="DIRECT_API")
 
 class BatchResponse(BaseModel):
     batch_id: str
@@ -50,4 +54,46 @@ class BatchResponse(BaseModel):
     parent_code_required: bool = False
     aggregated_batch: bool = False
 
+    # L3 / L2 operational workflow fields
+    line_id: Optional[str] = None
+    secondary_ratio: int = 1
+    tertiary_ratio: int = 1
+    primary_quantity: int = 0
+    secondary_quantity: int = 0
+    tertiary_quantity: int = 0
+    reconciled_good_count: int = 0
+    reconciled_rejected_count: int = 0
+    reconciled_unused_count: int = 0
+    yield_percentage: float = 0.0
+    is_locked: bool = False
+    io_channel: str = "DIRECT_API"
+
     model_config = ConfigDict(from_attributes=True)
+
+class BatchReconcileRequest(BaseModel):
+    good_serials: Optional[List[str]] = None
+    rejected_serials: Optional[List[str]] = None
+    raw_feedback_content: Optional[str] = None
+    auto_simulate: bool = False
+    simulated_yield_pct: Optional[float] = Field(default=98.0, ge=0.0, le=100.0)
+
+class BatchSummaryResponse(BaseModel):
+    batch_id: str
+    product_id: str
+    batch_lot: str
+    status: str
+    line_id: Optional[str] = None
+    io_channel: str = "DIRECT_API"
+    is_locked: bool = False
+    total_requested: int
+    total_generated: int
+    primary_quantity: int
+    secondary_quantity: int
+    tertiary_quantity: int
+    secondary_ratio: int
+    tertiary_ratio: int
+    reconciled_good_count: int
+    reconciled_rejected_count: int
+    reconciled_unused_count: int
+    yield_percentage: float
+    created_at: str

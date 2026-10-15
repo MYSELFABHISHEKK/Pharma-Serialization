@@ -5,99 +5,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BT SN Portal | Serialization & Track Trace</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=20260916_10">
+    <link rel="stylesheet" href="/static/style.css?v=20261014_02">
 </head>
 <body>
     <div class="regulatory-ticker">
-        <span>🛡️ US FDA DSCSA 2024 Compliant</span> • 
-        <span>🇪🇺 EU FMD (2011/62/EU) Certified</span> • 
-        <span>🇮🇳 DGFT iVEDA Serialization</span> • 
-        <span>⚡ GS1 SGTIN-96 Standard</span> • 
-        <span>🔒 21 CFR Part 11 Electronic Records</span>
+        <span class="reg-label">REGULATORY CONFORMITY:</span>
+        <span class="reg-item"><strong class="reg-code">US-FDA</strong> DSCSA 21 CFR §201/211</span>
+        <span class="reg-sep">|</span>
+        <span class="reg-item"><strong class="reg-code">EU-FMD</strong> Directive 2011/62/EU</span>
+        <span class="reg-sep">|</span>
+        <span class="reg-item"><strong class="reg-code">INDIA-DGFT</strong> iVEDA GS1-India</span>
+        <span class="reg-sep">|</span>
+        <span class="reg-item"><strong class="reg-code">GS1</strong> SGTIN-96 / EPCIS 1.2</span>
+        <span class="reg-sep">|</span>
+        <span class="reg-item"><strong class="reg-code">GMP</strong> 21 CFR Part 11 Electronic Records</span>
     </div>
 
     <header class="site-header">
         <a class="brand" href="#top" aria-label="BT SN Portal home">
             <span class="brand-mark">BT</span>
-            <span>BT SN Portal</span>
+            <div class="brand-text-wrap">
+                <span class="brand-title">BT PHARMACEUTICALS</span>
+                <span class="brand-subtitle">Serialization &amp; Track-and-Trace Quality System</span>
+            </div>
         </a>
         <nav class="site-nav" aria-label="Primary navigation">
-            <a href="#compliance">Compliance</a>
+            <a href="#compliance">Regulatory</a>
             <a href="#architecture">Architecture</a>
             <a href="#operations">Operations</a>
-            <a href="#process">Workflow</a>
-            <a href="#serialization" class="nav-cta" style="color: #ffffff;">Open Portal</a>
+            <a href="#process">Validation</a>
+            <a href="#serialization" class="nav-cta" id="nav-open-portal">Serialization Console</a>
+            <!-- Authentication & User Profile Badge -->
+            <div id="auth-nav-container" class="auth-nav-slot">
+                <button type="button" id="btn-open-auth-modal" class="btn-nav-auth">Sign In</button>
+                <div id="user-profile-badge" class="user-badge hidden">
+                    <div class="user-avatar" id="user-avatar-initials">AW</div>
+                    <div class="user-meta">
+                        <span class="user-name" id="user-display-name">Dr. Alexander Wright</span>
+                        <span class="user-role-plant" id="user-display-role">QA &amp; QP • TESTPLANT</span>
+                    </div>
+                    <button type="button" id="btn-sign-out" class="btn-logout" title="Sign out of portal">Sign Out</button>
+                </div>
+            </div>
         </nav>
     </header>
 
     <main id="top">
         <section class="hero">
             <div class="hero-copy">
-                <p class="eyebrow">Enterprise Pharmaceutical Track & Trace</p>
-                <h1>Autonomous Serialization & Integrity Network for Global Pharma.</h1>
+                <p class="eyebrow">Enterprise Pharmaceutical Serialization &bull; GAMP 5 Category 4</p>
+                <h1>Global Track &amp; Trace Serialization System</h1>
                 <p class="hero-text">
-                    BT SN Portal provides high-throughput cryptographic serialization, parent-child packaging aggregation,
-                    and tamper-evident traceability across solid orals, injectables, and biologics from manufacturing line to dispensary.
+                    Enterprise Level 3 Site Server and Level 4 Corporate Repository engineered for pharmaceutical solid orals, injectables, and biologics. Validated against US FDA DSCSA, EU FMD, and DGFT iVEDA mandates for tamper-evident unit coding and multi-tier parent-child aggregation.
                 </p>
                 <div class="hero-actions">
-                    <a class="btn primary-btn" href="#serialization">Open Portal Console</a>
-                    <a class="btn secondary-btn" href="#operations">Explore Operations</a>
+                    <a class="btn primary-btn" href="#serialization">Open Serialization Console</a>
+                    <a class="btn secondary-btn" href="#operations">Technical Specifications</a>
                 </div>
             </div>
             <div class="hero-media" aria-label="Pharmaceutical packaging cleanroom">
                 <img src="/static/img/pharma_cleanroom.jpg" alt="Automated pharmaceutical packaging line in cleanroom">
                 <div class="live-card">
                     <span class="status-indicator online" id="db-status-dot"></span>
-                    <span id="db-status-text">Packaging Line 04 • System online</span>
+                    <span id="db-status-text">Packaging Line 04 &bull; Direct API Operational</span>
                 </div>
             </div>
         </section>
 
         <section class="metrics-band" aria-label="Portal capabilities">
             <div>
-                <span>Unit Identity</span>
-                <strong>CSPRNG Randomized Serials</strong>
+                <span>Serialization Security</span>
+                <strong>CSPRNG Cryptographic Entropy</strong>
             </div>
             <div>
-                <span>Read Rate</span>
-                <strong>99.999% Vision OCR Accuracy</strong>
+                <span>Vision Inspection</span>
+                <strong>ISO/IEC 15415 Grade A/B Accuracy</strong>
             </div>
             <div>
                 <span>Line Throughput</span>
-                <strong>1,000,000+ Codes / Hour</strong>
+                <strong>Industrial 450 Packs / Minute</strong>
             </div>
             <div>
-                <span>Compliance Standard</span>
-                <strong>GS1 SGTIN-96 & EPCIS 1.2</strong>
+                <span>Interoperability</span>
+                <strong>GS1 EPCIS 1.2 &amp; SGTIN-96</strong>
             </div>
         </section>
 
         <!-- Global Regulatory Compliance Frameworks -->
         <section class="compliance-section" id="compliance">
             <div class="section-heading">
-                <p class="eyebrow">Global Mandates</p>
-                <h2>Validated against international regulatory requirements.</h2>
-                <p>Engineered to ensure zero-friction pharmaceutical export compliance across all major global health authorities.</p>
+                <p class="eyebrow">Global Mandates &bull; Quality Management System</p>
+                <h2>Validated against international pharmaceutical regulatory directives.</h2>
+                <p>Engineered to ensure zero-friction pharmaceutical export compliance across all major global health authorities and national reporting hubs.</p>
             </div>
             <div class="compliance-grid">
                 <article class="compliance-card">
-                    <div class="compliance-icon">🇺🇸</div>
+                    <div class="compliance-badge-header">
+                        <span class="corp-jurisdiction-badge">US-FDA</span>
+                        <span class="corp-standard-tag">21 CFR §201/211</span>
+                    </div>
                     <h3>US FDA DSCSA (2024)</h3>
                     <p>Enforces 100% interoperable package-level electronic tracing, verification router service (VRS) readiness, exception handling, and transaction data exchange.</p>
                 </article>
                 <article class="compliance-card">
-                    <div class="compliance-icon">🇪🇺</div>
-                    <h3>EU FMD (2011/62/EU)</h3>
+                    <div class="compliance-badge-header">
+                        <span class="corp-jurisdiction-badge">EU-FMD</span>
+                        <span class="corp-standard-tag">Directive 2011/62/EU</span>
+                    </div>
+                    <h3>EU FMD Directive</h3>
                     <p>End-to-end verification supporting Point-of-Dispense decommission, anti-tampering device verification, and integration with the European EMVO hub.</p>
                 </article>
                 <article class="compliance-card">
-                    <div class="compliance-icon">🇮🇳</div>
+                    <div class="compliance-badge-header">
+                        <span class="corp-jurisdiction-badge">DGFT</span>
+                        <span class="corp-standard-tag">iVEDA Portal</span>
+                    </div>
                     <h3>India DGFT iVEDA</h3>
                     <p>Full primary blister/strip unique coding, secondary shipper carton parent-child aggregation, and tertiary pallet track-and-trace export conformity.</p>
                 </article>
                 <article class="compliance-card">
-                    <div class="compliance-icon">🔒</div>
-                    <h3>21 CFR Part 11 & GAMP 5</h3>
+                    <div class="compliance-badge-header">
+                        <span class="corp-jurisdiction-badge">21 CFR 11</span>
+                        <span class="corp-standard-tag">GAMP 5</span>
+                    </div>
+                    <h3>Electronic Records &amp; Signatures</h3>
                     <p>Cryptographically secured audit logs, automated before-and-after JSON change data capture, strict role separation, and electronic batch record traceability.</p>
                 </article>
             </div>
@@ -270,35 +301,42 @@
             <!-- Dashboard Sub Navigation -->
             <nav class="portal-nav">
                 <button class="portal-nav-btn active" data-view="view-dashboard">Dashboard Home</button>
-                <button class="portal-nav-btn" data-view="view-sgtin">SGTIN CSV</button>
                 <div class="portal-nav-dropdown">
-                    <button class="portal-nav-btn portal-nav-toggle">Product Master <span class="arrow-down">▼</span></button>
+                    <button class="portal-nav-btn portal-nav-toggle">Products <span class="arrow-down">▼</span></button>
                     <div class="portal-nav-dropdown-content">
-                        <button class="portal-nav-sub-btn" data-view="view-product-add" id="sub-add-product">Add Product</button>
+                        <button class="portal-nav-sub-btn" data-view="view-product-add" id="sub-add-product">1. Add Product</button>
+                        <button class="portal-nav-sub-btn" data-view="view-gtin-add" id="sub-add-gtin">2. Add GTIN</button>
+                        <button class="portal-nav-sub-btn" data-view="view-sn-import" id="sub-import-sn">3. Import S/N</button>
                         <button class="portal-nav-sub-btn" data-view="view-product-list">Manage Products</button>
-                    </div>
-                </div>
-                <div class="portal-nav-dropdown">
-                    <button class="portal-nav-btn portal-nav-toggle">GTIN Master <span class="arrow-down">▼</span></button>
-                    <div class="portal-nav-dropdown-content">
-                        <button class="portal-nav-sub-btn" data-view="view-gtin-add" id="sub-add-gtin">Add GTIN</button>
                         <button class="portal-nav-sub-btn" data-view="view-gtin-list">Manage GTIN Store</button>
                     </div>
                 </div>
                 <div class="portal-nav-dropdown">
-                    <button class="portal-nav-btn portal-nav-toggle">Batch Master <span class="arrow-down">▼</span></button>
+                    <button class="portal-nav-btn portal-nav-toggle">Lines <span class="arrow-down">▼</span></button>
                     <div class="portal-nav-dropdown-content">
-                        <button class="portal-nav-sub-btn" data-view="view-batch-add" id="sub-add-batch">Add Batch</button>
-                        <button class="portal-nav-sub-btn" data-view="view-batch-list">Manage Batches</button>
+                        <button class="portal-nav-sub-btn" data-view="view-line-add" id="sub-add-line">1. Add Line</button>
+                        <button class="portal-nav-sub-btn" data-view="view-line-io" id="sub-add-io">2. Add I/O</button>
+                        <button class="portal-nav-sub-btn" data-view="view-line-list" id="sub-manage-lines">Manage Lines</button>
                     </div>
                 </div>
-                <button class="portal-nav-btn" data-view="view-verification">Verification</button>
+                <div class="portal-nav-dropdown">
+                    <button class="portal-nav-btn portal-nav-toggle">Batch <span class="arrow-down">▼</span></button>
+                    <div class="portal-nav-dropdown-content">
+                        <button class="portal-nav-sub-btn" data-view="view-batch-add" id="sub-add-batch">1. Add / Edit Batch</button>
+                        <button class="portal-nav-sub-btn" data-view="view-batch-list" id="sub-manage-batch">2. Manage Batch</button>
+                        <button class="portal-nav-sub-btn" data-view="view-batch-xml" id="sub-xml-report">3. XML Report</button>
+                    </div>
+                </div>
                 <div class="portal-nav-dropdown">
                     <button class="portal-nav-btn portal-nav-toggle">Reports <span class="arrow-down">▼</span></button>
                     <div class="portal-nav-dropdown-content">
-                        <button class="portal-nav-sub-btn" data-view="view-audit-logs" id="sub-audit-logs">Audit Trail Logs</button>
+                        <button class="portal-nav-sub-btn" data-view="view-audit-logs" id="sub-audit-logs">1. Audit Report</button>
+                        <button class="portal-nav-sub-btn" data-view="view-report-summary" id="sub-batch-summary">2. Batch Summary</button>
+                        <button class="portal-nav-sub-btn" data-view="view-report-detail" id="sub-batch-report">3. Batch Report</button>
                     </div>
                 </div>
+                <button class="portal-nav-btn" data-view="view-verification">Verification</button>
+                <button class="portal-nav-btn" data-view="view-sgtin">SGTIN CSV</button>
             </nav>
 
             <div class="portal-view-container">
@@ -1010,6 +1048,25 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="batch-line"><span class="required-star">*</span> Packaging Line</label>
+                                        <select id="batch-line">
+                                            <option value="" disabled selected>-- Select Packaging Line --</option>
+                                            <option value="Line 01">Blister Line 1 (Line 01)</option>
+                                            <option value="Line 02">Bottle Line 2 (Line 02)</option>
+                                            <option value="Line 03">Packaging Line 01 (Line 03)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-io-channel"><span class="required-star">*</span> Level 2 Transfer Protocol</label>
+                                        <select id="batch-io-channel">
+                                            <option value="DIRECT_API" selected>Direct Interface (TCP/IP / API Direct)</option>
+                                            <option value="SHARED_FOLDER">Network Shared Folder</option>
+                                            <option value="SFTP">SFTP Drop Interface</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Panel: Batch Information -->
@@ -1053,6 +1110,31 @@
                                             <label><input type="radio" name="batch-aggregated" value="true"> Yes</label>
                                             <label><input type="radio" name="batch-aggregated" value="false" checked> No</label>
                                         </div>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-ratio-sec">Secondary Packaging Ratio (R<sub>secondary</sub>)</label>
+                                        <input type="number" id="batch-ratio-sec" value="10" min="1" max="1000" placeholder="10">
+                                        <small class="text-muted" style="font-size: 0.74rem;">Units of Primary per Secondary pack</small>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="batch-ratio-ter">Tertiary Packaging Ratio (R<sub>tertiary</sub>)</label>
+                                        <input type="number" id="batch-ratio-ter" value="10" min="1" max="1000" placeholder="10">
+                                        <small class="text-muted" style="font-size: 0.74rem;">Cartons of Secondary per Shipper</small>
+                                    </div>
+                                </div>
+
+                                <div class="form-section-panel mt-3" style="background: #f0f7fd; border: 1px solid #d0e7fc; padding: 14px 18px; margin-bottom: 0;">
+                                    <h5 style="margin: 0 0 10px 0; color: #08445f; font-size: 0.88rem; font-weight: 700;">
+                                        Packaging Recipe Calculation (Auto-Allocated)
+                                    </h5>
+                                    <div style="display: flex; gap: 24px; flex-wrap: wrap; font-size: 0.84rem; color: #08445f;">
+                                        <div>Primary Units: <strong id="calc-pri-qty">10</strong></div>
+                                        <div>Secondary Units (Q<sub>sec</sub> = ⌈Q<sub>pri</sub> / R<sub>sec</sub>⌉): <strong id="calc-sec-qty">1</strong></div>
+                                        <div>Tertiary Units (Q<sub>ter</sub> = ⌈Q<sub>sec</sub> / R<sub>ter</sub>⌉): <strong id="calc-ter-qty">1</strong></div>
+                                        <div>Total Serial Codes: <strong id="calc-total-qty" style="color: #0f5d7f; font-size: 0.95rem;">12</strong></div>
+                                    </div>
+                                    <div id="recipe-zero-limit-note" class="text-muted hidden" style="font-size: 0.75rem; margin-top: 6px; color: #b06000;">
+                                        ⚠️ Note: Zero Limit Rule active for mapped tier(s). Generation disabled for zero-limit levels.
                                     </div>
                                 </div>
                                 <input type="hidden" id="batch-idempotency">
@@ -1270,6 +1352,388 @@
                     </div>
                 </div>
 
+                <!-- 11. IMPORT S/N (CODE POOL RESERVOIR) VIEW -->
+                <div class="portal-view hidden" id="view-sn-import">
+                    <div class="card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h3>Import Serial Number Pool</h3>
+                                <p>Import unique SGTIN pools into the L3 central reservoir database (zero-duplication guarantee).</p>
+                            </div>
+                            <button class="btn secondary-btn btn-sm" id="btn-refresh-pool-stats" onclick="window.loadCodePoolStats()">Refresh Pool Stats</button>
+                        </div>
+                        <div class="card-body">
+                            <!-- Pool Reservoir Statistics Metrics Band -->
+                            <div class="dashboard-grid mb-4" style="margin-bottom: 24px;">
+                                <div class="dash-card">
+                                    <h4>Total In Reservoir</h4>
+                                    <p class="dash-metric" id="pool-stat-total">0</p>
+                                </div>
+                                <div class="dash-card">
+                                    <h4>Available Units</h4>
+                                    <p class="dash-metric" id="pool-stat-available" style="color: #137333;">0</p>
+                                </div>
+                                <div class="dash-card">
+                                    <h4>Reserved Units</h4>
+                                    <p class="dash-metric" id="pool-stat-reserved" style="color: #b06000;">0</p>
+                                </div>
+                                <div class="dash-card">
+                                    <h4>Committed Units</h4>
+                                    <p class="dash-metric" id="pool-stat-committed" style="color: #1a73e8;">0</p>
+                                </div>
+                            </div>
+
+                            <form id="pool-import-form" novalidate>
+                                <div class="form-section-panel">
+                                    <h4>1. Packaging & Product Allocation</h4>
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label for="pool-import-product"><span class="required-star">*</span> Target Product</label>
+                                            <select id="pool-import-product" required>
+                                                <option value="" disabled selected>-- Select Product --</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group flex-1">
+                                            <label for="pool-import-gtin"><span class="required-star">*</span> GTIN (14 Digits)</label>
+                                            <input type="text" id="pool-import-gtin" placeholder="08901234567892" maxlength="14" required autocomplete="off">
+                                        </div>
+                                        <div class="form-group flex-1">
+                                            <label for="pool-import-tier"><span class="required-star">*</span> Packaging Tier</label>
+                                            <select id="pool-import-tier" required>
+                                                <option value="Primary" selected>Primary (Level 1 Unit)</option>
+                                                <option value="Secondary">Secondary (Level 2 Box/Carton)</option>
+                                                <option value="Tertiary">Tertiary (Level 3 Shipper/Case)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-section-panel mt-4">
+                                    <h4>2. Serial Number Reservoir Upload</h4>
+                                    <div class="form-group">
+                                        <label for="pool-import-serials"><span class="required-star">*</span> Serial Numbers (one per line or comma-separated)</label>
+                                        <textarea id="pool-import-serials" rows="6" placeholder="e.g.&#10;7K4M9Q2X8C5R3T6W&#10;A9B2C3D4E5F6G7H8&#10;M4N5P6Q7R8S9T0U1" style="font-family: monospace; font-size: 0.88rem; width: 100%; padding: 10px; border: 1px solid #c9d4e2; border-radius: 6px; box-sizing: border-box;"></textarea>
+                                    </div>
+                                    <div class="form-group mt-2">
+                                        <label>Or Upload CSV/Text File</label>
+                                        <input type="file" id="pool-import-file" accept=".csv,.txt">
+                                    </div>
+                                </div>
+
+                                <div class="form-actions mt-4">
+                                    <button type="submit" class="btn primary-btn">Import To Code Pool</button>
+                                    <button type="button" class="btn cancel-btn" onclick="window.switchView('view-dashboard')">Cancel</button>
+                                    <span class="form-message" id="pool-import-msg"></span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 12. ADD PACKAGING LINE VIEW -->
+                <div class="portal-view hidden" id="view-line-add">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 id="line-form-title">Add Packaging Line</h3>
+                            <p>Register Level 2 packaging line equipment (Blister Line, Bottle Line, Cartoner).</p>
+                        </div>
+                        <form id="line-form" class="card-body" novalidate>
+                            <div class="mandatory-alert">
+                                <span class="info-icon">ℹ</span> Fields marked with <span class="required-star">*</span> are mandatory for packaging line execution.
+                            </div>
+
+                            <div class="form-section-panel">
+                                <h4>1. Equipment & Line Metadata</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="line-id-input"><span class="required-star">*</span> Packaging Line ID</label>
+                                        <input type="text" id="line-id-input" placeholder="e.g. LINE-04" required autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="line-name-input"><span class="required-star">*</span> Packaging Line Name</label>
+                                        <input type="text" id="line-name-input" placeholder="e.g. Cartoner Line 4" required autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="line-plant-input"><span class="required-star">*</span> Facility Plant</label>
+                                        <select id="line-plant-input" required>
+                                            <option value="TESTPLANT" selected>TESTPLANT</option>
+                                            <option value="TESTPLANT_DGFT">TESTPLANT_DGFT</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section-panel mt-4">
+                                <h4>2. Execution Pathway & State</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="line-protocol-select"><span class="required-star">*</span> Primary Communication Protocol</label>
+                                        <select id="line-protocol-select" required>
+                                            <option value="DIRECT_API" selected>Direct Interface (TCP/IP / API Direct)</option>
+                                            <option value="SHARED_FOLDER">Network Shared Folder (SMB/CIFS)</option>
+                                            <option value="SFTP">SFTP Interface (Secure Drop)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="line-api-endpoint">Direct Controller Endpoint / Socket URL</label>
+                                        <input type="text" id="line-api-endpoint" placeholder="http://127.0.0.1:8000/api/v1/l2/mock-controller/line-04" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label><span class="required-star">*</span> Line Status</label>
+                                        <div style="display: flex; flex-direction: row; align-items: center; gap: 24px; min-height: 43px; margin-top: 6px;">
+                                            <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; color: #162840; cursor: pointer; white-space: nowrap; margin: 0;">
+                                                <input type="radio" name="line-active" value="true" checked style="width: 18px !important; height: 18px !important; min-height: 18px !important; max-height: 18px !important; margin: 0 !important; padding: 0 !important; accent-color: #0f5d7f; cursor: pointer; flex-shrink: 0;">
+                                                <span>Active</span>
+                                            </label>
+                                            <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; color: #162840; cursor: pointer; white-space: nowrap; margin: 0;">
+                                                <input type="radio" name="line-active" value="false" style="width: 18px !important; height: 18px !important; min-height: 18px !important; max-height: 18px !important; margin: 0 !important; padding: 0 !important; accent-color: #0f5d7f; cursor: pointer; flex-shrink: 0;">
+                                                <span>Inactive</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="btn primary-btn">Save Packaging Line</button>
+                                <button type="button" class="btn cancel-btn" onclick="window.switchView('view-line-list')">Cancel</button>
+                                <span class="form-message" id="line-form-msg"></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 13. ADD / CONFIGURE I/O COMMUNICATION ROUTES VIEW -->
+                <div class="portal-view hidden" id="view-line-io">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Configure Communication Routes (Add I/O)</h3>
+                            <p>Setup Network Shared Folder directories, SFTP credentials, and Direct Controller Socket routes.</p>
+                        </div>
+                        <form id="line-io-form" class="card-body" novalidate>
+                            <div class="mandatory-alert">
+                                <span class="info-icon">ℹ</span> Select a Packaging Line to configure its outbound dispatch and inbound feedback pathway.
+                            </div>
+
+                            <div class="form-section-panel">
+                                <h4>1. Target Packaging Line</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="io-select-line"><span class="required-star">*</span> Select Packaging Line</label>
+                                        <select id="io-select-line" required>
+                                            <option value="" disabled selected>-- Select Packaging Line to Configure --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="io-select-protocol"><span class="required-star">*</span> I/O Pathway Protocol</label>
+                                        <select id="io-select-protocol" required>
+                                            <option value="DIRECT_API" selected>Direct Interface (TCP/IP / API Direct)</option>
+                                            <option value="SHARED_FOLDER">Network Shared Folder</option>
+                                            <option value="SFTP">SFTP Interface</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel: Shared Folder Config -->
+                            <div class="form-section-panel mt-4" id="io-panel-shared">
+                                <h4>2. Network Shared Folder Configuration (SMB / CIFS)</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="io-shared-path"><span class="required-star">*</span> Outbound Dispatch Folder (L3 ➔ L2)</label>
+                                        <input type="text" id="io-shared-path" placeholder="l2_io/shared_folder/line_01/outbound" autocomplete="off">
+                                        <small class="text-muted">Local or UNC network share path where L3 writes code payloads.</small>
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="io-shared-inbound">Inbound Feedback Folder (L2 ➔ L3 Reconciliation)</label>
+                                        <input type="text" id="io-shared-inbound" placeholder="l2_io/shared_folder/line_01/inbound" autocomplete="off">
+                                        <small class="text-muted">Folder where L2 writes reconciliation summary feedback files.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel: SFTP Config -->
+                            <div class="form-section-panel mt-4 hidden" id="io-panel-sftp">
+                                <h4>2. SFTP Interface Connection Settings</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="io-sftp-host"><span class="required-star">*</span> SFTP Host Name / IP</label>
+                                        <input type="text" id="io-sftp-host" placeholder="sftp.pharma.local" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="io-sftp-port"><span class="required-star">*</span> Port</label>
+                                        <input type="number" id="io-sftp-port" value="22">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="io-sftp-user"><span class="required-star">*</span> SFTP Username</label>
+                                        <input type="text" id="io-sftp-user" placeholder="line01_operator" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="io-sftp-pass">Password / Private Key Passphrase</label>
+                                        <input type="password" id="io-sftp-pass" placeholder="••••••••" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="io-sftp-drop"><span class="required-star">*</span> Remote Outbound Drop Folder</label>
+                                        <input type="text" id="io-sftp-drop" placeholder="/var/drop/line_01/outbound" autocomplete="off">
+                                    </div>
+                                    <div class="form-group flex-1">
+                                        <label for="io-sftp-inbound">Remote Inbound Feedback Folder</label>
+                                        <input type="text" id="io-sftp-inbound" placeholder="/var/drop/line_01/inbound" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel: Direct API Config -->
+                            <div class="form-section-panel mt-4" id="io-panel-direct">
+                                <h4>2. Direct Controller Socket Settings</h4>
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="io-direct-endpoint"><span class="required-star">*</span> Level 2 Controller API / Socket URL</label>
+                                        <input type="text" id="io-direct-endpoint" placeholder="http://127.0.0.1:8000/api/v1/l2/mock-controller/line-01" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="btn primary-btn">Save Route Settings</button>
+                                <button type="button" class="btn secondary-btn" id="btn-test-line-io">Test Connection</button>
+                                <button type="button" class="btn cancel-btn" onclick="window.switchView('view-line-list')">Cancel</button>
+                                <span class="form-message" id="io-form-msg"></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 14. MANAGE PACKAGING LINES VIEW -->
+                <div class="portal-view hidden" id="view-line-list">
+                    <div class="card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h3>Manage Packaging Lines</h3>
+                                <p>Monitor packaging line statuses, configured communication routes, and execution health.</p>
+                            </div>
+                            <div>
+                                <button class="btn primary-btn btn-sm" onclick="window.switchView('view-line-add')">Add Line</button>
+                                <button class="btn secondary-btn btn-sm" onclick="window.switchView('view-line-io')" style="margin-left: 6px;">Configure I/O</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table" id="lines-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Line ID</th>
+                                            <th>Line Name</th>
+                                            <th>Plant</th>
+                                            <th>Protocol</th>
+                                            <th>Target Destination / Route</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lines-list-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 15. REGULATORY XML REPORT VIEW (BATCH -> XML REPORT) -->
+                <div class="portal-view hidden" id="view-batch-xml">
+                    <div class="card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h3>Regulatory EPCIS XML Compliance Reports</h3>
+                                <p>Generate, inspect, and export GS1 EPCIS 1.2 XML batch commissioning event reports.</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="filter-row">
+                                <select id="xml-select-batch">
+                                    <option value="" disabled selected>-- Select Batch to Generate XML Report --</option>
+                                </select>
+                                <button class="btn primary-btn" id="btn-preview-xml">Generate / View XML</button>
+                                <button class="btn secondary-btn" id="btn-download-selected-xml">Download XML</button>
+                            </div>
+
+                            <div class="mt-4" id="xml-display-container">
+                                <h4>EPCIS Document Inspection</h4>
+                                <pre class="json-code" id="xml-viewer-code" style="max-height: 480px; font-size: 0.82rem; background: #071728; color: #a5d6ff; padding: 16px; border-radius: 6px; overflow: auto; white-space: pre-wrap;">Select a batch above to inspect compliance XML.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 16. BATCH SUMMARY REPORT VIEW (REPORTS -> BATCH SUMMARY) -->
+                <div class="portal-view hidden" id="view-report-summary">
+                    <div class="card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h3>Batch Summary Reports</h3>
+                                <p>Summary metrics of serial number utilization, packaging tier counts, and yield percentages.</p>
+                            </div>
+                            <button class="btn secondary-btn btn-sm" onclick="window.loadBatchSummaryReport()">Refresh Data</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Batch ID</th>
+                                            <th>Product ID</th>
+                                            <th>Lot Number</th>
+                                            <th>Line</th>
+                                            <th>Requested</th>
+                                            <th>Generated</th>
+                                            <th>Pri / Sec / Ter</th>
+                                            <th>Good (Committed)</th>
+                                            <th>Rejected</th>
+                                            <th>Unused</th>
+                                            <th>Yield %</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-summary-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 17. DETAILED PRODUCTION BATCH REPORT VIEW (REPORTS -> BATCH REPORT) -->
+                <div class="portal-view hidden" id="view-report-detail">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Detailed Production Verification Report</h3>
+                            <p>Comprehensive batch verification report including header attributes, ILMD data, and audit records.</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="filter-row">
+                                <select id="report-detail-select-batch">
+                                    <option value="" disabled selected>-- Select Batch to Inspect Detailed Report --</option>
+                                </select>
+                                <button class="btn primary-btn" id="btn-load-detail-report">Load Detailed Report</button>
+                            </div>
+
+                            <div class="mt-4 hidden" id="batch-detail-report-panel">
+                                <div class="report-box" id="detail-report-box">
+                                    <div class="report-status">
+                                        <span>Production &amp; Serialization Certificate</span>
+                                    </div>
+                                    <div class="report-details mt-3" id="detail-report-metrics"></div>
+                                </div>
+
+                                <div class="form-actions mt-4 flex-header">
+                                    <button class="btn primary-btn" id="btn-detail-report-xml">Export GS1 EPCIS XML</button>
+                                    <button class="btn secondary-btn" onclick="window.print()">Print Report (PDF)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -1384,6 +1848,154 @@
         </div>
     </div>
 
-    <script src="/static/app.js?v=20260918_20"></script>
+    <!-- Modal for L2/L3 Batch Reconciliation -->
+    <div class="modal hidden" id="batch-reconcile-modal">
+        <div class="modal-content">
+            <h3>Batch Reconciliation</h3>
+            <p id="reconcile-modal-subtitle">Submit physical inspection counts from packaging line.</p>
+            <input type="hidden" id="reconcile-batch-id">
+            
+            <div class="detail-row mt-3" style="background: #eaf4fe; border: 1px solid #d0e7fc;">
+                <span>Total Commissioned Serials:</span>
+                <strong id="reconcile-total-serials" style="font-size: 1.1rem; color: #08445f;">0</strong>
+            </div>
+
+            <div class="form-group mt-3">
+                <label for="reconcile-good-count"><span class="required-star">*</span> Good Packaged Units (COMMITTED)</label>
+                <input type="number" id="reconcile-good-count" min="0" value="0">
+            </div>
+            <div class="form-group mt-3">
+                <label for="reconcile-rejected-count">Defective / Damaged Units (REJECTED)</label>
+                <input type="number" id="reconcile-rejected-count" min="0" value="0">
+            </div>
+            <div class="form-group mt-3">
+                <label for="reconcile-unused-count">Unprinted / Void Codes (Code Pool Reservoir)</label>
+                <input type="number" id="reconcile-unused-count" min="0" value="0">
+            </div>
+            <div id="reconcile-validation-msg" class="form-message mt-2" style="font-size: 0.85rem;"></div>
+
+            <div class="form-actions mt-4">
+                <button type="button" class="btn primary-btn" id="btn-submit-reconcile">Confirm Reconciliation</button>
+                <button type="button" class="btn cancel-btn" id="btn-close-reconcile-modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Batch Summary and Yield Report -->
+    <div class="modal hidden" id="batch-summary-modal">
+        <div class="modal-content large-modal">
+            <div class="flex-header">
+                <h3 id="summary-modal-title">Batch Summary & Yield Report</h3>
+                <span id="summary-lock-badge" class="badge badge-secondary">LOCKED</span>
+            </div>
+            <p>Comprehensive Level 3 / Level 2 execution and reconciliation audit metrics.</p>
+
+            <div class="report-details mt-3" id="summary-metrics-grid">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="form-actions mt-4 flex-header">
+                <button type="button" class="btn primary-btn" id="btn-summary-export-xml">
+                    Download GS1 EPCIS XML
+                </button>
+                <button type="button" class="btn cancel-btn" id="btn-close-summary-modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLEAN PHARMACEUTICAL AUTHENTICATION MODAL (PFIZER STYLE) -->
+    <div id="auth-overlay" class="auth-overlay hidden">
+        <div class="auth-card-clean">
+            <button type="button" class="auth-close-btn" id="btn-close-auth" title="Close" aria-label="Close">&times;</button>
+            
+            <div class="auth-brand-header">
+                <div class="auth-brand-logo">BT</div>
+                <h2 id="auth-card-title">Sign in</h2>
+                <p id="auth-card-subtitle">to continue to BT SN Portal</p>
+            </div>
+
+            <!-- Error / Status Alert -->
+            <div id="auth-alert-box" class="auth-alert hidden"></div>
+
+            <!-- SIGN IN FORM -->
+            <form id="form-login" class="auth-clean-form">
+                <div class="form-group">
+                    <label for="login-username">Email or Username</label>
+                    <input type="text" id="login-username" name="username" placeholder="name@company.com or username" autocomplete="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-password-wrap">
+                        <input type="password" id="login-password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+                        <button type="button" class="btn-toggle-pwd" id="toggle-login-pwd" tabindex="-1" title="Show password">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="auth-form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="login-remember-me" checked>
+                        <span>Remember this device</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-auth-primary" id="btn-submit-login">
+                    Sign in
+                </button>
+
+                <!-- Quick demo accounts -->
+                <div class="auth-demo-bar">
+                    <span>Quick demo:</span>
+                    <button type="button" class="demo-chip" id="btn-demo-admin" title="Log in as Admin (QP)">Admin (QP)</button>
+                    <button type="button" class="demo-chip" id="btn-demo-operator" title="Log in as Packaging Operator">Operator</button>
+                </div>
+
+                <div class="auth-switch-row">
+                    <span>Don't have an account?</span>
+                    <button type="button" class="auth-link-btn" id="btn-go-signup">Create account</button>
+                </div>
+            </form>
+
+            <!-- SIGN UP FORM (CLEAN & MINIMAL) -->
+            <form id="form-signup" class="auth-clean-form hidden">
+                <div class="form-group">
+                    <label for="signup-fullname">Full Name</label>
+                    <input type="text" id="signup-fullname" placeholder="Dr. Elena Rostova" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-email">Corporate Email</label>
+                    <input type="email" id="signup-email" placeholder="elena.r@pharma.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-username">Username</label>
+                    <input type="text" id="signup-username" placeholder="elena.r" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="At least 6 characters" required>
+                </div>
+
+                <button type="submit" class="btn-auth-primary" id="btn-submit-signup">
+                    Create account
+                </button>
+
+                <div class="auth-switch-row">
+                    <span>Already have an account?</span>
+                    <button type="button" class="auth-link-btn" id="btn-go-login">Sign in</button>
+                </div>
+            </form>
+
+            <div class="auth-clean-footer">
+                <span>21 CFR Part 11 Electronic Records &amp; Signatures (ERES) Validated</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=20261014_02"></script>
 </body>
 </html>
