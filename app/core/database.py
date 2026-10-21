@@ -5,12 +5,17 @@ from app.core.config import settings
 
 logger = logging.getLogger("bt_sn_portal")
 
+# Normalize Render / Heroku postgres:// URLs to postgresql:// for SQLAlchemy 2.0
+db_url = settings.DATABASE_URL
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
 # SQLite needs separate thread settings, while PostgreSQL does not
-connect_args = {"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
+connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
 
 try:
     engine = create_engine(
-        settings.DATABASE_URL, 
+        db_url, 
         connect_args=connect_args,
         pool_pre_ping=True  # Automatically checks and recycles dead connections
     )
