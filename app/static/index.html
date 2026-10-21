@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BT SN Portal | Serialization & Track Trace</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=20261014_02">
+    <link rel="stylesheet" href="/static/style.css?v=20261021_01">
 </head>
 <body>
     <div class="regulatory-ticker">
@@ -35,18 +35,6 @@
             <a href="#operations">Operations</a>
             <a href="#process">Validation</a>
             <a href="#serialization" class="nav-cta" id="nav-open-portal">Serialization Console</a>
-            <!-- Authentication & User Profile Badge -->
-            <div id="auth-nav-container" class="auth-nav-slot">
-                <button type="button" id="btn-open-auth-modal" class="btn-nav-auth">Sign In</button>
-                <div id="user-profile-badge" class="user-badge hidden">
-                    <div class="user-avatar" id="user-avatar-initials">AW</div>
-                    <div class="user-meta">
-                        <span class="user-name" id="user-display-name">Dr. Alexander Wright</span>
-                        <span class="user-role-plant" id="user-display-role">QA &amp; QP • TESTPLANT</span>
-                    </div>
-                    <button type="button" id="btn-sign-out" class="btn-logout" title="Sign out of portal">Sign Out</button>
-                </div>
-            </div>
         </nav>
     </header>
 
@@ -173,33 +161,34 @@
         <!-- Real-World Pharma Operations & Deep Dives -->
         <section class="pharma-showcase-section" id="operations">
             <div class="section-heading">
-                <p class="eyebrow">Operational Capabilities</p>
-                <h2>Purpose-Built for Pharmaceutical Manufacturing Operations.</h2>
+                <p class="eyebrow">Manufacturing &bull; Cleanroom Operations</p>
+                <h2>Engineered for High-Speed Packaging Lines &amp; Global Traceability.</h2>
+                <p>Industrial Level 1 to Level 3 shop-floor capabilities designed for Good Manufacturing Practice (GMP) compliance.</p>
             </div>
 
             <!-- Deep Dive 1: In-line Vision -->
             <div class="pharma-showcase-item">
                 <div class="showcase-media">
                     <img src="/static/img/pharma_serialization_scanner.jpg" alt="High-speed vision inspection and printing station">
-                    <span class="showcase-media-tag">Packaging Line 02 • High-Speed Inspection</span>
+                    <span class="showcase-media-tag">Packaging Line 02 &bull; High-Speed Vision Station</span>
                 </div>
                 <div class="showcase-content">
-                    <h3>High-Speed In-Line Vision & 2D DataMatrix Inspection</h3>
+                    <h3>In-Line Vision Inspection &amp; 2D DataMatrix Grading</h3>
                     <p class="lead-text">
-                        Ensures every single carton printed on high-speed packaging lines conforms to GS1 print quality standards before leaving the cleanroom.
+                        Automated high-speed verification ensuring every printed carton conforms strictly to GS1 ISO/IEC print standards before cleanroom release.
                     </p>
                     <ul class="pharma-points-list">
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>ISO/IEC 15415 Print Quality Grading:</strong> Real-time grading (Grades A & B) evaluating axial non-uniformity, contrast, and modulation.</span>
+                            <span><strong>ISO/IEC 15415 Quality Grading:</strong> Continuous grading (Grades A &amp; B) measuring axial non-uniformity and symbol contrast.</span>
                         </li>
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>Simultaneous OCR/OCV Verification:</strong> Optical character recognition cross-examines human-readable text (Lot, Exp, GTIN, Serial) against the 2D DataMatrix.</span>
+                            <span><strong>Synchronous OCR/OCV Verification:</strong> Automated optical recognition matching lot, expiry, GTIN, and serials against the 2D matrix.</span>
                         </li>
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>Pneumatic Defect Rejection:</strong> Instantly ejects unreadable or duplicate cartons at line speeds of up to 450 packs per minute.</span>
+                            <span><strong>Pneumatic Defect Rejection:</strong> High-speed automated carton ejection system operating at up to 450 packs per minute.</span>
                         </li>
                     </ul>
                 </div>
@@ -210,26 +199,26 @@
                 <div class="showcase-content">
                     <h3>Multi-Tier Parent-Child Packaging Aggregation</h3>
                     <p class="lead-text">
-                        Maintains verifiable hierarchical relationships across packaging levels, enabling distributors to scan a single pallet without opening sealed cases.
+                        Hierarchical packaging genealogy enabling supply-chain partners to verify complete shipments at the pallet level with unique GS1 SSCC-18 codes.
                     </p>
                     <ul class="pharma-points-list">
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>Unit-to-Case-to-Pallet Hierarchy:</strong> Seamless mapping of Primary units into Bundles, Shipper Cases, and Pallets with unique SSCC-18 identifiers.</span>
+                            <span><strong>Packaging Hierarchy:</strong> Systematic unit-to-bundle-to-shipper case-to-pallet aggregation with verifiable digital parentage.</span>
                         </li>
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>Dynamic De-Aggregation & Rework:</strong> Supports unbundling, quarantine extraction, and re-packing workflows without corrupting serialization genealogy.</span>
+                            <span><strong>Dynamic Rework &amp; De-Aggregation:</strong> Controlled case unbundling and rework protocols maintaining lineage integrity.</span>
                         </li>
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>Warehouse Radio-Frequency Scanning:</strong> Compatible with all standard industrial handheld RF barcode terminals and automated warehouse AGVs.</span>
+                            <span><strong>Industrial Scanner Integration:</strong> Seamless interoperability with standard warehouse handheld RF barcode terminals and automated AGVs.</span>
                         </li>
                     </ul>
                 </div>
                 <div class="showcase-media">
                     <img src="/static/img/pharma_warehouse_logistics.jpg" alt="Pharmaceutical warehouse pallet tracking with SSCC label">
-                    <span class="showcase-media-tag">Distribution Hub 01 • Pallet SSCC Verification</span>
+                    <span class="showcase-media-tag">Distribution Hub 01 &bull; Pallet SSCC Verification</span>
                 </div>
             </div>
 
@@ -237,25 +226,25 @@
             <div class="pharma-showcase-item">
                 <div class="showcase-media">
                     <img src="/static/img/pharma_lab_quality.jpg" alt="Pharmaceutical QA laboratory inspecting digital batch records">
-                    <span class="showcase-media-tag">QA Compliance Lab • 21 CFR Part 11 Audit Review</span>
+                    <span class="showcase-media-tag">QA Compliance Lab &bull; 21 CFR Part 11 Audit Review</span>
                 </div>
                 <div class="showcase-content">
-                    <h3>Analytical Quality Assurance & Immutable Audit Trails</h3>
+                    <h3>Quality Assurance &amp; Immutable Electronic Audit Trails</h3>
                     <p class="lead-text">
-                        Enforces rigorous Good Automated Manufacturing Practice (GAMP 5) with comprehensive audit coverage for Qualified Person (QP) batch release.
+                        Validated compliance workflows enforcing 21 CFR Part 11 and GAMP 5 standards for Qualified Person (QP) batch release.
                     </p>
                     <ul class="pharma-points-list">
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>Change Data Capture (CDC) Logging:</strong> Every record mutation in Products, GTIN Store, and Batches writes an unalterable audit log with actor ID and timestamp.</span>
+                            <span><strong>Change Data Capture (CDC):</strong> Automated immutable logging for all record creations, edits, and state transitions with actor attribution.</span>
                         </li>
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>Side-by-Side JSON Diff Inspector:</strong> Interactive inspection interface showing exact before-and-after states for internal auditors and FDA/EMA inspections.</span>
+                            <span><strong>Side-by-Side JSON Diff Inspector:</strong> Visual audit inspector displaying before-and-after snapshots for regulatory inspections.</span>
                         </li>
                         <li>
                             <span class="check-icon">✓</span>
-                            <span><strong>Targeted Mock Recall Execution:</strong> Locates contaminated or recalled units across distribution networks within 60 seconds.</span>
+                            <span><strong>Targeted Mock Recall Capability:</strong> Rapid identification of affected serials and lot distributions within 60 seconds.</span>
                         </li>
                     </ul>
                 </div>
@@ -264,29 +253,30 @@
 
         <section class="process-section" id="process">
             <div class="section-heading">
-                <p class="eyebrow">How it works</p>
-                <h2>Four steps from secure code creation to supply-chain visibility.</h2>
+                <p class="eyebrow">Standard Operating Procedure</p>
+                <h2>Serialization Lifecycle &amp; Validation Protocol</h2>
+                <p>Four-stage GAMP 5 Category 4 lifecycle governing serial identity from code commissioning through downstream verification.</p>
             </div>
             <div class="process-grid">
                 <article class="step-card">
-                    <span>1</span>
-                    <h3>Generate</h3>
-                    <p>Unique serial numbers are created against a product profile and reserved sequence range.</p>
+                    <span>01</span>
+                    <h3>Commission</h3>
+                    <p>CSPRNG cryptographic generation and sequence reservation against registered product GTINs.</p>
                 </article>
                 <article class="step-card">
-                    <span>2</span>
-                    <h3>Print</h3>
-                    <p>GTIN, serial, lot, and expiry data can be encoded for product and packaging line use.</p>
+                    <span>02</span>
+                    <h3>Print &amp; Grade</h3>
+                    <p>In-line 2D DataMatrix thermal marking with synchronous ISO/IEC 15415 vision quality grading.</p>
                 </article>
                 <article class="step-card">
-                    <span>3</span>
-                    <h3>Dispatch</h3>
-                    <p>Batches move from generated to allocated and shipped with a visible event trail.</p>
+                    <span>03</span>
+                    <h3>Aggregate</h3>
+                    <p>Multi-tier parent-child carton packaging reconciliation and electronic batch record authorization.</p>
                 </article>
                 <article class="step-card">
-                    <span>4</span>
+                    <span>04</span>
                     <h3>Verify</h3>
-                    <p>Each serial can be checked and updated as it moves through downstream events.</p>
+                    <p>Verification Router Service (VRS) readiness, tamper status verification, and compliance audit reporting.</p>
                 </article>
             </div>
         </section>
@@ -1737,79 +1727,30 @@
             </div>
         </section>
 
-        <section class="benefits-section" id="benefits">
-            <div class="section-heading">
-                <p class="eyebrow">Key benefits</p>
-                <h2>Built for practical product protection.</h2>
-            </div>
-            <div class="benefit-grid">
-                <article>
-                    <h3>Secure each unit</h3>
-                    <p>Assign a distinct serial identity to every product unit and maintain a verifiable record.</p>
-                </article>
-                <article>
-                    <h3>Track key events</h3>
-                    <p>Follow generated, allocated, shipped, sold, and decommissioned states from one screen.</p>
-                </article>
-                <article>
-                    <h3>Support recalls</h3>
-                    <p>Use batch and lot context to narrow investigation scope when field action is needed.</p>
-                </article>
-                <article>
-                    <h3>Improve visibility</h3>
-                    <p>Review batch counts and sequence ranges to detect operational gaps quickly.</p>
-                </article>
-            </div>
-        </section>
-
-        <!-- Pharmaceutical Operations Knowledge Hub & FAQ -->
-        <section class="faq-section" id="faq">
-            <div class="section-heading">
-                <p class="eyebrow">Technical Knowledge Hub</p>
-                <h2>Frequently Asked Questions on Pharmaceutical Serialization.</h2>
-                <p>Standard operating guidance for packaging supervisors, QA compliance officers, and validation engineers.</p>
-            </div>
-            <div class="faq-grid">
-                <article class="faq-card">
-                    <h4><span>❓</span> How does the portal prevent duplicate serial numbers across high-speed packaging lines?</h4>
-                    <p>The serialization engine combines atomic database sequence reservation (using row-level locking on sequence counters) with an OS-level Cryptographically Secure Pseudo-Random Number Generator (CSPRNG). Candidates are cross-referenced across historical chunks, mathematically ensuring zero duplicate allocations.</p>
-                </article>
-                <article class="faq-card">
-                    <h4><span>❓</span> What is the difference between SGTIN-96, EPCIS, and 2D DataMatrix?</h4>
-                    <p><strong>GS1 2D DataMatrix</strong> is the physical two-dimensional barcode printed on the carton. <strong>SGTIN-96</strong> is the 96-bit global unique identifier combining GTIN and Serial Number. <strong>EPCIS (Electronic Product Code Information Services)</strong> is the XML/JSON standard for transmitting supply-chain events between trading partners.</p>
-                </article>
-                <article class="faq-card">
-                    <h4><span>❓</span> Why are look-alike characters (0, 1, I, L, O, U) excluded from serialization?</h4>
-                    <p>In accordance with GS1 General Specifications and global health authority recommendations, visually ambiguous characters are excluded from alphanumeric serialization to prevent Optical Character Recognition (OCR) misreads and human scanning confusion during clinical point-of-dispense.</p>
-                </article>
-                <article class="faq-card">
-                    <h4><span>❓</span> How does the portal support 21 CFR Part 11 and EU GMP Annex 11 inspections?</h4>
-                    <p>All database mutations (creates, updates, and status transitions) generate an immutable Change Data Capture (CDC) audit log containing UTC timestamps, actor usernames, and complete before-and-after JSON snapshots that cannot be modified or truncated by users.</p>
-                </article>
-            </div>
-        </section>
     </main>
 
     <footer class="site-footer">
         <div>
             <a class="brand footer-brand" href="#top">
                 <span class="brand-mark">BT</span>
-                <span>BT SN Portal</span>
+                <div class="brand-text-wrap">
+                    <span class="brand-title" style="color: #ffffff;">BT PHARMACEUTICALS</span>
+                    <span class="brand-subtitle" style="color: #8da2bb;">Serialization &amp; Track-and-Trace Quality System</span>
+                </div>
             </a>
-            <p style="margin-top: 8px; max-width: 420px; font-size: 0.85rem; color: var(--muted);">
-                Enterprise Pharmaceutical Serialization, Track & Trace, and Regulatory Compliance System. Validated for US FDA DSCSA 2024, EU FMD, and DGFT iVEDA compliance.
+            <p style="margin-top: 12px; max-width: 480px; font-size: 0.85rem; color: #9bb0c7; line-height: 1.55;">
+                Enterprise Level 3 Site Server &amp; Level 4 Corporate Repository compliant with US FDA DSCSA (21 CFR §201/211), EU FMD (Directive 2011/62/EU), and DGFT iVEDA mandates.
             </p>
-            <div style="margin-top: 14px; font-size: 0.78rem; color: var(--muted);">
-                <span>ISO 9001:2015</span> • <span>ISO 27001 Certified</span> • <span>GAMP 5 Category 4 Configured</span>
+            <div style="margin-top: 14px; font-size: 0.78rem; color: #728ca8; display: flex; gap: 14px; flex-wrap: wrap;">
+                <span>ISO 9001:2015</span> &bull; <span>ISO 27001 Certified</span> &bull; <span>GAMP 5 Category 4 Configured</span> &bull; <span>21 CFR Part 11 Validated</span>
             </div>
         </div>
         <div class="footer-links">
-            <a href="#compliance">Compliance</a>
+            <a href="#compliance">Regulatory</a>
             <a href="#architecture">Architecture</a>
             <a href="#operations">Operations</a>
-            <a href="#serialization">Portal Console</a>
-            <a href="#faq">Knowledge Hub</a>
-            <a href="#benefits">Key Benefits</a>
+            <a href="#process">Validation</a>
+            <a href="#serialization">Serialization Console</a>
         </div>
     </footer>
 
@@ -1903,99 +1844,6 @@
         </div>
     </div>
 
-    <!-- CLEAN PHARMACEUTICAL AUTHENTICATION MODAL (PFIZER STYLE) -->
-    <div id="auth-overlay" class="auth-overlay hidden">
-        <div class="auth-card-clean">
-            <button type="button" class="auth-close-btn" id="btn-close-auth" title="Close" aria-label="Close">&times;</button>
-            
-            <div class="auth-brand-header">
-                <div class="auth-brand-logo">BT</div>
-                <h2 id="auth-card-title">Sign in</h2>
-                <p id="auth-card-subtitle">to continue to BT SN Portal</p>
-            </div>
-
-            <!-- Error / Status Alert -->
-            <div id="auth-alert-box" class="auth-alert hidden"></div>
-
-            <!-- SIGN IN FORM -->
-            <form id="form-login" class="auth-clean-form">
-                <div class="form-group">
-                    <label for="login-username">Email or Username</label>
-                    <input type="text" id="login-username" name="username" placeholder="name@company.com or username" autocomplete="username" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <div class="input-password-wrap">
-                        <input type="password" id="login-password" name="password" placeholder="••••••••" autocomplete="current-password" required>
-                        <button type="button" class="btn-toggle-pwd" id="toggle-login-pwd" tabindex="-1" title="Show password">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="auth-form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="login-remember-me" checked>
-                        <span>Remember this device</span>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn-auth-primary" id="btn-submit-login">
-                    Sign in
-                </button>
-
-                <!-- Quick demo accounts -->
-                <div class="auth-demo-bar">
-                    <span>Quick demo:</span>
-                    <button type="button" class="demo-chip" id="btn-demo-admin" title="Log in as Admin (QP)">Admin (QP)</button>
-                    <button type="button" class="demo-chip" id="btn-demo-operator" title="Log in as Packaging Operator">Operator</button>
-                </div>
-
-                <div class="auth-switch-row">
-                    <span>Don't have an account?</span>
-                    <button type="button" class="auth-link-btn" id="btn-go-signup">Create account</button>
-                </div>
-            </form>
-
-            <!-- SIGN UP FORM (CLEAN & MINIMAL) -->
-            <form id="form-signup" class="auth-clean-form hidden">
-                <div class="form-group">
-                    <label for="signup-fullname">Full Name</label>
-                    <input type="text" id="signup-fullname" placeholder="Dr. Elena Rostova" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="signup-email">Corporate Email</label>
-                    <input type="email" id="signup-email" placeholder="elena.r@pharma.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="signup-username">Username</label>
-                    <input type="text" id="signup-username" placeholder="elena.r" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" placeholder="At least 6 characters" required>
-                </div>
-
-                <button type="submit" class="btn-auth-primary" id="btn-submit-signup">
-                    Create account
-                </button>
-
-                <div class="auth-switch-row">
-                    <span>Already have an account?</span>
-                    <button type="button" class="auth-link-btn" id="btn-go-login">Sign in</button>
-                </div>
-            </form>
-
-            <div class="auth-clean-footer">
-                <span>21 CFR Part 11 Electronic Records &amp; Signatures (ERES) Validated</span>
-            </div>
-        </div>
-    </div>
-
-    <script src="/static/app.js?v=20261014_02"></script>
+    <script src="/static/app.js?v=20261021_01"></script>
 </body>
 </html>

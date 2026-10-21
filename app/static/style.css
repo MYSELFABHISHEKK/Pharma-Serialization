@@ -950,40 +950,26 @@ select:focus {
     font-size: 0.78rem;
 }
 
-.benefits-section {
-    background: var(--surface);
-}
-
-.benefit-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
-}
-
-.benefit-grid article {
-    min-height: 190px;
-    padding: 24px;
-    border-top: 4px solid var(--teal);
-}
-
 .site-footer {
     display: flex;
     justify-content: space-between;
     gap: 32px;
     padding: 42px 48px;
-    background: #102033;
+    background: #001933;
     color: #ffffff;
+    border-top: 3px solid #002855;
 }
 
 .site-footer p {
-    max-width: 460px;
+    max-width: 480px;
     margin-top: 14px;
-    color: #b9c6d4;
-    font-size: 0.9rem;
+    color: #9bb0c7;
+    font-size: 0.88rem;
 }
 
 .site-footer .brand-mark {
-    background: var(--teal);
+    background: #002855;
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .footer-brand {
@@ -995,10 +981,10 @@ select:focus {
     flex-wrap: wrap;
     align-content: flex-start;
     justify-content: flex-end;
-    gap: 18px;
-    color: #dbe5ef;
-    font-size: 0.9rem;
-    font-weight: 700;
+    gap: 20px;
+    color: #cbd8e6;
+    font-size: 0.88rem;
+    font-weight: 600;
 }
 
 .footer-links a:hover {
@@ -1047,7 +1033,6 @@ select:focus {
     .content-section,
     .process-section,
     .serialization-section,
-    .benefits-section,
     .site-footer {
         padding-left: 24px;
         padding-right: 24px;
@@ -1082,15 +1067,13 @@ select:focus {
     }
 
     .metrics-band,
-    .process-grid,
-    .benefit-grid {
+    .process-grid {
         grid-template-columns: 1fr;
     }
 
     .content-section,
     .process-section,
-    .serialization-section,
-    .benefits-section {
+    .serialization-section {
         padding-top: 58px;
         padding-bottom: 58px;
     }
@@ -1810,7 +1793,7 @@ select:focus {
 
 .showcase-media {
     position: relative;
-    border-radius: 12px;
+    border-radius: 4px;
     overflow: hidden;
     box-shadow: var(--shadow);
     border: 1px solid var(--line-strong);
@@ -1832,29 +1815,30 @@ select:focus {
     position: absolute;
     bottom: 14px;
     left: 14px;
-    background: rgba(10, 26, 47, 0.85);
+    background: rgba(0, 25, 51, 0.90);
     color: #ffffff;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.78rem;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-size: 0.76rem;
     font-weight: 600;
+    letter-spacing: 0.02em;
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .showcase-content h3 {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--ink);
-    margin-bottom: 14px;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #002855;
+    margin-bottom: 12px;
     line-height: 1.3;
 }
 
 .showcase-content .lead-text {
-    font-size: 0.98rem;
-    color: var(--muted);
-    margin-bottom: 20px;
-    line-height: 1.6;
+    font-size: 0.95rem;
+    color: #4a5d73;
+    margin-bottom: 18px;
+    line-height: 1.55;
 }
 
 .pharma-points-list {
@@ -1868,7 +1852,7 @@ select:focus {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--ink);
     line-height: 1.5;
 }
@@ -1887,44 +1871,6 @@ select:focus {
     margin-top: 2px;
 }
 
-/* FAQ & Knowledge Section */
-.faq-section {
-    padding: 60px 48px;
-    background: var(--surface-soft);
-    border-top: 1px solid var(--line);
-}
-
-.faq-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
-    margin-top: 32px;
-}
-
-.faq-card {
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 24px;
-    box-shadow: var(--small-shadow);
-}
-
-.faq-card h4 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.faq-card p {
-    font-size: 0.88rem;
-    color: var(--muted);
-    line-height: 1.6;
-}
-
 @media (max-width: 900px) {
     .pharma-showcase-item,
     .pharma-showcase-item.reverse {
@@ -1936,374 +1882,11 @@ select:focus {
     }
     .compliance-section,
     .architecture-section,
-    .pharma-showcase-section,
-    .faq-section {
+    .pharma-showcase-section {
         padding: 40px 20px;
     }
 }
 
-/* ==========================================================================
-   21 CFR PART 11 AUTHENTICATION GATEWAY & USER PROFILE STYLES
-   ========================================================================== */
 
-.auth-nav-slot {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: 12px;
-}
-
-.btn-nav-auth {
-    background: #002855;
-    color: #ffffff;
-    border: 1px solid #001933;
-    border-radius: 4px;
-    padding: 7px 16px;
-    font-size: 0.86rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-nav-auth:hover {
-    background: #001933;
-}
-
-.user-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    padding: 4px 10px 4px 6px;
-    border-radius: 4px;
-    transition: all 0.15s ease;
-}
-
-.user-badge:hover {
-    background: #e2e8f0;
-    border-color: #94a3b8;
-}
-
-.user-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 3px;
-    background: #002855;
-    color: #ffffff;
-    font-size: 0.74rem;
-    font-weight: 700;
-    display: grid;
-    place-items: center;
-    letter-spacing: 0.02em;
-}
-
-.user-meta {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    line-height: 1.15;
-}
-
-.user-name {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #0f233a;
-}
-
-.user-role-plant {
-    font-size: 0.70rem;
-    color: #475569;
-    max-width: 170px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.btn-logout {
-    background: #ffffff;
-    border: 1px solid #ef4444;
-    color: #b91c1c;
-    padding: 3px 8px;
-    border-radius: 3px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    margin-left: 4px;
-}
-
-.btn-logout:hover {
-    background: #fee2e2;
-}
-
-/* Minimalist Pharmaceutical Authentication Overlay (Pfizer Style) */
-.auth-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    overflow-y: auto;
-}
-
-.auth-card-clean {
-    background: #ffffff;
-    width: 100%;
-    max-width: 420px;
-    border-radius: 4px;
-    border: 1px solid #cbd5e1;
-    border-top: 4px solid #002855;
-    box-shadow: 0 6px 24px rgba(15, 35, 58, 0.14);
-    padding: 34px 30px 24px;
-    position: relative;
-    animation: authFadeIn 0.20s ease-out;
-}
-
-@keyframes authFadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.97) translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-.auth-close-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: transparent;
-    border-radius: 3px;
-    font-size: 1.3rem;
-    line-height: 1;
-    color: #94a3b8;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    transition: all 0.15s ease;
-}
-
-.auth-close-btn:hover {
-    background: #f1f5f9;
-    color: #1e293b;
-}
-
-.auth-brand-header {
-    text-align: center;
-    margin-bottom: 22px;
-}
-
-.auth-brand-logo {
-    width: 44px;
-    height: 44px;
-    border-radius: 4px;
-    background: #002855;
-    color: #ffffff;
-    font-weight: 800;
-    font-size: 1.15rem;
-    display: grid;
-    place-items: center;
-    margin: 0 auto 12px;
-    border: 1px solid #001933;
-    letter-spacing: -0.01em;
-}
-
-.auth-brand-header h2 {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #002855;
-    margin: 0 0 3px 0;
-}
-
-.auth-brand-header p {
-    font-size: 0.84rem;
-    color: #5a6e85;
-    margin: 0;
-}
-
-.auth-alert {
-    padding: 9px 12px;
-    border-radius: 3px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    margin-bottom: 16px;
-    line-height: 1.4;
-}
-
-.auth-alert.error {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
-}
-
-.auth-alert.success {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #15803d;
-}
-
-.auth-clean-form .form-group {
-    margin-bottom: 14px;
-    text-align: left;
-}
-
-.auth-clean-form label {
-    display: block;
-    font-size: 0.80rem;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 5px;
-}
-
-.auth-clean-form input {
-    width: 100%;
-    height: 38px;
-    border: 1px solid #cbd5e1;
-    border-radius: 3px;
-    padding: 0 11px;
-    font-size: 0.88rem;
-    color: #0f172a;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    background: #ffffff;
-}
-
-.auth-clean-form input:focus {
-    border-color: #0056b3;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.12);
-}
-
-.input-password-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.input-password-wrap input {
-    padding-right: 36px;
-}
-
-.btn-toggle-pwd {
-    position: absolute;
-    right: 6px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 0.90rem;
-    color: #94a3b8;
-    padding: 4px;
-    border-radius: 3px;
-    display: grid;
-    place-items: center;
-}
-
-.btn-toggle-pwd:hover {
-    color: #334155;
-}
-
-.auth-form-options {
-    margin: 6px 0 16px 0;
-    font-size: 0.80rem;
-    color: #5a6e85;
-    display: flex;
-    align-items: center;
-}
-
-.btn-auth-primary {
-    width: 100%;
-    height: 40px;
-    border: 1px solid #001933;
-    border-radius: 4px;
-    background: #002855;
-    color: #ffffff;
-    font-size: 0.90rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s ease;
-}
-
-.btn-auth-primary:hover {
-    background: #001933;
-}
-
-.btn-auth-primary:active {
-    transform: translateY(1px);
-}
-
-.auth-demo-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: 16px 0 10px 0;
-    font-size: 0.76rem;
-    color: #5a6e85;
-}
-
-.demo-chip {
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    color: #334155;
-    padding: 3px 9px;
-    border-radius: 3px;
-    font-size: 0.74rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.demo-chip:hover {
-    background: #e2e8f0;
-    border-color: #94a3b8;
-    color: #0f172a;
-}
-
-.auth-switch-row {
-    text-align: center;
-    font-size: 0.84rem;
-    color: #64748b;
-    margin-top: 14px;
-}
-
-.auth-link-btn {
-    background: none;
-    border: none;
-    color: #0056b3;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0 4px;
-    text-decoration: underline;
-    font-size: inherit;
-}
-
-.auth-link-btn:hover {
-    color: #003d80;
-}
-
-.auth-clean-footer {
-    text-align: center;
-    margin-top: 22px;
-    padding-top: 14px;
-    border-top: 1px solid #f1f5f9;
-    font-size: 0.72rem;
-    color: #94a3b8;
-}
 
 
