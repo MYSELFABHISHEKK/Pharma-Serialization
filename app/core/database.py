@@ -11,6 +11,10 @@ logger = logging.getLogger("bt_sn_portal")
 # Read the database URL from your environment configuration
 DATABASE_URL = settings.DATABASE_URL
 
+# Render / Cloud hosts often supply postgres:// instead of postgresql://
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # Configure SQLite separately; PostgreSQL does not need this setting
 connect_args = (
     {"check_same_thread": False}
