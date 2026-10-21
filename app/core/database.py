@@ -1,34 +1,52 @@
+
 import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+
 from app.core.config import settings
 
 logger = logging.getLogger("bt_sn_portal")
 
-# Normalize Render / Heroku postgres:// URLs to postgresql:// for SQLAlchemy 2.0
-db_url = settings.DATABASE_URL
-if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+# Read the database URL from your environment configuration
+DATABASE_URL = settings.DATABASE_URL
 
-# SQLite needs separate thread settings, while PostgreSQL does not
-connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
+# Configure SQLite separately; PostgreSQL does not need this setting
+connect_args = (
+    {"check_same_thread": False}
+    if DATABASE_URL.startswith("sqlite")
+    else {}
+)
 
 try:
+    # Initialize the SQLAlchemy database engine
     engine = create_engine(
-        db_url, 
+        DATABASE_URL,
         connect_args=connect_args,
-        pool_pre_ping=True  # Automatically checks and recycles dead connections
+        pool_pre_ping=True,
     )
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    # Create a factory for database sessions
+    SessionLocal = sessionmaker(
+        autocommit=False,
+        autoflush=False,
+        bind=engine,
+    )
+
+    # Base class for SQLAlchemy models
     Base = declarative_base()
-    logger.info("SQLAlchemy Database engine initialized.")
-except Exception as e:
-    logger.error(f"Failed to initialize SQLAlchemy database engine: {e}")
-    raise e
+
+    logger.info("SQLAlchemy database engine initialized.")
+
+except Exception:
+    logger.exception("Failed to initialize SQLAlchemy database engine.")
+    raise
+
 
 def get_db():
-    """Dependency for providing database sessions to endpoints."""
+    """Provide a database session to FastAPI endpoints."""
     db = SessionLocal()
+
     try:
         yield db
     finally:
