@@ -38,25 +38,43 @@ class SerialRepository:
                 db.bulk_insert_mappings(Serial, serial_docs[i:i+chunk_size])
             db.commit()
         else:
-            # PostgreSQL COPY command (inserts 1,000,000 rows in ~0.5s)
-            import io
-            import json
-            buffer = io.StringIO()
-            for doc in serial_docs:
-                history_json = json.dumps(doc["history"])
-                buffer.write(
-                    f"{doc['serial_number']}\t{doc['sequence_number']}\t{doc['product_id']}\t"
-                    f"{doc['batch_id']}\t{doc['batch_lot']}\t{doc['expiry_date']}\t"
-                    f"{doc['status']}\t{doc['created_at']}\t{history_json}\n"
-                )
-            buffer.seek(0)
-            raw_conn = db.connection().connection.driver_connection
-            with raw_conn.cursor() as cursor:
-                cursor.copy_from(
-                    buffer, 'serials',
-                    columns=('serial_number', 'sequence_number', 'product_id', 'batch_id', 'batch_lot', 'expiry_date', 'status', 'created_at', 'history')
-                )
-            db.commit()
+            try:
+                # High-speed PostgreSQL COPY command (handles both psycopg2 and psycopg 3)
+                import io
+                import json
+                buffer = io.StringIO()
+                for doc in serial_docs:
+                    history_json = json.dumps(doc["history"])
+                    buffer.write(
+                        f"{doc['serial_number']}\t{doc['sequence_number']}\t{doc['product_id']}\t"
+                        f"{doc['batch_id']}\t{doc['batch_lot']}\t{doc['expiry_date']}\t"
+                        f"{doc['status']}\t{doc['created_at']}\t{history_json}\n"
+                    )
+                buffer.seek(0)
+                raw_conn = db.connection().connection.driver_connection
+                with raw_conn.cursor() as cursor:
+                    if hasattr(cursor, "copy_from"):
+                        # psycopg2 driver
+                        cursor.copy_from(
+                            buffer, 'serials',
+                            columns=('serial_number', 'sequence_number', 'product_id', 'batch_id', 'batch_lot', 'expiry_date', 'status', 'created_at', 'history')
+                        )
+                    elif hasattr(cursor, "copy"):
+                        # psycopg 3 driver
+                        with cursor.copy(
+                            "COPY serials (serial_number, sequence_number, product_id, batch_id, batch_lot, expiry_date, status, created_at, history) FROM STDIN"
+                        ) as copy:
+                            copy.write(buffer.getvalue())
+                    else:
+                        raise AttributeError("No bulk COPY method available on cursor")
+                db.commit()
+            except Exception:
+                db.rollback()
+                # Universal fallback using SQLAlchemy bulk insert
+                chunk_size = 5000
+                for i in range(0, len(serial_docs), chunk_size):
+                    db.bulk_insert_mappings(Serial, serial_docs[i:i+chunk_size])
+                db.commit()
 
     @staticmethod
     def update_status(db: Session, serial_number: str, status: str, updated_by: str, notes: Optional[str] = None) -> Optional[Serial]:
