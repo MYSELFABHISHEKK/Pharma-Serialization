@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>BT SN Portal | Serialization & Track Trace</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=20261021_01">
+    <!-- Offline Plant Intranet Ready Font Stack (No External Google Fonts Dependency) -->
+    <link rel="stylesheet" href="/static/style.css?v=20261102_06">
 </head>
 <body>
     <div class="regulatory-ticker">
@@ -34,7 +34,13 @@
             <a href="#architecture">Architecture</a>
             <a href="#operations">Operations</a>
             <a href="#process">Validation</a>
-            <a href="#serialization" class="nav-cta" id="nav-open-portal">Serialization Console</a>
+            <a href="#serialization" class="nav-cta" id="nav-open-portal" onclick="if(!window.isAuthenticated || !window.isAuthenticated()){ event.preventDefault(); if(window.showAuthOverlay) window.showAuthOverlay(); }">Serialization Console</a>
+            <div class="auth-header-wrapper" id="auth-header-wrapper">
+                <button type="button" class="btn-nav-signin" id="btn-header-login" onclick="if(window.showAuthOverlay) window.showAuthOverlay();">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <span>Sign In</span>
+                </button>
+            </div>
         </nav>
     </header>
 
@@ -327,6 +333,8 @@
                 </div>
                 <button class="portal-nav-btn" data-view="view-verification">Verification</button>
                 <button class="portal-nav-btn" data-view="view-sgtin">SGTIN CSV</button>
+                <button class="portal-nav-btn admin-only-tab" data-view="view-users" id="nav-btn-users" style="display: none;">User Management</button>
+                <button class="portal-nav-btn admin-only-tab" data-view="view-roles" id="nav-btn-roles" style="display: none;">Roles &amp; Privileges</button>
             </nav>
 
             <div class="portal-view-container">
@@ -347,9 +355,11 @@
                             <p class="dash-metric" id="dash-batch-count">0</p>
                         </div>
                     </div>
-                    <div class="info-block mt-4">
-                        <h3>Welcome to BT SN Portal</h3>
-                        <p>Select any workflow option from the menu bar above to begin registering masters or generating serial packages.</p>
+                    <div class="minimal-notice mt-4" style="padding: 16px 20px;">
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <strong style="color: #0f2d59; font-size: 0.92rem; font-weight: 600;">Serialization Operations Console</strong>
+                            <span style="color: #475569; font-size: 0.84rem;">Select any workflow module from the command bar above to manage master products, packaging lines, serialization batches, and compliance reports.</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1724,6 +1734,108 @@
                     </div>
                 </div>
 
+                <!-- 13. USER DIRECTORY VIEW (ADMIN ONLY) -->
+                <div class="portal-view hidden" id="view-users">
+                    <div class="view-header-flex">
+                        <div>
+                            <h3>Authorized User Directory &amp; Electronic Identity Management</h3>
+                            <p class="section-desc">Regulated under 21 CFR Part 11 &bull; Only accounts provisioned by System Administrators or Quality Assurance Leads can access serialization functions.</p>
+                        </div>
+                        <button class="btn primary-btn" id="btn-open-create-user-modal">
+                            <span>+ Provision Authorized User</span>
+                        </button>
+                    </div>
+
+                    <div class="minimal-notice mt-3">
+                        <svg class="notice-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.75v4M8 11.25h.008" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <span>Access is strictly limited to authorized plant personnel under 21 CFR §11.10(d). All user creation and security profile changes are immutably logged in the compliance audit trail.</span>
+                    </div>
+
+                    <div class="table-container mt-4">
+                        <table class="table users-mgmt-table" id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User ID</th>
+                                    <th>Full Name</th>
+                                    <th>Packaging Role</th>
+                                    <th>Manufacturing Plant</th>
+                                    <th>Corporate Email</th>
+                                    <th>Status</th>
+                                    <th>Pwd Update</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr>
+                                    <td colspan="10" class="text-center text-muted">Loading authorized users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 14. ROLES & PRIVILEGES (RBAC) VIEW (ADMIN ONLY) -->
+                <div class="portal-view hidden" id="view-roles">
+                    <div class="view-header-flex">
+                        <div>
+                            <h3>Roles &amp; Privileges Management</h3>
+                            <p class="section-desc">21 CFR Part 11 Role-Based Access Control &bull; Configure standard system templates and define granular action permissions for plant personnel.</p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn secondary-btn" id="btn-open-create-role-modal">
+                                <span>+ Create Custom Role</span>
+                            </button>
+                            <button type="button" class="btn primary-btn" id="btn-save-role-permissions">
+                                <span>Save Permission Matrix</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="minimal-notice mt-3">
+                        <svg class="notice-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.75v4M8 11.25h.008" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <span>Default-deny access control. Standard templates (Administrator, Operator, Quality Reviewer, Auditor) are pre-validated and protected. Actions can be granted or revoked per module.</span>
+                    </div>
+
+                    <!-- Role Selector Pill Bar -->
+                    <div class="roles-pill-bar mt-4" id="roles-pill-container">
+                        <!-- Populated dynamically via app.js -->
+                    </div>
+
+                    <!-- Role Details & Matrix Card -->
+                    <div class="card mt-3" id="role-matrix-card">
+                        <div class="card-header flex-header">
+                            <div>
+                                <h4 id="current-role-title" style="color: var(--primary); font-size: 1.15rem; font-weight: 600;">System Administrator</h4>
+                                <p id="current-role-desc" style="color: var(--muted); font-size: 0.85rem; margin-top: 4px;">Full administrative control over user accounts, roles, security, and all plant modules.</p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="role-status-tag role-status-system" id="current-role-system-badge">System Template</span>
+                                <button type="button" class="btn danger-btn" id="btn-delete-role" style="display: none; padding: 4px 10px; font-size: 0.8rem;">Delete Role</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table role-matrix-table" id="role-permissions-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-module">Module</th>
+                                            <th class="col-desc">Description</th>
+                                            <th class="col-actions">Configured Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="role-permissions-table-body">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Loading permission matrix...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -1771,20 +1883,37 @@
 
     <!-- Modal for Audit Log Details Comparison -->
     <div class="modal hidden" id="audit-details-modal">
-        <div class="modal-content large-modal">
-            <h3>Audit Record Details</h3>
-            <div class="audit-comparison mt-3">
-                <div class="comparison-pane">
-                    <h4>Previous Value</h4>
-                    <pre class="json-code" id="audit-prev-json"></pre>
+        <div class="modal-content large-modal" style="max-width: 860px; max-height: 88vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.25rem; color: #0f172a; font-weight: 700;">Audit Record Details</h3>
+                    <p style="margin: 4px 0 0; font-size: 0.82rem; color: #64748b;" id="audit-modal-subtitle">21 CFR Part 11 Electronic Audit Trail Record</p>
                 </div>
-                <div class="comparison-pane">
-                    <h4>Updated Value</h4>
-                    <pre class="json-code" id="audit-new-json"></pre>
+                <button type="button" class="btn cancel-btn" id="btn-audit-modal-x" style="padding: 4px 10px; font-size: 1.1rem; line-height: 1; min-height: auto;" onclick="document.getElementById('audit-details-modal').classList.add('hidden');">&times;</button>
+            </div>
+
+            <!-- Client-Friendly Text Content Container -->
+            <div id="audit-text-container" class="mt-3">
+                <!-- Populated dynamically via app.js -->
+            </div>
+
+            <!-- Optional Raw JSON Comparison (Hidden by default, can be toggled) -->
+            <div id="audit-raw-section" class="mt-3 hidden">
+                <div class="audit-comparison">
+                    <div class="comparison-pane">
+                        <h4>Previous Value (Raw JSON)</h4>
+                        <pre class="json-code" id="audit-prev-json"></pre>
+                    </div>
+                    <div class="comparison-pane">
+                        <h4>Updated Value (Raw JSON)</h4>
+                        <pre class="json-code" id="audit-new-json"></pre>
+                    </div>
                 </div>
             </div>
-            <div class="form-actions mt-4">
-                <button class="btn cancel-btn" id="btn-audit-modal-close">Close</button>
+
+            <div class="form-actions mt-4" style="border-top: 1px solid #e2e8f0; padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" class="btn secondary-btn btn-sm" id="btn-toggle-audit-view" onclick="window.toggleAuditRawView()" style="font-size: 0.82rem;">View Technical JSON</button>
+                <button type="button" class="btn primary-btn" id="btn-audit-modal-close">Close Details</button>
             </div>
         </div>
     </div>
@@ -1844,6 +1973,285 @@
         </div>
     </div>
 
-    <script src="/static/app.js?v=20261021_01"></script>
+    <!-- Modal for Admin to Provision New Users -->
+    <div class="modal hidden" id="create-user-modal">
+        <div class="modal-content">
+            <div class="flex-header">
+                <h3>Provision Authorized User</h3>
+            </div>
+            <p class="section-desc">Add a qualified packaging operator, supervisor, or quality lead authorized to access the serialization portal.</p>
+
+            <div class="auth-error-banner hidden mt-2" id="create-user-error-banner">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span id="create-user-error-text"></span>
+            </div>
+
+            <form id="create-user-form" onsubmit="return false;" class="mt-3">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="new-user-fullname"><span class="required-star">*</span> Full Name</label>
+                        <input type="text" id="new-user-fullname" placeholder="e.g. Dr. Eleanor Vance" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-username"><span class="required-star">*</span> Username</label>
+                        <input type="text" id="new-user-username" placeholder="e.g. evance" required>
+                    </div>
+                </div>
+
+                <div class="form-grid mt-3">
+                    <div class="form-group">
+                        <label for="new-user-email"><span class="required-star">*</span> Corporate Email</label>
+                        <input type="email" id="new-user-email" placeholder="e.g. e.vance@pharma-portal.local" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-role"><span class="required-star">*</span> Packaging Role</label>
+                        <select id="new-user-role" required>
+                            <option value="Packaging Line Supervisor">Packaging Line Supervisor</option>
+                            <option value="QA &amp; Compliance Lead (Qualified Person)">QA &amp; Compliance Lead (Qualified Person)</option>
+                            <option value="Production Line Operator">Production Line Operator</option>
+                            <option value="Warehouse Dispatcher">Warehouse Dispatcher</option>
+                            <option value="Regulatory Auditor">Regulatory Auditor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid mt-3">
+                    <div class="form-group">
+                        <label for="new-user-plant"><span class="required-star">*</span> Manufacturing Plant</label>
+                        <select id="new-user-plant" required>
+                            <option value="TESTPLANT">TESTPLANT (Main Solid Orals Facility)</option>
+                            <option value="TESTPLANT_DGFT">TESTPLANT_DGFT (Export &amp; High-Speed Parenterals)</option>
+                            <option value="PLANT-HYDERABAD-01">PLANT-HYDERABAD-01 (Biologics)</option>
+                            <option value="PLANT-GOA-02">PLANT-GOA-02 (Sterile Injectables)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-user-password"><span class="required-star">*</span> Initial Password</label>
+                        <input type="password" id="new-user-password" placeholder="Min. 8 characters" required>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label class="auth-checkbox-label" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="new-user-require-pwd-change" checked>
+                        <span>Require password change on first login (21 CFR Part 11)</span>
+                    </label>
+                </div>
+
+                <div class="form-actions mt-4 flex-header">
+                    <button type="submit" class="btn primary-btn" id="btn-submit-create-user">Provision User</button>
+                    <button type="button" class="btn cancel-btn" id="btn-close-create-user-modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Admin Password Reset -->
+    <div class="modal hidden" id="admin-reset-pwd-modal">
+        <div class="modal-content">
+            <div class="flex-header">
+                <h3>Reset User Password</h3>
+            </div>
+            <p class="section-desc">Issue a temporary password for <strong id="reset-target-username"></strong>. Existing sessions will be revoked.</p>
+
+            <form id="admin-reset-pwd-form" onsubmit="return false;" class="mt-3">
+                <input type="hidden" id="reset-target-user-id">
+                <div class="form-group">
+                    <label for="reset-new-password"><span class="required-star">*</span> Temporary Password (min 8 chars)</label>
+                    <input type="password" id="reset-new-password" placeholder="Enter temporary password" required>
+                </div>
+                <div class="form-group mt-3">
+                    <label class="auth-checkbox-label" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="reset-require-change" checked>
+                        <span>Enforce mandatory password change on next login</span>
+                    </label>
+                </div>
+                <div class="form-actions mt-4 flex-header">
+                    <button type="button" class="btn primary-btn" id="btn-submit-admin-reset-pwd">Update Password</button>
+                    <button type="button" class="btn cancel-btn" id="btn-close-admin-reset-modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Creating Custom Role -->
+    <div class="modal hidden" id="create-role-modal">
+        <div class="modal-content large-modal">
+            <div class="flex-header">
+                <h3>Create Custom Role</h3>
+            </div>
+            <p class="section-desc">Define a new operational or supervisory role tailored for shop-floor lines.</p>
+
+            <form id="create-role-form" onsubmit="return false;" class="mt-3">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="new-role-name"><span class="required-star">*</span> Role Name</label>
+                        <input type="text" id="new-role-name" placeholder="e.g. Line 02 Specialist" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-role-desc">Role Description</label>
+                        <input type="text" id="new-role-desc" placeholder="Scope and functional duties">
+                    </div>
+                </div>
+
+                <h4 class="mt-4" style="font-size: 0.95rem; color: var(--primary);">Initial Module Permissions</h4>
+                <div class="table-container mt-2">
+                    <table class="table role-matrix-table" id="new-role-perms-table">
+                        <thead>
+                            <tr>
+                                <th class="col-module">Module</th>
+                                <th class="col-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="new-role-perms-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-actions mt-4 flex-header">
+                    <button type="button" class="btn primary-btn" id="btn-submit-create-role">Create Role</button>
+                    <button type="button" class="btn cancel-btn" id="btn-close-create-role-modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for User Permission Overrides -->
+    <div class="modal hidden" id="user-overrides-modal">
+        <div class="modal-content large-modal">
+            <div class="flex-header">
+                <h3>User Permission Overrides</h3>
+            </div>
+            <p class="section-desc">Explicitly grant or deny actions for <strong id="override-target-username"></strong> (Base Role: <span id="override-target-role"></span>).</p>
+            <input type="hidden" id="override-target-user-id">
+
+            <div class="table-container mt-3">
+                <table class="table role-matrix-table">
+                    <thead>
+                        <tr>
+                            <th class="col-module">Module</th>
+                            <th>Action</th>
+                            <th>Role Default</th>
+                            <th>Override Status</th>
+                            <th>Set Override</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-overrides-table-body">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions mt-4">
+                <button type="button" class="btn cancel-btn" id="btn-close-overrides-modal">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mandatory Password Change Modal (21 CFR Part 11) -->
+    <div class="auth-overlay hidden" id="modal-mandatory-pwd-change" style="z-index: 10000;">
+        <div class="auth-card">
+            <div class="auth-card-topbar">
+                <div class="auth-brand-flex">
+                    <span class="auth-brand-mark">BT</span>
+                    <div class="auth-brand-text">
+                        <span class="auth-corp-name">BT PHARMACEUTICALS</span>
+                        <span class="auth-system-name">Mandatory Password Update</span>
+                    </div>
+                </div>
+                <span class="auth-gmp-tag">21 CFR §11.200</span>
+            </div>
+            <div class="auth-card-body">
+                <div class="auth-title-group">
+                    <h2>Password Update Required</h2>
+                    <p class="auth-subtitle">Your initial or temporary password must be changed prior to continuing.</p>
+                </div>
+
+                <div class="auth-error-banner hidden" id="pwd-change-error-banner">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span id="pwd-change-error-text"></span>
+                </div>
+
+                <form id="mandatory-pwd-form" onsubmit="return false;">
+                    <div class="form-group mt-3">
+                        <label for="change-old-password"><span class="required-star">*</span> Current / Temporary Password</label>
+                        <input type="password" id="change-old-password" class="auth-input" placeholder="Enter current password" required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="change-new-password"><span class="required-star">*</span> New Password (min 6 characters)</label>
+                        <input type="password" id="change-new-password" class="auth-input" placeholder="Enter new password" required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="change-confirm-password"><span class="required-star">*</span> Confirm New Password</label>
+                        <input type="password" id="change-confirm-password" class="auth-input" placeholder="Re-type new password" required>
+                    </div>
+                    <button type="button" class="btn auth-submit-btn mt-4" id="btn-submit-pwd-change">
+                        Update Password &amp; Open Portal
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dedicated Pfizer-style Institutional Login Screen -->
+    <div class="auth-overlay hidden" id="auth-overlay">
+        <div class="auth-card pfizer-auth-card">
+            <!-- Left Media Side (Doctor/Scientist Image with purple-to-blue gradient overlay & brand badge) -->
+            <div class="auth-media-side">
+                <button type="button" class="auth-close-circle" id="btn-auth-close" onclick="if(window.hideAuthOverlay) window.hideAuthOverlay();" title="Close window" aria-label="Close">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <div class="auth-media-bottom">
+                    <div class="auth-media-brand">
+                        <span class="auth-brand-symbol">BT</span>
+                        <div class="auth-brand-names">
+                            <span class="auth-brand-main">BT PHARMACEUTICALS</span>
+                            <span class="auth-brand-tagline">Quality Serialization Systems</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Form Side -->
+            <div class="auth-form-side">
+                <h2 class="auth-heading">Sign In to access BT Pharmaceuticals</h2>
+
+                <div class="auth-error-banner hidden" id="auth-error-banner">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span id="auth-error-text">Invalid username or password.</span>
+                </div>
+
+                <form id="login-form" autocomplete="off" onsubmit="event.preventDefault(); if(window.handleLoginSubmit) window.handleLoginSubmit(event); return false;">
+                    <input type="checkbox" id="login-remember" checked style="display: none;">
+
+                    <div class="pfizer-input-group">
+                        <div class="pfizer-input-wrap">
+                            <svg class="pfizer-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <input type="text" id="login-username" class="pfizer-input" placeholder="Registered Email / User ID" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="pfizer-input-group mt-3">
+                        <div class="pfizer-input-wrap">
+                            <svg class="pfizer-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <input type="password" id="login-password" class="pfizer-input" placeholder="Password" required autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault(); if(window.handleLoginSubmit) window.handleLoginSubmit(event);}">
+                            <button type="button" class="btn-pwd-toggle" id="btn-toggle-pwd" title="Show password" aria-label="Toggle password visibility">
+                                <svg id="pwd-eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn pfizer-submit-btn mt-4" id="btn-submit-login" onclick="if(window.handleLoginSubmit) window.handleLoginSubmit(event);">
+                        <span class="btn-spinner hidden" id="login-spinner"></span>
+                        <span id="login-btn-text">Sign In</span>
+                        <svg class="btn-arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=20261102_06"></script>
 </body>
 </html>

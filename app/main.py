@@ -1,12 +1,19 @@
 from contextlib import asynccontextmanager
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy import text
 from app.api.endpoints import router as api_router
 from app.core.database import Base, engine, SessionLocal
+from app.core.security import (
+    RequestTracingMiddleware,
+    SecurityHeadersMiddleware,
+    AuthRateLimitMiddleware,
+    get_current_request_id
+)
 from app.models import db_models
 
 # Configure system logs
@@ -80,6 +87,17 @@ async def lifespan(app: FastAPI):
             ALTER TABLE batches ADD COLUMN IF NOT EXISTS io_channel VARCHAR DEFAULT 'DIRECT_API';
 
             ALTER TABLE serials ADD COLUMN IF NOT EXISTS packaging_tier VARCHAR DEFAULT 'Primary';
+
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id INTEGER;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS require_password_change BOOLEAN DEFAULT FALSE;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_login_attempts INTEGER DEFAULT 0;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until VARCHAR;
+
+            ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS last_activity_at VARCHAR;
+            ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS is_revoked BOOLEAN DEFAULT FALSE;
+
+            ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS client_ip VARCHAR;
+            ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS request_id VARCHAR;
         '''))
 
     # Seed default lines if none exist
@@ -149,7 +167,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Enable CORS for developer access
+# 1. Request Tracing & Correlation Middleware (X-Request-ID)
+app.add_middleware(RequestTracingMiddleware)
+
+# 2. OWASP Security Headers Middleware (CSP, X-Frame-Options, HSTS, etc.)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# 3. Authentication Rate Limiting Middleware (Brute-force / Credential-Stuffing Defense)
+app.add_middleware(AuthRateLimitMiddleware, login_limit_per_minute=25)
+
+# 4. CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -157,6 +184,44 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Centralized Structured Exception Handlers
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    req_id = get_current_request_id()
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.detail,
+            "request_id": req_id
+        },
+        headers={"X-Request-ID": req_id}
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    req_id = get_current_request_id()
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": exc.errors(),
+            "request_id": req_id
+        },
+        headers={"X-Request-ID": req_id}
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    req_id = get_current_request_id()
+    logger.error(f"Unhandled system error [Trace: {req_id}] on {request.method} {request.url.path}: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": f"An unexpected system error occurred. Reference ID: {req_id}",
+            "request_id": req_id
+        },
+        headers={"X-Request-ID": req_id}
+    )
 
 # Route to serve main UI HTML on root /
 @app.get("/")

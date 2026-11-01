@@ -197,20 +197,71 @@ class AuditLog(Base):
     previous_value = Column(String, nullable=True) # JSON String
     updated_value = Column(String, nullable=True) # JSON String
     performed_by = Column(String, default="system")
+    client_ip = Column(String(45), nullable=True)
+    request_id = Column(String(64), nullable=True)
     timestamp = Column(String, nullable=False)
+
+from sqlalchemy import event
+
+@event.listens_for(AuditLog, "before_update")
+def audit_log_immutable_update(mapper, connection, target):
+    raise ValueError("21 CFR Part 11 Compliance: Audit trail records are permanently immutable and cannot be updated.")
+
+@event.listens_for(AuditLog, "before_delete")
+def audit_log_immutable_delete(mapper, connection, target):
+    raise ValueError("21 CFR Part 11 Compliance: Audit trail records are permanently immutable and cannot be deleted.")
+
+class Role(Base):
+    __tablename__ = "roles"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    role_name = Column(String(50), unique=True, index=True, nullable=False)
+    description = Column(String(255), nullable=True)
+    is_system_role = Column(Boolean, default=False, nullable=False)
+    created_at = Column(String, nullable=False)
+
+class RolePermission(Base):
+    __tablename__ = "role_permissions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
+    module_key = Column(String(50), nullable=False)
+    action_key = Column(String(50), nullable=False)
+    is_allowed = Column(Boolean, default=True, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint('role_id', 'module_key', 'action_key', name='_role_module_action_uc'),
+    )
+
+class UserPermissionOverride(Base):
+    __tablename__ = "user_permission_overrides"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    module_key = Column(String(50), nullable=False)
+    action_key = Column(String(50), nullable=False)
+    is_allowed = Column(Boolean, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'module_key', 'action_key', name='_user_module_action_override_uc'),
+    )
 
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String(50), unique=True, index=True, nullable=False)
+    username = Column(String(50), unique=True, index=True, nullable=False) # Administrator-assigned User ID
     email = Column(String(100), unique=True, index=True, nullable=False)
     full_name = Column(String(100), nullable=False)
     role = Column(String(50), default="Packaging Line Supervisor", nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
     plant = Column(String(50), default="TESTPLANT", nullable=True)
     password_hash = Column(String(255), nullable=False)
     salt = Column(String(64), nullable=False)
     is_active = Column(Boolean, default=True)
+    require_password_change = Column(Boolean, default=False)
+    failed_login_attempts = Column(Integer, default=0)
+    locked_until = Column(String, nullable=True)
     created_at = Column(String, nullable=False)
     last_login = Column(String, nullable=True)
 
@@ -220,5 +271,7 @@ class UserSession(Base):
     token = Column(String(128), primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(String, nullable=False)
+    last_activity_at = Column(String, nullable=True)
     expires_at = Column(String, nullable=False)
+    is_revoked = Column(Boolean, default=False)
 

@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 import uuid
 from fastapi import APIRouter, HTTPException, Depends, Header, status, Response
@@ -22,12 +23,22 @@ from app.repositories.sgtin_repository import SGTINRepository
 from app.repositories.gtin_repository import GTINRepository
 from app.repositories.line_repository import LineRepository
 from app.repositories.code_pool_repository import CodePoolRepository
-from app.models.db_models import AuditLog, Serial, Batch, PackagingLine, CodePool
+from app.models.db_models import AuditLog, Serial, Batch, PackagingLine, CodePool, User
+from app.models.auth import (
+    SignUpRequest, LoginRequest, UserResponse, AuthResponse, DemoUser,
+    RoleResponse, RoleCreateRequest, RoleUpdateRequest,
+    UserStatusUpdateRequest, UserPasswordResetRequest, ChangePasswordRequest,
+    UserPermissionOverrideRequest
+)
+from app.services.rbac_service import RBACService, AVAILABLE_MODULES
+from app.services.auth_service import AuthService
+from app.api.deps import extract_auth_token, get_current_user, require_permission
 
 from app.services.serialization_service import SerializationService
 from app.services.sgtin_service import SGTINService
 from app.services.l2_execution_service import L2ExecutionService
-from app.core.database import get_db
+from app.core.database import get_db, get_db_pool_status
+from app.core.security import get_current_request_id
 from app.core.config import settings
 
 logger = logging.getLogger("bt_sn_portal")
@@ -141,16 +152,28 @@ def validate_batch_master(batch: BatchMasterCreate):
 # ----------------- Health Endpoint -----------------
 @router.get("/health", tags=["System"])
 def health_check(db: Session = Depends(get_db)):
+    t0 = time.perf_counter()
     try:
         db.execute(text("SELECT 1"))
-        return {"status": "healthy", "database": "connected"}
+        latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "latency_ms": latency_ms,
+            "pool": get_db_pool_status(),
+            "request_id": get_current_request_id()
+        }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-    raise HTTPException(status_code=503, detail="Database connection failed")
+        raise HTTPException(status_code=503, detail="Database connection failed")
 
 # ----------------- Product Endpoints -----------------
 @router.post("/products", response_model=ProductResponse, tags=["Products"])
-def create_product(product: ProductCreate, db: Session = Depends(get_db)):
+def create_product(
+    product: ProductCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("products", "create"))
+):
     validate_product_master(product)
     
     existing = ProductRepository.get_by_id(db, product.product_id)
@@ -167,7 +190,12 @@ def create_product(product: ProductCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/products/{product_id}", response_model=ProductResponse, tags=["Products"])
-def update_product(product_id: str, product: ProductCreate, db: Session = Depends(get_db)):
+def update_product(
+    product_id: str, 
+    product: ProductCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("products", "edit"))
+):
     validate_product_master(product)
     
     # check if updated GTIN collides with another product
@@ -181,12 +209,19 @@ def update_product(product_id: str, product: ProductCreate, db: Session = Depend
     return updated
 
 @router.get("/products", response_model=List[ProductResponse], tags=["Products"])
-def list_products(db: Session = Depends(get_db)):
+def list_products(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("products", "view"))
+):
     return ProductRepository.list_all(db)
 
 # ----------------- GTIN Store Endpoints -----------------
 @router.post("/gtin-store", response_model=GTINStoreResponse, tags=["GTIN Store"])
-def create_gtin_store(gtin: GTINStoreCreate, db: Session = Depends(get_db)):
+def create_gtin_store(
+    gtin: GTINStoreCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("gtin_store", "create"))
+):
     validate_gtin_master(gtin)
     
     existing = GTINRepository.get_by_gtin(db, gtin.gtin)
@@ -199,7 +234,12 @@ def create_gtin_store(gtin: GTINStoreCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/gtin-store/{gtin_id}", response_model=GTINStoreResponse, tags=["GTIN Store"])
-def update_gtin_store(gtin_id: int, gtin: GTINStoreCreate, db: Session = Depends(get_db)):
+def update_gtin_store(
+    gtin_id: int, 
+    gtin: GTINStoreCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("gtin_store", "edit"))
+):
     validate_gtin_master(gtin)
     
     existing = GTINRepository.get_by_gtin(db, gtin.gtin)
@@ -212,16 +252,27 @@ def update_gtin_store(gtin_id: int, gtin: GTINStoreCreate, db: Session = Depends
     return updated
 
 @router.get("/gtin-store", response_model=List[GTINStoreResponse], tags=["GTIN Store"])
-def list_gtin_store(db: Session = Depends(get_db)):
+def list_gtin_store(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("gtin_store", "view"))
+):
     return GTINRepository.list_all(db)
 
 @router.get("/gtin-store/product/{product_id}", response_model=List[GTINStoreResponse], tags=["GTIN Store"])
-def get_gtins_by_product(product_id: str, db: Session = Depends(get_db)):
+def get_gtins_by_product(
+    product_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("gtin_store", "view"))
+):
     return GTINRepository.get_by_product(db, product_id)
 
 # ----------------- Serialization Endpoints -----------------
 @router.post("/serialization/generate", response_model=BatchResponse, tags=["Serialization"])
-def generate_serials(batch: BatchCreate, db: Session = Depends(get_db)):
+def generate_serials(
+    batch: BatchCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "create"))
+):
     try:
         result = SerializationService.generate_batch(
             db=db,
@@ -239,7 +290,11 @@ def generate_serials(batch: BatchCreate, db: Session = Depends(get_db)):
 
 # ----------------- Batch Master Endpoints -----------------
 @router.post("/batches", response_model=BatchResponse, tags=["Batches"])
-def create_batch_master(batch: BatchMasterCreate, db: Session = Depends(get_db)):
+def create_batch_master(
+    batch: BatchMasterCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "create"))
+):
     validate_batch_master(batch)
     
     try:
@@ -272,7 +327,12 @@ def create_batch_master(batch: BatchMasterCreate, db: Session = Depends(get_db))
         raise HTTPException(status_code=500, detail=f"Batch master generation failed: {str(e)}")
 
 @router.put("/batches/{batch_id}", response_model=BatchResponse, tags=["Batches"])
-def update_batch_master(batch_id: str, batch: BatchMasterCreate, db: Session = Depends(get_db)):
+def update_batch_master(
+    batch_id: str, 
+    batch: BatchMasterCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "edit"))
+):
     validate_batch_master(batch)
     
     batch_dict = {
@@ -301,7 +361,11 @@ def update_batch_master(batch_id: str, batch: BatchMasterCreate, db: Session = D
 
 # ----------------- Packaging Lines Endpoints -----------------
 @router.post("/lines", response_model=PackagingLineResponse, tags=["Lines"])
-def create_line(line: PackagingLineCreate, db: Session = Depends(get_db)):
+def create_line(
+    line: PackagingLineCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("lines", "create"))
+):
     existing = LineRepository.get_by_id(db, line.line_id)
     if existing:
         raise HTTPException(status_code=400, detail="Line ID already registered.")
@@ -311,18 +375,30 @@ def create_line(line: PackagingLineCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/lines", response_model=List[PackagingLineResponse], tags=["Lines"])
-def list_lines(db: Session = Depends(get_db)):
+def list_lines(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("lines", "view"))
+):
     return LineRepository.list_all(db)
 
 @router.get("/lines/{line_id}", response_model=PackagingLineResponse, tags=["Lines"])
-def get_line(line_id: str, db: Session = Depends(get_db)):
+def get_line(
+    line_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("lines", "view"))
+):
     line = LineRepository.get_by_id(db, line_id)
     if not line:
         raise HTTPException(status_code=404, detail=f"Packaging line '{line_id}' not found.")
     return line
 
 @router.put("/lines/{line_id}", response_model=PackagingLineResponse, tags=["Lines"])
-def update_line(line_id: str, update_req: PackagingLineUpdate, db: Session = Depends(get_db)):
+def update_line(
+    line_id: str, 
+    update_req: PackagingLineUpdate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("lines", "edit"))
+):
     existing = LineRepository.get_by_id(db, line_id)
     if not existing:
         raise HTTPException(status_code=404, detail=f"Packaging line '{line_id}' not found.")
@@ -331,7 +407,11 @@ def update_line(line_id: str, update_req: PackagingLineUpdate, db: Session = Dep
     return updated
 
 @router.post("/lines/{line_id}/test-io", tags=["Lines"])
-def test_line_io(line_id: str, db: Session = Depends(get_db)):
+def test_line_io(
+    line_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("lines", "test_io"))
+):
     line = LineRepository.get_by_id(db, line_id)
     if not line:
         raise HTTPException(status_code=404, detail=f"Packaging line '{line_id}' not found.")
@@ -370,7 +450,11 @@ def test_line_io(line_id: str, db: Session = Depends(get_db)):
 
 # ----------------- Code Pool Reservoir Endpoints -----------------
 @router.post("/code-pool/import", tags=["Code Pool"])
-def import_code_pool(request: CodePoolImportRequest, db: Session = Depends(get_db)):
+def import_code_pool(
+    request: CodePoolImportRequest, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("code_pool", "import"))
+):
     try:
         imported, skipped = CodePoolRepository.import_serials(
             db=db,
@@ -389,12 +473,19 @@ def import_code_pool(request: CodePoolImportRequest, db: Session = Depends(get_d
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/code-pool/stats", response_model=CodePoolStatsResponse, tags=["Code Pool"])
-def get_code_pool_stats(db: Session = Depends(get_db)):
+def get_code_pool_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("code_pool", "view"))
+):
     return CodePoolRepository.get_stats(db)
 
 # ----------------- Batch Lifecycle Operations -----------------
 @router.post("/batches/{batch_id}/load", tags=["Batch Lifecycle"])
-def load_batch(batch_id: str, db: Session = Depends(get_db)):
+def load_batch(
+    batch_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "execute"))
+):
     try:
         return L2ExecutionService.load_batch(db, batch_id)
     except ValueError as ve:
@@ -403,7 +494,11 @@ def load_batch(batch_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/batches/{batch_id}/start", tags=["Batch Lifecycle"])
-def start_batch(batch_id: str, db: Session = Depends(get_db)):
+def start_batch(
+    batch_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "execute"))
+):
     try:
         return L2ExecutionService.start_batch(db, batch_id)
     except ValueError as ve:
@@ -412,7 +507,12 @@ def start_batch(batch_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/batches/{batch_id}/reconcile", tags=["Batch Lifecycle"])
-def reconcile_batch(batch_id: str, request: BatchReconcileRequest, db: Session = Depends(get_db)):
+def reconcile_batch(
+    batch_id: str, 
+    request: BatchReconcileRequest, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "reconcile"))
+):
     try:
         return L2ExecutionService.reconcile_batch(db, batch_id, request)
     except ValueError as ve:
@@ -421,7 +521,11 @@ def reconcile_batch(batch_id: str, request: BatchReconcileRequest, db: Session =
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/batches/{batch_id}/close", tags=["Batch Lifecycle"])
-def close_batch(batch_id: str, db: Session = Depends(get_db)):
+def close_batch(
+    batch_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "close_lock"))
+):
     try:
         return L2ExecutionService.close_batch(db, batch_id)
     except ValueError as ve:
@@ -430,7 +534,11 @@ def close_batch(batch_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/batches/{batch_id}/xml-report", tags=["Batch Lifecycle"])
-def get_batch_xml_report(batch_id: str, db: Session = Depends(get_db)):
+def get_batch_xml_report(
+    batch_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "export_xml"))
+):
     try:
         xml_content = L2ExecutionService.generate_xml_report(db, batch_id)
         filename = f"epcis_report_{batch_id}.xml"
@@ -445,7 +553,11 @@ def get_batch_xml_report(batch_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/batches/{batch_id}/summary", response_model=BatchSummaryResponse, tags=["Batch Lifecycle"])
-def get_batch_summary(batch_id: str, db: Session = Depends(get_db)):
+def get_batch_summary(
+    batch_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("reports", "view"))
+):
     batch = BatchRepository.get_by_id(db, batch_id)
     if not batch:
         raise HTTPException(status_code=404, detail="Batch not found")
@@ -473,7 +585,10 @@ def get_batch_summary(batch_id: str, db: Session = Depends(get_db)):
     }
 
 @router.get("/reports/batch-summary", response_model=List[BatchSummaryResponse], tags=["Reports"])
-def list_batch_summaries(db: Session = Depends(get_db)):
+def list_batch_summaries(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("reports", "view"))
+):
     batches = BatchRepository.list_all(db)
     results = []
     for batch in batches:
@@ -501,18 +616,29 @@ def list_batch_summaries(db: Session = Depends(get_db)):
     return results
 
 @router.get("/serialization/batches", response_model=List[BatchResponse], tags=["Serialization"])
-def list_batches(db: Session = Depends(get_db)):
+def list_batches(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "view"))
+):
     return BatchRepository.list_all(db)
 
 @router.get("/serialization/batches/{batch_id}", response_model=BatchResponse, tags=["Serialization"])
-def get_batch(batch_id: str, db: Session = Depends(get_db)):
+def get_batch(
+    batch_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "view"))
+):
     batch = BatchRepository.get_by_id(db, batch_id)
     if not batch:
         raise HTTPException(status_code=404, detail="Batch not found")
     return batch
 
 @router.get("/serialization/batches/{batch_id}/serials", response_model=List[SerialResponse], tags=["Serialization"])
-def get_batch_serials(batch_id: str, db: Session = Depends(get_db)):
+def get_batch_serials(
+    batch_id: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("batches", "view"))
+):
     batch = BatchRepository.get_by_id(db, batch_id)
     if not batch:
         raise HTTPException(status_code=404, detail="Batch not found")
@@ -520,7 +646,11 @@ def get_batch_serials(batch_id: str, db: Session = Depends(get_db)):
 
 # ----------------- SGTIN CSV Generation -----------------
 @router.post("/sgtin/generate-csv", tags=["SGTIN"])
-def generate_sgtin_csv(request: SGTINGenerateRequest, db: Session = Depends(get_db)):
+def generate_sgtin_csv(
+    request: SGTINGenerateRequest, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("sgtin", "generate"))
+):
     try:
         checked_existing = set()
         while True:
@@ -563,7 +693,11 @@ def generate_sgtin_csv(request: SGTINGenerateRequest, db: Session = Depends(get_
 
 # ----------------- Serial Validation & Management -----------------
 @router.get("/serials/{serial_number}", tags=["Serials"])
-def get_serial(serial_number: str, db: Session = Depends(get_db)):
+def get_serial(
+    serial_number: str, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("verification", "verify"))
+):
     serial = SerialRepository.get_by_number(db, serial_number)
     if not serial:
         raise HTTPException(status_code=404, detail="Serial number not found")
@@ -620,7 +754,12 @@ def get_serial(serial_number: str, db: Session = Depends(get_db)):
     }
 
 @router.patch("/serials/{serial_number}/status", response_model=SerialResponse, tags=["Serials"])
-def update_serial_status(serial_number: str, update: SerialStatusUpdate, db: Session = Depends(get_db)):
+def update_serial_status(
+    serial_number: str, 
+    update: SerialStatusUpdate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("verification", "transition_status"))
+):
     serial = SerialRepository.get_by_number(db, serial_number)
     if not serial:
         raise HTTPException(status_code=404, detail="Serial number not found")
@@ -648,7 +787,7 @@ def update_serial_status(serial_number: str, update: SerialStatusUpdate, db: Ses
             db=db,
             serial_number=serial_number,
             status=target_status,
-            updated_by=update.updated_by,
+            updated_by=update.updated_by or current_user.username,
             notes=update.notes
         )
         return updated
@@ -657,24 +796,309 @@ def update_serial_status(serial_number: str, update: SerialStatusUpdate, db: Ses
 
 # ----------------- Audit Trail Endpoint -----------------
 @router.get("/audit-logs", response_model=List[AuditLogResponse], tags=["Audit Logs"])
-def get_audit_logs(db: Session = Depends(get_db)):
+def get_audit_logs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("audit_logs", "view"))
+):
     return db.query(AuditLog).order_by(desc(AuditLog.timestamp)).all()
 
-# ----------------- Authentication Endpoints (21 CFR Part 11) -----------------
-from app.models.auth import SignUpRequest, LoginRequest, UserResponse, AuthResponse, DemoUser
-from app.services.auth_service import AuthService
+# ----------------- Authentication & RBAC Endpoints (21 CFR Part 11) -----------------
+@router.post("/auth/login", response_model=AuthResponse, tags=["Authentication"])
+def login(request: LoginRequest, db: Session = Depends(get_db)):
+    try:
+        user, token, expires_at = AuthService.authenticate_user(db, request)
+        perms = RBACService.get_user_effective_permissions(db, user)
+        return AuthResponse(
+            token=token,
+            access_token=token,
+            token_type="Bearer",
+            expires_at=expires_at,
+            require_password_change=user.require_password_change or False,
+            permissions=perms,
+            user=UserResponse.model_validate(user)
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
+        logger.error(f"Login failure: {e}")
+        raise HTTPException(status_code=500, detail="Authentication service encountered an unexpected error.")
 
-def extract_auth_token(authorization: Optional[str] = Header(None), x_auth_token: Optional[str] = Header(None)) -> Optional[str]:
-    if authorization and authorization.startswith("Bearer "):
-        return authorization.split("Bearer ")[1].strip()
-    if x_auth_token:
-        return x_auth_token.strip()
-    return None
+@router.post("/auth/logout", tags=["Authentication"])
+def logout(
+    authorization: Optional[str] = Header(None),
+    x_auth_token: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+):
+    token = extract_auth_token(authorization, x_auth_token)
+    if token:
+        AuthService.terminate_session(db, token)
+    return {"status": "success", "message": "Session terminated successfully"}
+
+@router.get("/auth/me", response_model=UserResponse, tags=["Authentication"])
+def get_current_user_profile(
+    current_user: User = Depends(get_current_user)
+):
+    return UserResponse.model_validate(current_user)
+
+@router.get("/auth/me/permissions", tags=["Authentication"])
+def get_current_user_permissions(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    perms = RBACService.get_user_effective_permissions(db, current_user)
+    return {
+        "username": current_user.username,
+        "role": current_user.role,
+        "role_id": current_user.role_id,
+        "require_password_change": current_user.require_password_change or False,
+        "permissions": perms
+    }
+
+@router.post("/auth/change-password", tags=["Authentication"])
+def change_password(
+    request: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        AuthService.change_user_password(
+            db=db,
+            user=current_user,
+            old_password=request.old_password,
+            new_password=request.new_password
+        )
+        return {"status": "success", "message": "Password updated successfully."}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Password change error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update password.")
+
+@router.get("/auth/permissions-matrix", tags=["RBAC"])
+def get_permissions_matrix(
+    current_user: User = Depends(get_current_user)
+):
+    return AVAILABLE_MODULES
+
+@router.get("/auth/roles", response_model=List[RoleResponse], tags=["RBAC"])
+def list_roles(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("roles", "view"))
+):
+    return RBACService.list_roles(db)
+
+@router.post("/auth/roles", response_model=RoleResponse, tags=["RBAC"])
+def create_role(
+    request: RoleCreateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("roles", "create"))
+):
+    try:
+        role = RBACService.create_role(
+            db=db,
+            role_name=request.role_name,
+            description=request.description or "",
+            permissions=request.permissions,
+            actor=current_user.username
+        )
+        perms_map = RBACService.get_role_permissions_map(db, role.id)
+        return RoleResponse(
+            id=role.id,
+            role_name=role.role_name,
+            description=role.description,
+            is_system_role=role.is_system_role,
+            created_at=role.created_at,
+            permissions=perms_map
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Role creation error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create role.")
+
+@router.put("/auth/roles/{role_id}", response_model=RoleResponse, tags=["RBAC"])
+def update_role(
+    role_id: int,
+    request: RoleUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("roles", "edit"))
+):
+    try:
+        role = RBACService.update_role(
+            db=db,
+            role_id=role_id,
+            description=request.description,
+            permissions=request.permissions,
+            actor=current_user.username
+        )
+        perms_map = RBACService.get_role_permissions_map(db, role.id)
+        return RoleResponse(
+            id=role.id,
+            role_name=role.role_name,
+            description=role.description,
+            is_system_role=role.is_system_role,
+            created_at=role.created_at,
+            permissions=perms_map
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Role update error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update role.")
+
+@router.delete("/auth/roles/{role_id}", tags=["RBAC"])
+def delete_role(
+    role_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("roles", "delete"))
+):
+    try:
+        RBACService.delete_role(db, role_id, actor=current_user.username)
+        return {"status": "success", "message": f"Role ID {role_id} removed successfully."}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Role deletion error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete role.")
+
+@router.get("/auth/users", response_model=List[UserResponse], tags=["User Management"])
+def list_system_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("user_management", "view"))
+):
+    users = AuthService.list_users(db)
+    return [UserResponse.model_validate(u) for u in users]
+
+@router.post("/auth/users", response_model=UserResponse, tags=["User Management"])
+def create_system_user_by_admin(
+    request: SignUpRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("user_management", "create"))
+):
+    try:
+        user, _, _ = AuthService.register_user(
+            db=db,
+            req=request,
+            created_by=current_user.username,
+            role_id=request.role_id,
+            require_password_change=request.require_password_change or False
+        )
+        return UserResponse.model_validate(user)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"User provisioning error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create user account.")
+
+@router.patch("/auth/users/{user_id}/status", response_model=UserResponse, tags=["User Management"])
+def update_user_status(
+    user_id: int,
+    request: UserStatusUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("user_management", "deactivate"))
+):
+    if current_user.id == user_id and not request.is_active:
+        raise HTTPException(status_code=400, detail="Administrative protection: You cannot deactivate your own account.")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User ID {user_id} not found.")
+
+    prev_status = user.is_active
+    user.is_active = request.is_active
+    db.commit()
+
+    if not request.is_active:
+        # Immediately revoke all active sessions for this deactivated user
+        AuthService.revoke_all_user_sessions(db, user.id)
+
+    from app.repositories.audit_log_repository import AuditLogRepository
+    AuditLogRepository.log(
+        db=db,
+        event_type="USER_STATUS_CHANGE",
+        table_name="users",
+        record_id=str(user.id),
+        previous_value={"is_active": prev_status},
+        updated_value={"is_active": user.is_active},
+        performed_by=current_user.username
+    )
+    db.commit()
+    return UserResponse.model_validate(user)
+
+@router.post("/auth/users/{user_id}/reset-password", tags=["User Management"])
+def reset_user_password(
+    user_id: int,
+    request: UserPasswordResetRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("user_management", "reset_password"))
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User ID {user_id} not found.")
+
+    AuthService.reset_user_password(
+        db=db,
+        user=user,
+        new_password=request.new_password,
+        require_change=request.require_password_change if request.require_password_change is not None else True,
+        actor_name=current_user.username
+    )
+    return {
+        "status": "success",
+        "message": f"Password for user '{user.username}' has been reset successfully. Active sessions revoked."
+    }
+
+@router.patch("/auth/users/{user_id}/permissions", tags=["User Management"])
+def set_user_permission_override(
+    user_id: int,
+    request: UserPermissionOverrideRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("user_management", "edit"))
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User ID {user_id} not found.")
+
+    try:
+        RBACService.set_user_override(
+            db=db,
+            user_id=user_id,
+            module_key=request.module_key,
+            action_key=request.action_key,
+            is_allowed=request.is_allowed,
+            actor=current_user.username
+        )
+        updated_perms = RBACService.get_user_effective_permissions(db, user)
+        return {
+            "status": "success",
+            "user_id": user_id,
+            "username": user.username,
+            "effective_permissions": updated_perms
+        }
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
 
 @router.post("/auth/signup", response_model=AuthResponse, tags=["Authentication"])
-def signup(request: SignUpRequest, db: Session = Depends(get_db)):
+def signup(
+    request: SignUpRequest,
+    authorization: Optional[str] = Header(None),
+    x_auth_token: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+):
+    token = extract_auth_token(authorization, x_auth_token)
+    actor = None
+    if token:
+        u = AuthService.validate_token(db, token)
+        if u:
+            actor = u.username
     try:
-        user, token, expires_at = AuthService.register_user(db, request)
+        user, token, expires_at = AuthService.register_user(
+            db=db,
+            req=request,
+            created_by=actor,
+            role_id=request.role_id,
+            require_password_change=request.require_password_change or False
+        )
         return AuthResponse(
             token=token,
             access_token=token,
@@ -687,48 +1111,6 @@ def signup(request: SignUpRequest, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Sign up error: {e}")
         raise HTTPException(status_code=500, detail="Failed to create account")
-
-@router.post("/auth/login", response_model=AuthResponse, tags=["Authentication"])
-def login(request: LoginRequest, db: Session = Depends(get_db)):
-    try:
-        user, token, expires_at = AuthService.authenticate_user(db, request)
-        return AuthResponse(
-            token=token,
-            access_token=token,
-            token_type="Bearer",
-            expires_at=expires_at,
-            user=UserResponse.model_validate(user)
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
-
-
-@router.get("/auth/me", response_model=UserResponse, tags=["Authentication"])
-def get_current_user_profile(
-    authorization: Optional[str] = Header(None),
-    x_auth_token: Optional[str] = Header(None),
-    db: Session = Depends(get_db)
-):
-    token = extract_auth_token(authorization, x_auth_token)
-    if not token:
-        raise HTTPException(status_code=401, detail="Authentication token missing")
-    
-    user = AuthService.validate_token(db, token)
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid or expired session token")
-    
-    return UserResponse.model_validate(user)
-
-@router.post("/auth/logout", tags=["Authentication"])
-def logout(
-    authorization: Optional[str] = Header(None),
-    x_auth_token: Optional[str] = Header(None),
-    db: Session = Depends(get_db)
-):
-    token = extract_auth_token(authorization, x_auth_token)
-    if token:
-        AuthService.terminate_session(db, token)
-    return {"status": "success", "message": "Session terminated successfully"}
 
 @router.get("/auth/demo-users", response_model=List[DemoUser], tags=["Authentication"])
 def get_demo_users():

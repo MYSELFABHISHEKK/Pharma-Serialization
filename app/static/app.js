@@ -18,12 +18,1142 @@ function safeAddListener(id, event, handler) {
     }
 }
 
-// Authentication disabled - direct open portal access
-function getAuthToken() { return null; }
-function clearAuthSession() {}
-function showAuthOverlay() {}
-function hideAuthOverlay() {}
-function updateAuthUI() {}
+// ==========================================================================
+// 21 CFR PART 11 AUTHENTICATION, RBAC & SESSION GOVERNANCE
+// ==========================================================================
+const AUTH_TOKEN_KEY = "bt_sn_auth_token";
+const AUTH_USER_KEY = "bt_sn_auth_user";
+
+function getAuthToken() {
+    return localStorage.getItem(AUTH_TOKEN_KEY) || sessionStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+function getAuthUser() {
+    try {
+        const u = localStorage.getItem(AUTH_USER_KEY) || sessionStorage.getItem(AUTH_USER_KEY);
+        return u ? JSON.parse(u) : null;
+    } catch {
+        return null;
+    }
+}
+
+function setAuthSession(token, user, rememberMe = true) {
+    clearAuthSession();
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem(AUTH_TOKEN_KEY, token);
+    storage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+}
+
+function clearAuthSession() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_USER_KEY);
+}
+
+function isAuthenticated() {
+    return !!getAuthToken();
+}
+
+// Global fetch interceptor ensuring all API requests include 21 CFR Part 11 Bearer credentials
+const originalFetch = window.fetch;
+window.fetch = async function (url, options = {}) {
+    const token = getAuthToken();
+    if (token) {
+        options = options || {};
+        options.headers = options.headers || {};
+        if (options.headers instanceof Headers) {
+            if (!options.headers.has("Authorization")) {
+                options.headers.set("Authorization", `Bearer ${token}`);
+            }
+        } else if (Array.isArray(options.headers)) {
+            options.headers.push(["Authorization", `Bearer ${token}`]);
+        } else {
+            if (!options.headers["Authorization"]) {
+                options.headers["Authorization"] = `Bearer ${token}`;
+            }
+        }
+    }
+    const res = await originalFetch(url, options);
+    if (res.status === 401 && typeof url === "string" && !url.includes("/api/v1/auth/login") && !url.includes("/api/v1/auth/demo-users")) {
+        if (token) {
+            clearAuthSession();
+            updateAuthUI();
+            showAuthOverlay();
+            setAuthError("Session has expired or credentials were invalidated. Please sign in again.");
+        }
+    }
+    return res;
+};
+
+function hasPermission(moduleKey, actionKey = "view") {
+    const user = getAuthUser();
+    if (!user) return false;
+    const roleStr = (user.role || "").toLowerCase();
+    if (user.username === "admin" || roleStr.includes("administrator") || roleStr.includes("lead")) {
+        return true;
+    }
+    const perms = user.permissions || {};
+    const modActions = perms[moduleKey] || [];
+    return modActions.includes(actionKey);
+}
+
+window.hasPermission = hasPermission;
+
+function filterNavigationByPermissions() {
+    const user = getAuthUser();
+    if (!user) return;
+
+    // Navigation dropdown toggles
+    const productsDropdown = document.querySelector("#sub-add-product")?.closest(".portal-nav-dropdown");
+    if (productsDropdown) {
+        productsDropdown.style.display = hasPermission("products", "view") ? "" : "none";
+    }
+    const linesDropdown = document.querySelector("#sub-add-line")?.closest(".portal-nav-dropdown");
+    if (linesDropdown) {
+        linesDropdown.style.display = hasPermission("lines", "view") ? "" : "none";
+    }
+    const batchesDropdown = document.querySelector("#sub-add-batch")?.closest(".portal-nav-dropdown");
+    if (batchesDropdown) {
+        batchesDropdown.style.display = hasPermission("batches", "view") ? "" : "none";
+    }
+    const reportsDropdown = document.querySelector("#sub-audit-logs")?.closest(".portal-nav-dropdown");
+    if (reportsDropdown) {
+        reportsDropdown.style.display = hasPermission("reports", "view") || hasPermission("audit_logs", "view") ? "" : "none";
+    }
+    const verifBtn = document.querySelector('.portal-nav-btn[data-view="view-verification"]');
+    if (verifBtn) {
+        verifBtn.style.display = hasPermission("verification", "view") ? "" : "none";
+    }
+    const sgtinBtn = document.querySelector('.portal-nav-btn[data-view="view-sgtin"]');
+    if (sgtinBtn) {
+        sgtinBtn.style.display = hasPermission("sgtin", "view") ? "" : "none";
+    }
+
+    // Sub-items based on specific action permissions
+    const subAddProd = document.getElementById("sub-add-product");
+    if (subAddProd) subAddProd.style.display = hasPermission("products", "create") ? "" : "none";
+
+    const subAddGtin = document.getElementById("sub-add-gtin");
+    if (subAddGtin) subAddGtin.style.display = hasPermission("gtin_store", "create") ? "" : "none";
+
+    const subImportSn = document.getElementById("sub-import-sn");
+    if (subImportSn) subImportSn.style.display = hasPermission("code_pool", "import") ? "" : "none";
+
+    const subAddLine = document.getElementById("sub-add-line");
+    if (subAddLine) subAddLine.style.display = hasPermission("lines", "create") ? "" : "none";
+
+    const subAddBatch = document.getElementById("sub-add-batch");
+    if (subAddBatch) subAddBatch.style.display = hasPermission("batches", "create") ? "" : "none";
+}
+
+function showAuthOverlay() {
+    const overlay = document.getElementById("auth-overlay");
+    if (overlay) {
+        overlay.classList.remove("hidden");
+        overlay.style.display = "flex";
+        const errBanner = document.getElementById("auth-error-banner");
+        if (errBanner) errBanner.classList.add("hidden");
+        const uInput = document.getElementById("login-username");
+        if (uInput) setTimeout(() => uInput.focus(), 150);
+    }
+}
+
+function hideAuthOverlay() {
+    const overlay = document.getElementById("auth-overlay");
+    if (overlay) {
+        overlay.classList.add("hidden");
+        overlay.style.display = "none";
+    }
+}
+
+window.showAuthOverlay = showAuthOverlay;
+window.hideAuthOverlay = hideAuthOverlay;
+window.isAuthenticated = isAuthenticated;
+window.getAuthToken = getAuthToken;
+window.getAuthUser = getAuthUser;
+
+function setAuthError(msg) {
+    const errBanner = document.getElementById("auth-error-banner");
+    const errText = document.getElementById("auth-error-text");
+    if (errBanner && errText) {
+        errText.textContent = msg || "Authentication failed. Access rejected.";
+        errBanner.classList.remove("hidden");
+    }
+}
+
+function updateAuthUI() {
+    const user = getAuthUser();
+    const wrapper = document.getElementById("auth-header-wrapper");
+    const adminTab = document.getElementById("nav-btn-users");
+    const rolesTab = document.getElementById("nav-btn-roles");
+
+    if (user && isAuthenticated()) {
+        const initials = (user.full_name || user.username || "U")
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(w => w[0].toUpperCase())
+            .join("");
+
+        if (wrapper) {
+            wrapper.innerHTML = `
+                <div class="user-session-badge" title="Authenticated session for ${escapeHtml(user.email || user.username)}">
+                    <div class="user-avatar-circle">${escapeHtml(initials)}</div>
+                    <div class="user-session-info">
+                        <span class="user-session-name">${escapeHtml(user.full_name || user.username)}</span>
+                        <div class="user-session-sub">
+                            <span class="user-session-role">${escapeHtml(user.role || 'Operator')}</span>
+                            <span class="user-session-plant">${escapeHtml(user.plant || 'TESTPLANT')}</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-user-signout" id="btn-header-logout" title="Sign out of serialization portal">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        <span>Sign Out</span>
+                    </button>
+                </div>
+            `;
+            const logoutBtn = document.getElementById("btn-header-logout");
+            if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+        }
+
+        if (adminTab) {
+            adminTab.style.display = hasPermission("user_management", "view") ? "inline-flex" : "none";
+        }
+        if (rolesTab) {
+            rolesTab.style.display = hasPermission("roles", "view") ? "inline-flex" : "none";
+        }
+
+        filterNavigationByPermissions();
+
+        if (user.require_password_change) {
+            showMandatoryPwdChangeModal();
+        }
+    } else {
+        if (wrapper) {
+            wrapper.innerHTML = `
+                <button type="button" class="btn-nav-signin" id="btn-header-login">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <span>Sign In</span>
+                </button>
+            `;
+            const loginBtn = document.getElementById("btn-header-login");
+            if (loginBtn) loginBtn.addEventListener("click", showAuthOverlay);
+        }
+        if (adminTab) adminTab.style.display = "none";
+        if (rolesTab) rolesTab.style.display = "none";
+    }
+}
+
+async function verifySession() {
+    const token = getAuthToken();
+    if (!token) {
+        updateAuthUI();
+        return false;
+    }
+    try {
+        const res = await fetch("/api/v1/auth/me");
+        if (res.ok) {
+            const user = await res.json();
+            try {
+                const pRes = await fetch("/api/v1/auth/me/permissions");
+                if (pRes.ok) {
+                    const pData = await pRes.json();
+                    user.permissions = pData.permissions || {};
+                    user.require_password_change = pData.require_password_change || false;
+                }
+            } catch (e) {
+                console.warn("Could not refresh permissions:", e);
+            }
+            setAuthSession(token, user, true);
+            updateAuthUI();
+            return true;
+        } else {
+            clearAuthSession();
+            updateAuthUI();
+            return false;
+        }
+    } catch (err) {
+        console.warn("Session verification network issue:", err);
+        if (getAuthUser()) {
+            updateAuthUI();
+            return true;
+        }
+        clearAuthSession();
+        updateAuthUI();
+        return false;
+    }
+}
+
+async function handleLoginSubmit(e) {
+    if (e) e.preventDefault();
+    const uInput = document.getElementById("login-username");
+    const pInput = document.getElementById("login-password");
+    const rememberBox = document.getElementById("login-remember");
+    const spinner = document.getElementById("login-spinner");
+    const btnText = document.getElementById("login-btn-text");
+    const submitBtn = document.getElementById("btn-submit-login");
+
+    const identifier = uInput ? uInput.value.trim() : "";
+    const password = pInput ? pInput.value : "";
+    const rememberMe = rememberBox ? rememberBox.checked : true;
+
+    if (!identifier || !password) {
+        setAuthError("Please provide both User ID and password.");
+        return;
+    }
+
+    if (spinner) spinner.classList.remove("hidden");
+    if (btnText) btnText.textContent = "Verifying Credentials...";
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+        const res = await fetch("/api/v1/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username_or_email: identifier,
+                password: password,
+                remember_me: rememberMe
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            const userObj = data.user || {};
+            userObj.permissions = data.permissions || {};
+            userObj.require_password_change = data.require_password_change || false;
+            setAuthSession(data.access_token || data.token, userObj, rememberMe);
+            hideAuthOverlay();
+            updateAuthUI();
+
+            if (pInput) pInput.value = "";
+
+            if (userObj.require_password_change) {
+                showMandatoryPwdChangeModal();
+            } else {
+                const serSection = document.getElementById("serialization");
+                if (serSection) {
+                    serSection.scrollIntoView({ behavior: "smooth" });
+                }
+            }
+        } else {
+            const err = await res.json().catch(() => ({}));
+            setAuthError(err.detail || "Invalid User ID or password. Electronic access rejected.");
+        }
+    } catch (err) {
+        console.error("Login request failed:", err);
+        setAuthError("Unable to reach authorization server. Please verify network status.");
+    } finally {
+        if (spinner) spinner.classList.add("hidden");
+        if (btnText) btnText.textContent = "Sign In";
+        if (submitBtn) submitBtn.disabled = false;
+    }
+}
+
+function showMandatoryPwdChangeModal() {
+    const modal = document.getElementById("modal-mandatory-pwd-change");
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.style.display = "flex";
+    }
+}
+
+window.showMandatoryPwdChangeModal = showMandatoryPwdChangeModal;
+
+async function handleMandatoryPwdChange() {
+    const oldP = document.getElementById("change-old-password")?.value;
+    const newP = document.getElementById("change-new-password")?.value;
+    const confP = document.getElementById("change-confirm-password")?.value;
+    const errBanner = document.getElementById("pwd-change-error-banner");
+    const errText = document.getElementById("pwd-change-error-text");
+
+    if (!oldP || !newP || !confP) {
+        if (errBanner && errText) {
+            errText.textContent = "Please fill in all mandatory fields.";
+            errBanner.classList.remove("hidden");
+        }
+        return;
+    }
+    if (newP !== confP) {
+        if (errBanner && errText) {
+            errText.textContent = "New passwords do not match. Please re-enter.";
+            errBanner.classList.remove("hidden");
+        }
+        return;
+    }
+    if (newP.length < 8) {
+        if (errBanner && errText) {
+            errText.textContent = "New password must be at least 8 characters with upper, lower, digit & special char.";
+            errBanner.classList.remove("hidden");
+        }
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/v1/auth/change-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ old_password: oldP, new_password: newP })
+        });
+        if (res.ok) {
+            const user = getAuthUser();
+            if (user) {
+                user.require_password_change = false;
+                setAuthSession(getAuthToken(), user, true);
+            }
+            const modal = document.getElementById("modal-mandatory-pwd-change");
+            if (modal) {
+                modal.classList.add("hidden");
+                modal.style.display = "none";
+            }
+            alert("Password updated successfully! Welcome to BharatTraq.");
+        } else {
+            const err = await res.json().catch(() => ({}));
+            if (errBanner && errText) {
+                errText.textContent = err.detail || "Failed to update password.";
+                errBanner.classList.remove("hidden");
+            }
+        }
+    } catch (e) {
+        if (errBanner && errText) {
+            errText.textContent = "Network error: " + e.message;
+            errBanner.classList.remove("hidden");
+        }
+    }
+}
+
+window.handleLoginSubmit = handleLoginSubmit;
+window.handleLogout = handleLogout;
+
+async function handleLogout() {
+    const token = getAuthToken();
+    if (token) {
+        try {
+            await fetch("/api/v1/auth/logout", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+        } catch (e) {
+            console.warn("Logout notification failed:", e);
+        }
+    }
+    clearAuthSession();
+    updateAuthUI();
+    showAuthOverlay();
+}
+
+// ----------------- Password Visibility Toggle -----------------
+let lastPwdToggleTimestamp = 0;
+window.togglePasswordVisibility = function (e) {
+    if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+    }
+    const now = Date.now();
+    if (now - lastPwdToggleTimestamp < 120) {
+        return; // debounce against accidental double triggers
+    }
+    lastPwdToggleTimestamp = now;
+
+    const pInput = document.getElementById("login-password");
+    const eyeBtn = document.getElementById("btn-toggle-pwd");
+    if (!pInput) return;
+
+    const isPwd = (pInput.type === "password" || pInput.getAttribute("type") === "password");
+    if (isPwd) {
+        pInput.type = "text";
+        pInput.setAttribute("type", "text");
+        if (eyeBtn) {
+            eyeBtn.setAttribute("title", "Hide password");
+            eyeBtn.setAttribute("aria-label", "Hide password");
+            eyeBtn.innerHTML = `<svg id="pwd-eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+        }
+    } else {
+        pInput.type = "password";
+        pInput.setAttribute("type", "password");
+        if (eyeBtn) {
+            eyeBtn.setAttribute("title", "Show password");
+            eyeBtn.setAttribute("aria-label", "Show password");
+            eyeBtn.innerHTML = `<svg id="pwd-eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        }
+    }
+    try {
+        pInput.focus();
+    } catch (_) {}
+};
+
+function setupAuthListeners() {
+    safeAddListener("login-form", "submit", handleLoginSubmit);
+    safeAddListener("btn-submit-login", "click", handleLoginSubmit);
+
+    // Password visibility toggle
+    safeAddListener("btn-toggle-pwd", "click", (e) => {
+        window.togglePasswordVisibility(e);
+    });
+
+    // Quick Fill Admin credentials
+    safeAddListener("quick-fill-admin", "click", () => {
+        const u = document.getElementById("login-username");
+        const p = document.getElementById("login-password");
+        if (u) u.value = "admin";
+        if (p) p.value = "Admin@1234";
+        const errBanner = document.getElementById("auth-error-banner");
+        if (errBanner) errBanner.classList.add("hidden");
+    });
+
+    // Quick Fill Operator credentials
+    safeAddListener("quick-fill-operator", "click", () => {
+        const u = document.getElementById("login-username");
+        const p = document.getElementById("login-password");
+        if (u) u.value = "operator";
+        if (p) p.value = "Operator@1234";
+        const errBanner = document.getElementById("auth-error-banner");
+        if (errBanner) errBanner.classList.add("hidden");
+    });
+
+    // Browse Documentation Dismiss
+    safeAddListener("btn-browse-docs", "click", () => {
+        hideAuthOverlay();
+        const topEl = document.getElementById("top");
+        if (topEl) topEl.scrollIntoView({ behavior: "smooth" });
+    });
+
+    // Top Header Sign In button
+    safeAddListener("btn-header-login", "click", showAuthOverlay);
+
+    // Prompt login on console navigation if unauthenticated
+    const consoleLinks = ["nav-open-portal"];
+    consoleLinks.forEach(id => {
+        safeAddListener(id, "click", (e) => {
+            if (!isAuthenticated()) {
+                e.preventDefault();
+                showAuthOverlay();
+            }
+        });
+    });
+}
+
+// ----------------- Admin User Management & RBAC Governance -----------------
+let allRolesList = [];
+let availableModulesMetadata = {};
+let currentSelectedRoleId = null;
+
+async function loadUsersTable() {
+    const tbody = document.getElementById("users-table-body");
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">Retrieving authorized users from directory...</td></tr>`;
+
+    try {
+        const res = await fetch("/api/v1/auth/users");
+        if (!res.ok) throw new Error("Failed to load user directory");
+        const users = await res.json();
+
+        if (users.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">No users found in database.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = users.map(u => {
+            const roleBadge = u.role.includes("Lead") || u.role.includes("Administrator")
+                ? `<span class="role-badge role-badge-admin">${escapeHtml(u.role)}</span>`
+                : `<span class="role-badge role-badge-user">${escapeHtml(u.role)}</span>`;
+            
+            const statusBadge = u.is_active
+                ? `<span class="status-pill status-active">Active</span>`
+                : `<span class="status-pill status-disabled">Disabled</span>`;
+
+            const pwdChangeBadge = u.require_password_change
+                ? `<span class="status-pill status-pending">Pending</span>`
+                : `<span class="status-pill status-complete">Set</span>`;
+
+            const lastLoginFmt = u.last_login ? new Date(u.last_login).toLocaleString() : "Never";
+
+            return `
+                <tr>
+                    <td class="cell-id">#${u.id}</td>
+                    <td class="cell-mono">${escapeHtml(u.username)}</td>
+                    <td class="cell-name">${escapeHtml(u.full_name)}</td>
+                    <td>${roleBadge}</td>
+                    <td><span class="user-session-plant">${escapeHtml(u.plant || 'TESTPLANT')}</span></td>
+                    <td><a href="mailto:${escapeHtml(u.email)}" class="user-email-link">${escapeHtml(u.email)}</a></td>
+                    <td>${statusBadge}</td>
+                    <td>${pwdChangeBadge}</td>
+                    <td><span class="cell-muted">${escapeHtml(lastLoginFmt)}</span></td>
+                    <td>
+                        <button type="button" class="btn-action-small ${u.is_active ? 'btn-deact' : 'btn-act'}" onclick="toggleUserStatus(${u.id}, ${u.is_active})">
+                            ${u.is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button type="button" class="btn-action-small" onclick="openAdminResetPwdModal(${u.id}, '${escapeHtml(u.username)}')">
+                            Reset Pwd
+                        </button>
+                        <button type="button" class="btn-action-small" onclick="openUserOverridesModal(${u.id}, '${escapeHtml(u.username)}', '${escapeHtml(u.role)}')">
+                            Overrides
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Error loading users: ${escapeHtml(err.message)}</td></tr>`;
+    }
+}
+
+async function toggleUserStatus(userId, isCurrentlyActive) {
+    const actionName = isCurrentlyActive ? "deactivate" : "activate";
+    const msg = isCurrentlyActive 
+        ? "Are you sure you want to deactivate this account? All active workstation sessions will be terminated immediately."
+        : "Reactivate this account and permit system login?";
+    if (!confirm(msg)) return;
+
+    try {
+        const res = await fetch(`/api/v1/auth/users/${userId}/status`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ is_active: !isCurrentlyActive })
+        });
+        if (res.ok) {
+            loadUsersTable();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert(err.detail || `Failed to ${actionName} user account.`);
+        }
+    } catch (e) {
+        alert("Network error: " + e.message);
+    }
+}
+
+function openAdminResetPwdModal(userId, username) {
+    const modal = document.getElementById("admin-reset-pwd-modal");
+    const targetIdEl = document.getElementById("reset-target-user-id");
+    const targetUserEl = document.getElementById("reset-target-username");
+    const newPwdInput = document.getElementById("reset-new-password");
+    const reqChangeBox = document.getElementById("reset-require-change");
+
+    if (targetIdEl) targetIdEl.value = userId;
+    if (targetUserEl) targetUserEl.textContent = username;
+    if (newPwdInput) newPwdInput.value = "";
+    if (reqChangeBox) reqChangeBox.checked = true;
+
+    if (modal) modal.classList.remove("hidden");
+}
+
+async function submitAdminResetPassword() {
+    const userId = document.getElementById("reset-target-user-id")?.value;
+    const newPwd = document.getElementById("reset-new-password")?.value;
+    const reqChange = document.getElementById("reset-require-change")?.checked ?? true;
+
+    if (!userId || !newPwd || newPwd.length < 8) {
+        alert("Please enter a password of at least 8 characters (including upper, lower, digit & special char).");
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/v1/auth/users/${userId}/reset-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                new_password: newPwd,
+                require_password_change: reqChange
+            })
+        });
+
+        if (res.ok) {
+            const modal = document.getElementById("admin-reset-pwd-modal");
+            if (modal) modal.classList.add("hidden");
+            loadUsersTable();
+            alert("Temporary password has been set. User must update password upon next login.");
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert(err.detail || "Failed to reset password.");
+        }
+    } catch (e) {
+        alert("Network error: " + e.message);
+    }
+}
+
+async function openUserOverridesModal(userId, username, roleName) {
+    const modal = document.getElementById("user-overrides-modal");
+    const targetIdEl = document.getElementById("override-target-user-id");
+    const targetUserEl = document.getElementById("override-target-username");
+    const targetRoleEl = document.getElementById("override-target-role");
+    const tbody = document.getElementById("user-overrides-table-body");
+
+    if (targetIdEl) targetIdEl.value = userId;
+    if (targetUserEl) targetUserEl.textContent = username;
+    if (targetRoleEl) targetRoleEl.textContent = roleName;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Loading permissions...</td></tr>`;
+
+    if (modal) modal.classList.remove("hidden");
+
+    try {
+        // Fetch permissions matrix metadata
+        if (Object.keys(availableModulesMetadata).length === 0) {
+            const metaRes = await fetch("/api/v1/auth/permissions-matrix");
+            if (metaRes.ok) availableModulesMetadata = await metaRes.json();
+        }
+
+        const mods = Object.keys(availableModulesMetadata);
+        let rows = [];
+
+        mods.forEach(modKey => {
+            const meta = availableModulesMetadata[modKey] || {};
+            const actions = meta.actions || [];
+            actions.forEach(act => {
+                const displayAct = act.replace(/_/g, ' ');
+                rows.push(`
+                    <tr>
+                        <td class="col-module-cell"><span class="module-title">${escapeHtml(meta.name || modKey)}</span></td>
+                        <td><span class="action-chip">${escapeHtml(displayAct)}</span></td>
+                        <td><span class="cell-muted">Role Default</span></td>
+                        <td><span class="cell-muted" id="override-status-${escapeHtml(modKey)}-${escapeHtml(act)}">Inherited</span></td>
+                        <td>
+                            <button type="button" class="btn-action-small btn-act" onclick="setUserOverride(${userId}, '${escapeHtml(modKey)}', '${escapeHtml(act)}', true)">Grant</button>
+                            <button type="button" class="btn-action-small btn-deact" onclick="setUserOverride(${userId}, '${escapeHtml(modKey)}', '${escapeHtml(act)}', false)">Deny</button>
+                        </td>
+                    </tr>
+                `);
+            });
+        });
+
+        if (tbody) tbody.innerHTML = rows.join("");
+    } catch (e) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-danger">Failed to load override matrix: ${escapeHtml(e.message)}</td></tr>`;
+    }
+}
+
+async function setUserOverride(userId, moduleKey, actionKey, isAllowed) {
+    try {
+        const res = await fetch(`/api/v1/auth/users/${userId}/permissions`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                module_key: moduleKey,
+                action_key: actionKey,
+                is_allowed: isAllowed
+            })
+        });
+        if (res.ok) {
+            const statusEl = document.getElementById(`override-status-${moduleKey}-${actionKey}`);
+            if (statusEl) {
+                statusEl.innerHTML = isAllowed 
+                    ? `<span style="color:#0b663b; font-weight:700;">Granted</span>`
+                    : `<span style="color:#b31d1d; font-weight:700;">Denied</span>`;
+            }
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert(err.detail || "Failed to set permission override.");
+        }
+    } catch (e) {
+        alert("Network error: " + e.message);
+    }
+}
+
+// ----------------- Roles & Privileges (RBAC) -----------------
+async function loadRolesView() {
+    try {
+        const [rolesRes, metaRes] = await Promise.all([
+            fetch("/api/v1/auth/roles"),
+            fetch("/api/v1/auth/permissions-matrix")
+        ]);
+        if (rolesRes.ok) {
+            allRolesList = await rolesRes.json();
+        }
+        if (metaRes.ok) {
+            availableModulesMetadata = await metaRes.json();
+        }
+        renderRolesPillBar();
+        populateRoleDropdownInUserModal();
+        if (allRolesList.length > 0) {
+            if (!currentSelectedRoleId || !allRolesList.some(r => r.id === currentSelectedRoleId)) {
+                currentSelectedRoleId = allRolesList[0].id;
+            }
+            selectRole(currentSelectedRoleId);
+        }
+    } catch (e) {
+        console.error("Error loading roles view:", e);
+    }
+}
+
+function renderRolesPillBar() {
+    const container = document.getElementById("roles-pill-container");
+    if (!container) return;
+    container.innerHTML = allRolesList.map(r => {
+        const activeClass = r.id === currentSelectedRoleId ? "active" : "";
+        const sysTag = r.is_system_role ? `<span class="role-sys-tag">System</span>` : "";
+        return `
+            <button type="button" class="role-pill-btn ${activeClass}" onclick="selectRole(${r.id})">
+                <span>${escapeHtml(r.role_name)}</span>
+                ${sysTag}
+            </button>
+        `;
+    }).join("");
+}
+
+function selectRole(roleId) {
+    currentSelectedRoleId = roleId;
+    renderRolesPillBar();
+    const role = allRolesList.find(r => r.id === roleId);
+    if (!role) return;
+
+    const titleEl = document.getElementById("current-role-title");
+    const descEl = document.getElementById("current-role-desc");
+    const badgeEl = document.getElementById("current-role-system-badge");
+    const delBtn = document.getElementById("btn-delete-role");
+
+    if (titleEl) titleEl.textContent = role.role_name;
+    if (descEl) descEl.textContent = role.description || "No description provided.";
+    if (badgeEl) {
+        if (role.is_system_role) {
+            badgeEl.textContent = "System Template";
+            badgeEl.className = "role-status-tag role-status-system";
+        } else {
+            badgeEl.textContent = "Custom Role";
+            badgeEl.className = "role-status-tag role-status-custom";
+        }
+    }
+    if (delBtn) {
+        delBtn.style.display = role.is_system_role ? "none" : "inline-flex";
+    }
+
+    renderRolePermissionsTable(role);
+}
+
+function renderRolePermissionsTable(role) {
+    const tbody = document.getElementById("role-permissions-table-body");
+    if (!tbody) return;
+
+    const rolePerms = role.permissions || {};
+    const modules = Object.keys(availableModulesMetadata);
+
+    if (modules.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No modules registered.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = modules.map(modKey => {
+        const meta = availableModulesMetadata[modKey] || {};
+        const modName = meta.name || modKey;
+        const modDesc = meta.description || "";
+        const modActions = meta.actions || [];
+        const grantedActions = rolePerms[modKey] || [];
+        const isSystemAdmin = role.role_name === "System Administrator";
+
+        const actionCheckboxes = modActions.map(act => {
+            const isChecked = grantedActions.includes(act);
+            const displayLabel = act.replace(/_/g, ' ');
+            return `
+                <label class="action-checkbox-item ${isChecked ? 'checked' : ''} ${isSystemAdmin ? 'is-disabled' : ''}">
+                    <input type="checkbox" data-module="${escapeHtml(modKey)}" data-action="${escapeHtml(act)}" ${isChecked ? 'checked' : ''} ${isSystemAdmin ? 'disabled' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">
+                    <span class="action-label">${escapeHtml(displayLabel)}</span>
+                </label>
+            `;
+        }).join("");
+
+        return `
+            <tr>
+                <td class="col-module-cell">
+                    <span class="module-title">${escapeHtml(modName)}</span>
+                </td>
+                <td class="col-desc-cell">
+                    <span class="module-desc">${escapeHtml(modDesc)}</span>
+                </td>
+                <td class="col-actions-cell">
+                    <div class="action-checkbox-grid">${actionCheckboxes}</div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+async function saveCurrentRolePermissions() {
+    const role = allRolesList.find(r => r.id === currentSelectedRoleId);
+    if (!role) return;
+
+    if (role.role_name === "System Administrator") {
+        alert("System Administrator permissions are immutable to ensure compliance with 21 CFR Part 11.");
+        return;
+    }
+
+    const tbody = document.getElementById("role-permissions-table-body");
+    if (!tbody) return;
+
+    const newPerms = {};
+    tbody.querySelectorAll("input[type='checkbox']").forEach(cb => {
+        if (cb.checked) {
+            const mod = cb.getAttribute("data-module");
+            const act = cb.getAttribute("data-action");
+            if (!newPerms[mod]) newPerms[mod] = [];
+            newPerms[mod].push(act);
+        }
+    });
+
+    try {
+        const res = await fetch(`/api/v1/auth/roles/${role.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                description: role.description,
+                permissions: newPerms
+            })
+        });
+        if (res.ok) {
+            const updated = await res.json();
+            const idx = allRolesList.findIndex(r => r.id === role.id);
+            if (idx !== -1) allRolesList[idx] = updated;
+            selectRole(role.id);
+            alert(`Permissions matrix for "${role.role_name}" updated and committed to audit trail!`);
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert(err.detail || "Failed to update role permissions.");
+        }
+    } catch (e) {
+        alert("Error saving role permissions: " + e.message);
+    }
+}
+
+function openCreateRoleModal() {
+    const modal = document.getElementById("create-role-modal");
+    const nameInput = document.getElementById("new-role-name");
+    const descInput = document.getElementById("new-role-desc");
+    const tbody = document.getElementById("new-role-perms-body");
+
+    if (nameInput) nameInput.value = "";
+    if (descInput) descInput.value = "";
+
+    if (tbody) {
+        const modules = Object.keys(availableModulesMetadata);
+        tbody.innerHTML = modules.map(modKey => {
+            const meta = availableModulesMetadata[modKey] || {};
+            const actions = meta.actions || [];
+            const checkboxes = actions.map(act => {
+                const displayLabel = act.replace(/_/g, ' ');
+                return `
+                    <label class="action-checkbox-item">
+                        <input type="checkbox" data-module="${escapeHtml(modKey)}" data-action="${escapeHtml(act)}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+                        <span class="action-label">${escapeHtml(displayLabel)}</span>
+                    </label>
+                `;
+            }).join("");
+
+            return `
+                <tr>
+                    <td class="col-module-cell"><span class="module-title">${escapeHtml(meta.name || modKey)}</span></td>
+                    <td class="col-actions-cell"><div class="action-checkbox-grid">${checkboxes}</div></td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    if (modal) modal.classList.remove("hidden");
+}
+
+async function submitCreateRole() {
+    const nameInput = document.getElementById("new-role-name");
+    const descInput = document.getElementById("new-role-desc");
+    const roleName = nameInput ? nameInput.value.trim() : "";
+    const roleDesc = descInput ? descInput.value.trim() : "";
+
+    if (!roleName) {
+        alert("Please enter a role name.");
+        return;
+    }
+
+    const tbody = document.getElementById("new-role-perms-body");
+    const perms = {};
+    if (tbody) {
+        tbody.querySelectorAll("input[type='checkbox']").forEach(cb => {
+            if (cb.checked) {
+                const mod = cb.getAttribute("data-module");
+                const act = cb.getAttribute("data-action");
+                if (!perms[mod]) perms[mod] = [];
+                perms[mod].push(act);
+            }
+        });
+    }
+
+    try {
+        const res = await fetch("/api/v1/auth/roles", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                role_name: roleName,
+                description: roleDesc,
+                permissions: perms
+            })
+        });
+
+        if (res.ok) {
+            const newRole = await res.json();
+            const modal = document.getElementById("create-role-modal");
+            if (modal) modal.classList.add("hidden");
+            await loadRolesView();
+            selectRole(newRole.id);
+            alert(`Custom Role "${newRole.role_name}" provisioned successfully!`);
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert(err.detail || "Failed to create custom role.");
+        }
+    } catch (e) {
+        alert("Network error: " + e.message);
+    }
+}
+
+async function deleteCurrentRole() {
+    const role = allRolesList.find(r => r.id === currentSelectedRoleId);
+    if (!role) return;
+    if (role.is_system_role) {
+        alert("System Roles are permanent and protected under 21 CFR Part 11.");
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to permanently delete custom role "${role.role_name}"?`)) {
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/v1/auth/roles/${role.id}`, {
+            method: "DELETE"
+        });
+        if (res.ok) {
+            currentSelectedRoleId = null;
+            await loadRolesView();
+            alert(`Role "${role.role_name}" has been removed.`);
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert(err.detail || "Failed to delete role.");
+        }
+    } catch (e) {
+        alert("Network error: " + e.message);
+    }
+}
+
+function populateRoleDropdownInUserModal() {
+    const select = document.getElementById("new-user-role");
+    if (!select || allRolesList.length === 0) return;
+    select.innerHTML = allRolesList.map(r => `
+        <option value="${escapeHtml(r.role_name)}" data-role-id="${r.id}">${escapeHtml(r.role_name)} ${r.is_system_role ? '(Standard)' : '(Custom)'}</option>
+    `).join("");
+}
+
+window.toggleUserStatus = toggleUserStatus;
+window.openAdminResetPwdModal = openAdminResetPwdModal;
+window.submitAdminResetPassword = submitAdminResetPassword;
+window.openUserOverridesModal = openUserOverridesModal;
+window.setUserOverride = setUserOverride;
+window.selectRole = selectRole;
+window.saveCurrentRolePermissions = saveCurrentRolePermissions;
+window.openCreateRoleModal = openCreateRoleModal;
+window.submitCreateRole = submitCreateRole;
+window.deleteCurrentRole = deleteCurrentRole;
+
+function setupUserManagement() {
+    safeAddListener("btn-open-create-user-modal", "click", () => {
+        const modal = document.getElementById("create-user-modal");
+        const errBanner = document.getElementById("create-user-error-banner");
+        if (errBanner) errBanner.classList.add("hidden");
+        populateRoleDropdownInUserModal();
+        if (modal) modal.classList.remove("hidden");
+    });
+
+    safeAddListener("btn-close-create-user-modal", "click", () => {
+        const modal = document.getElementById("create-user-modal");
+        if (modal) modal.classList.add("hidden");
+    });
+
+    safeAddListener("create-user-form", "submit", handleCreateUserSubmit);
+    safeAddListener("btn-submit-create-user", "click", handleCreateUserSubmit);
+
+    // Reset password modal
+    safeAddListener("btn-close-admin-reset-modal", "click", () => {
+        const m = document.getElementById("admin-reset-pwd-modal");
+        if (m) m.classList.add("hidden");
+    });
+    safeAddListener("btn-submit-admin-reset-pwd", "click", submitAdminResetPassword);
+
+    // Overrides modal
+    safeAddListener("btn-close-overrides-modal", "click", () => {
+        const m = document.getElementById("user-overrides-modal");
+        if (m) m.classList.add("hidden");
+    });
+
+    // Roles & Privileges
+    safeAddListener("btn-save-role-permissions", "click", saveCurrentRolePermissions);
+    safeAddListener("btn-open-create-role-modal", "click", openCreateRoleModal);
+    safeAddListener("btn-close-create-role-modal", "click", () => {
+        const m = document.getElementById("create-role-modal");
+        if (m) m.classList.add("hidden");
+    });
+    safeAddListener("btn-submit-create-role", "click", submitCreateRole);
+    safeAddListener("btn-delete-role", "click", deleteCurrentRole);
+
+    // Mandatory Password Change submit
+    safeAddListener("btn-submit-pwd-change", "click", handleMandatoryPwdChange);
+}
+
+async function handleCreateUserSubmit(e) {
+    if (e) e.preventDefault();
+    const fullName = document.getElementById("new-user-fullname")?.value.trim();
+    const username = document.getElementById("new-user-username")?.value.trim();
+    const email = document.getElementById("new-user-email")?.value.trim();
+    const roleSelect = document.getElementById("new-user-role");
+    const role = roleSelect ? roleSelect.value : "";
+    const selectedOption = roleSelect ? roleSelect.options[roleSelect.selectedIndex] : null;
+    const roleId = selectedOption ? parseInt(selectedOption.getAttribute("data-role-id") || "0") : null;
+    const plant = document.getElementById("new-user-plant")?.value;
+    const password = document.getElementById("new-user-password")?.value;
+    const reqChange = document.getElementById("new-user-require-pwd-change")?.checked ?? true;
+    const errBanner = document.getElementById("create-user-error-banner");
+    const errText = document.getElementById("create-user-error-text");
+
+    if (!fullName || !username || !email || !password) {
+        if (errBanner && errText) {
+            errText.textContent = "Please complete all mandatory fields.";
+            errBanner.classList.remove("hidden");
+        }
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/v1/auth/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                full_name: fullName,
+                username: username,
+                email: email,
+                role: role,
+                role_id: roleId || undefined,
+                plant: plant,
+                password: password,
+                require_password_change: reqChange
+            })
+        });
+
+        if (res.ok) {
+            const newUser = await res.json();
+            const modal = document.getElementById("create-user-modal");
+            if (modal) modal.classList.add("hidden");
+            
+            document.getElementById("create-user-form")?.reset();
+            loadUsersTable();
+            alert(`Authorized user account "${newUser.username}" (${newUser.full_name}) created successfully!`);
+        } else {
+            const err = await res.json().catch(() => ({}));
+            if (errBanner && errText) {
+                errText.textContent = err.detail || "Failed to provision user.";
+                errBanner.classList.remove("hidden");
+            }
+        }
+    } catch (err) {
+        if (errBanner && errText) {
+            errText.textContent = err.message || "Network error while creating user.";
+            errBanner.classList.remove("hidden");
+        }
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     initApp();
@@ -33,6 +1163,11 @@ function initApp() {
     checkSystemHealth();
     setInterval(checkSystemHealth, 10000);
     
+    // Auth & Identity Governance
+    setupAuthListeners();
+    setupUserManagement();
+    verifySession();
+
     // Setup routing and UI controls immediately
     setupRouting();
     setupDropdownToggles();
@@ -47,6 +1182,11 @@ function initApp() {
     
     // Set initial batch idempotency keys
     generateNewBatchIdempotencyKey();
+
+    // Prompt login screen if not authenticated
+    if (!isAuthenticated()) {
+        showAuthOverlay();
+    }
 }
 
 function setupDropdownToggles() {
@@ -387,7 +1527,7 @@ function renderGtinList(gtins) {
             <td>${g.case_quantity !== null ? g.case_quantity : "N/A"}</td>
             <td><span class="badge ${statusClass}">${statusText}</span></td>
             <td>
-                <button class="btn secondary-btn btn-sm" onclick="editGtin(${g.id})">Edit</button>
+                <button class="btn secondary-btn btn-sm" onclick="window.editGtin(${g.id})">Edit</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -464,6 +1604,7 @@ function renderBatchList(batches) {
 }
 
 function renderAuditLogs(logs) {
+    window.currentAuditLogs = logs || [];
     const tbody = document.getElementById("audit-logs-body");
     if (!tbody) return;
     tbody.innerHTML = "";
@@ -491,7 +1632,41 @@ function renderAuditLogs(logs) {
     });
 }
 
+const VIEW_MODULE_MAP = {
+    "view-dashboard": "dashboard",
+    "view-product-add": "products",
+    "view-product-list": "products",
+    "view-gtin-add": "gtin_store",
+    "view-gtin-list": "gtin_store",
+    "view-sn-import": "code_pool",
+    "view-line-add": "lines",
+    "view-line-io": "lines",
+    "view-line-list": "lines",
+    "view-batch-add": "batches",
+    "view-batch-list": "batches",
+    "view-batch-xml": "batches",
+    "view-report-summary": "reports",
+    "view-report-detail": "reports",
+    "view-verification": "verification",
+    "view-sgtin": "sgtin",
+    "view-audit-logs": "audit_logs",
+    "view-users": "user_management",
+    "view-roles": "roles"
+};
+
 function switchView(viewId) {
+    if (!isAuthenticated() && viewId !== "view-dashboard") {
+        showAuthOverlay();
+        return;
+    }
+
+    const modKey = VIEW_MODULE_MAP[viewId];
+    if (modKey && modKey !== "dashboard" && !hasPermission(modKey, "view")) {
+        alert(`Access Denied: Your account does not have permission to view the ${modKey.toUpperCase()} module.`);
+        switchView("view-dashboard");
+        return;
+    }
+
     document.querySelectorAll(".portal-view").forEach(view => {
         view.classList.add("hidden");
     });
@@ -541,6 +1716,10 @@ function switchView(viewId) {
         loadBatches();
     } else if (viewId === "view-audit-logs") {
         loadAuditLogs();
+    } else if (viewId === "view-users") {
+        loadUsersTable();
+    } else if (viewId === "view-roles") {
+        loadRolesView();
     }
 }
 
@@ -644,34 +1823,61 @@ window.editProduct = function(productId) {
 };
 
 window.editGtin = function(gtinId) {
-    const gtin = registeredGtins.find(g => g.id === gtinId);
-    if (!gtin) return;
+    const gtin = registeredGtins.find(g => g.id === gtinId || String(g.id) === String(gtinId));
+    if (!gtin) {
+        console.warn("GTIN record not found for ID:", gtinId);
+        return;
+    }
 
     currentGtinFormMode = "EDIT";
-    currentGtinFormId = gtinId;
+    currentGtinFormId = gtin.id;
 
-    document.getElementById("gtin-form-title").textContent = `Edit GTIN Mappings`;
+    const titleEl = document.getElementById("gtin-form-title");
+    if (titleEl) titleEl.textContent = `Edit GTIN Mappings`;
 
-    document.getElementById("gtin-manufacturer").value = gtin.manufacturer;
-    document.getElementById("gtin-plant").value = gtin.plant;
-    document.getElementById("gtin-pkglevel").value = gtin.packaging_level;
+    const mfgEl = document.getElementById("gtin-manufacturer");
+    if (mfgEl) mfgEl.value = gtin.manufacturer || "";
+
+    const plantEl = document.getElementById("gtin-plant");
+    if (plantEl) plantEl.value = gtin.plant || "";
+
+    const pkgLevelEl = document.getElementById("gtin-pkglevel");
+    if (pkgLevelEl) pkgLevelEl.value = gtin.packaging_level || "";
     
-    // Set product select and hidden ID
-    document.getElementById("gtin-product-select").value = gtin.product_id;
-    document.getElementById("gtin-product-id").value = gtin.product_id;
+    // Set product input, select (if any), and hidden ID safely
+    const prod = registeredProducts.find(p => p.product_id === gtin.product_id);
+    const prodInput = document.getElementById("gtin-product-input");
+    if (prodInput) {
+        prodInput.value = prod ? `${prod.name} (${prod.product_id})` : gtin.product_id;
+    }
+    const prodSelect = document.getElementById("gtin-product-select");
+    if (prodSelect) prodSelect.value = gtin.product_id;
+
+    const prodIdEl = document.getElementById("gtin-product-id");
+    if (prodIdEl) prodIdEl.value = gtin.product_id;
     
-    document.getElementById("gtin-productcode").value = gtin.product_code;
-    document.getElementById("gtin-pkgsize").value = gtin.packing_size;
-    document.getElementById("gtin-val").value = gtin.gtin;
+    const prodCodeEl = document.getElementById("gtin-productcode");
+    if (prodCodeEl) prodCodeEl.value = gtin.product_code || "";
+
+    const pkgSizeEl = document.getElementById("gtin-pkgsize");
+    if (pkgSizeEl) pkgSizeEl.value = gtin.packing_size || "";
+
+    const valEl = document.getElementById("gtin-val");
+    if (valEl) valEl.value = gtin.gtin || "";
     
     const enabledRadios = document.getElementsByName("gtin-enabled");
     enabledRadios.forEach(radio => {
         radio.checked = (radio.value === "true" && gtin.enable_gtin) || (radio.value === "false" && !gtin.enable_gtin);
     });
 
-    document.getElementById("gtin-caseqty").value = gtin.case_quantity || "";
-    document.getElementById("gtin-limit").value = gtin.limit;
-    document.getElementById("gtin-codelen").value = gtin.code_length;
+    const caseQtyEl = document.getElementById("gtin-caseqty");
+    if (caseQtyEl) caseQtyEl.value = (gtin.case_quantity !== null && gtin.case_quantity !== undefined) ? gtin.case_quantity : "";
+
+    const limitEl = document.getElementById("gtin-limit");
+    if (limitEl) limitEl.value = (gtin.limit !== null && gtin.limit !== undefined) ? gtin.limit : "";
+
+    const codeLenEl = document.getElementById("gtin-codelen");
+    if (codeLenEl) codeLenEl.value = gtin.code_length || 20;
 
     // Populate Serial No Type and Packaging Category
     const serialTypeRadios = document.getElementsByName("gtin-serial-type");
@@ -701,6 +1907,10 @@ window.editGtin = function(gtinId) {
     switchView("view-gtin-add");
 };
 
+function editGtin(gtinId) {
+    window.editGtin(gtinId);
+}
+
 window.editBatch = function(batchId) {
     // Load batch details
     alert(`Editing Batch properties for batch ${batchId}. The serial generated counts cannot be altered, but header attributes can be updated.`);
@@ -713,9 +1923,17 @@ window.editBatch = function(batchId) {
             document.getElementById("batch-manufacturer").value = batch.manufacturer || "";
             document.getElementById("batch-plant").value = batch.plant || "";
             document.getElementById("batch-pkglevel").value = batch.packaging_level || "";
-            // Set product select and hidden ID
-            document.getElementById("batch-product-select").value = batch.product_id;
-            document.getElementById("batch-product-id").value = batch.product_id;
+            
+            // Set product input, select (if any), and hidden ID safely
+            const prod = registeredProducts.find(p => p.product_id === batch.product_id);
+            const batchProdInput = document.getElementById("batch-product-input");
+            if (batchProdInput) {
+                batchProdInput.value = prod ? `${prod.name} (${prod.product_id})` : batch.product_id;
+            }
+            const batchProdSelect = document.getElementById("batch-product-select");
+            if (batchProdSelect) batchProdSelect.value = batch.product_id;
+            const batchProdId = document.getElementById("batch-product-id");
+            if (batchProdId) batchProdId.value = batch.product_id;
             
             document.getElementById("batch-pkgsize").value = batch.packaging_size || "";
             document.getElementById("batch-workorder").value = batch.work_order_no || "";
@@ -1711,15 +2929,371 @@ function executeMockImport() {
     hideImportModal();
 }
 
-// ----------------- View Audit Details JSON Compare -----------------
+// ----------------- Client-Friendly Audit Trail Text Formatter -----------------
+const AUDIT_FIELD_LABELS = {
+    "id": "Record ID",
+    "batch_id": "Batch ID",
+    "batch_lot": "Batch / Lot Number",
+    "product_id": "Product Code / ID",
+    "product_code": "Product Code",
+    "product_name": "Product Name",
+    "gtin": "GTIN (GS1 Barcode)",
+    "status": "Operational Status",
+    "mfg_date": "Manufacturing Date",
+    "expiry_date": "Expiry Date",
+    "manufacturer": "Manufacturer",
+    "plant": "Production Plant",
+    "packaging_level": "Packaging Level",
+    "packaging_size": "Packaging Size",
+    "packing_size": "Packing Size",
+    "packaging_category": "Packaging Category",
+    "package_aggregation": "Package Aggregation",
+    "parent_code_required": "Parent Code Required",
+    "aggregated_batch": "Aggregated Batch",
+    "work_order_no": "Work Order No.",
+    "requested_quantity": "Requested Target Quantity",
+    "generated_quantity": "Total Generated Serials",
+    "start_sequence": "Start Sequence",
+    "end_sequence": "End Sequence",
+    "secondary_ratio": "Secondary Ratio",
+    "tertiary_ratio": "Tertiary Ratio",
+    "primary_quantity": "Primary Count",
+    "secondary_quantity": "Secondary Count",
+    "tertiary_quantity": "Tertiary Count",
+    "yield_percentage": "Reconciliation Yield",
+    "good_count": "Good Units Inspected",
+    "rejected_count": "Rejected / Defect Units",
+    "unused_returned_count": "Unused Codes Returned to Reservoir",
+    "reconciled_good_count": "Good Packs Reconciled",
+    "reconciled_rejected_count": "Rejected Packs Reconciled",
+    "reconciled_unused_count": "Unused Codes Reconciled",
+    "is_locked": "Batch Locked Status",
+    "is_enabled": "Active Status",
+    "enable_gtin": "GTIN Active Status",
+    "line_id": "Packaging Line ID",
+    "line_name": "Line Name",
+    "line_code": "Line Code",
+    "io_channel": "Line I/O Interface",
+    "case_quantity": "Case Pack Quantity",
+    "limit": "Serial Generation Limit",
+    "code_length": "Barcode Code Length",
+    "serial_no_type": "Serial Number Standard",
+    "username": "User Account ID",
+    "display_name": "User Full Name",
+    "role_name": "Assigned Role",
+    "role_id": "Role ID",
+    "description": "Role / Record Description",
+    "permissions": "Assigned Module Permissions",
+    "last_login": "Last Login Timestamp",
+    "created_at": "Record Creation Timestamp",
+    "updated_at": "Record Update Timestamp",
+    "client_ip": "Client IP Address",
+    "request_id": "Request Trace ID"
+};
+
+function formatAuditFieldLabel(key) {
+    if (AUDIT_FIELD_LABELS[key]) return AUDIT_FIELD_LABELS[key];
+    return key.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function formatAuditValueAsText(key, val) {
+    if (val === null || val === undefined || val === "") {
+        return '<span style="color: #94a3b8; font-style: italic;">None / Unset</span>';
+    }
+    if (typeof val === "boolean") {
+        return val ? '<span class="badge badge-success" style="background: #e6f4ea; color: #137333; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Yes (Active)</span>' 
+                   : '<span class="badge badge-secondary" style="background: #f1f3f4; color: #5f6368; padding: 2px 8px; border-radius: 4px; font-weight: 600;">No (Inactive)</span>';
+    }
+    if (key === "yield_percentage" && typeof val === "number") {
+        return `<strong>${val}%</strong>`;
+    }
+    if (key === "permissions" && typeof val === "object") {
+        const rows = [];
+        for (const [mod, acts] of Object.entries(val)) {
+            const modLabel = mod.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+            let actList = "";
+            if (Array.isArray(acts)) {
+                actList = acts.map(a => a.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())).join(", ");
+            } else if (typeof acts === "object" && acts !== null) {
+                actList = Object.keys(acts).filter(k => acts[k]).map(k => k.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())).join(", ");
+            } else {
+                actList = String(acts);
+            }
+            rows.push(`<div style="margin-bottom: 3px;"><strong>${modLabel}:</strong> <span style="color: #0f5d7f;">${actList || 'No Actions'}</span></div>`);
+        }
+        return rows.length ? `<div style="font-size: 0.85rem; line-height: 1.4;">${rows.join("")}</div>` : "None";
+    }
+    if (typeof val === "object") {
+        try {
+            const entries = Object.entries(val).map(([k, v]) => `<div><strong>${formatAuditFieldLabel(k)}:</strong> ${String(v)}</div>`);
+            return `<div style="font-size: 0.85rem;">${entries.join("")}</div>`;
+        } catch (_) {
+            return JSON.stringify(val);
+        }
+    }
+    if (typeof val === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(val)) {
+        try {
+            return `<span>${new Date(val).toLocaleString()}</span>`;
+        } catch (_) {}
+    }
+    return `<span>${escapeHtml(String(val))}</span>`;
+}
+
+window.toggleAuditRawView = function() {
+    const rawSec = document.getElementById("audit-raw-section");
+    const textSec = document.getElementById("audit-text-container");
+    const toggleBtn = document.getElementById("btn-toggle-audit-view");
+    if (!rawSec || !textSec) return;
+
+    if (rawSec.classList.contains("hidden")) {
+        rawSec.classList.remove("hidden");
+        textSec.classList.add("hidden");
+        if (toggleBtn) toggleBtn.textContent = "Switch to Client Text View";
+    } else {
+        rawSec.classList.add("hidden");
+        textSec.classList.remove("hidden");
+        if (toggleBtn) toggleBtn.textContent = "View Technical JSON";
+    }
+};
+
 window.viewAuditDetails = function(id, prevValEscaped, newValEscaped) {
-    const prevText = prevValEscaped ? JSON.stringify(JSON.parse(unescapeHtml(prevValEscaped)), null, 4) : "None (Create Record)";
-    const newText = newValEscaped ? JSON.stringify(JSON.parse(unescapeHtml(newValEscaped)), null, 4) : "None (Delete Record)";
+    // 1. Reset toggle state to always show client text by default
+    const rawSec = document.getElementById("audit-raw-section");
+    const textSec = document.getElementById("audit-text-container");
+    const toggleBtn = document.getElementById("btn-toggle-audit-view");
+    if (rawSec) rawSec.classList.add("hidden");
+    if (textSec) textSec.classList.remove("hidden");
+    if (toggleBtn) toggleBtn.textContent = "View Technical JSON";
+
+    // 2. Retrieve the log object
+    const logItem = (window.currentAuditLogs || []).find(l => l.id === id) || null;
     
-    document.getElementById("audit-prev-json").textContent = prevText;
-    document.getElementById("audit-new-json").textContent = newText;
-    
-    document.getElementById("audit-details-modal").classList.remove("hidden");
+    // Parse previous and updated values
+    let prevObj = null;
+    let newObj = null;
+
+    try {
+        const rawPrev = logItem ? logItem.previous_value : (prevValEscaped ? unescapeHtml(prevValEscaped) : null);
+        if (rawPrev && rawPrev !== "None") {
+            prevObj = typeof rawPrev === "object" ? rawPrev : JSON.parse(rawPrev);
+        }
+    } catch (_) {
+        prevObj = prevValEscaped ? unescapeHtml(prevValEscaped) : null;
+    }
+
+    try {
+        const rawNew = logItem ? logItem.updated_value : (newValEscaped ? unescapeHtml(newValEscaped) : null);
+        if (rawNew && rawNew !== "None") {
+            newObj = typeof rawNew === "object" ? rawNew : JSON.parse(rawNew);
+        }
+    } catch (_) {
+        newObj = newValEscaped ? unescapeHtml(newValEscaped) : null;
+    }
+
+    // Populate fallback raw JSON pre blocks
+    const prevPre = document.getElementById("audit-prev-json");
+    const newPre = document.getElementById("audit-new-json");
+    if (prevPre) prevPre.textContent = prevObj ? (typeof prevObj === "object" ? JSON.stringify(prevObj, null, 4) : String(prevObj)) : "None (Create Record)";
+    if (newPre) newPre.textContent = newObj ? (typeof newObj === "object" ? JSON.stringify(newObj, null, 4) : String(newObj)) : "None (Delete Record)";
+
+    // Format metadata
+    const eventType = logItem ? logItem.event_type : "AUDIT_EVENT";
+    const tableName = logItem ? logItem.table_name : "database";
+    const recordId = logItem ? logItem.record_id : id;
+    const performedBy = logItem ? logItem.performed_by : "system";
+    const timestampStr = logItem ? new Date(logItem.timestamp).toLocaleString() : new Date().toLocaleString();
+
+    let friendlyEvent = eventType.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+    let friendlyTable = tableName.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+    if (tableName === "gtin_store") friendlyTable = "GTIN & Barcode Repository";
+    if (tableName === "batches") friendlyTable = "Batch Production";
+    if (tableName === "products") friendlyTable = "Product Master Catalog";
+    if (tableName === "users") friendlyTable = "User Accounts";
+    if (tableName === "roles") friendlyTable = "Roles & Permissions";
+
+    // 3. Build Client-Friendly Text Layout
+    let html = `
+        <div class="audit-meta-grid" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+            <div>
+                <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700;">Action Performed</div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a;">${friendlyEvent}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700;">Target Section</div>
+                <div style="font-size: 0.95rem; font-weight: 600; color: #0f2d59;">${friendlyTable}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700;">Record Reference</div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #1e293b;">${recordId}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700;">Operator / User</div>
+                <div style="font-size: 0.95rem; font-weight: 600; color: #0b6343;">${performedBy}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700;">Logged At</div>
+                <div style="font-size: 0.88rem; font-weight: 500; color: #475569;">${timestampStr}</div>
+            </div>
+        </div>
+    `;
+
+    // CASE 1: Both Previous & Updated exist (Record Update)
+    if (prevObj && newObj && typeof prevObj === "object" && typeof newObj === "object") {
+        const allKeys = Array.from(new Set([...Object.keys(prevObj), ...Object.keys(newObj)]));
+        const changedKeys = [];
+
+        allKeys.forEach(k => {
+            if (JSON.stringify(prevObj[k]) !== JSON.stringify(newObj[k])) {
+                changedKeys.push(k);
+            }
+        });
+
+        if (changedKeys.length > 0) {
+            html += `
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #d97706;"></span>
+                        <strong style="color: #92400e; font-size: 0.92rem;">Summary of Changes (${changedKeys.length} field${changedKeys.length > 1 ? 's' : ''} modified):</strong>
+                    </div>
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                        <table class="table audit-changes-table" style="width: 100%; margin: 0; background: #ffffff; border-radius: 6px; overflow: hidden; font-size: 0.86rem; border: 1px solid #fed7aa;">
+                            <thead>
+                                <tr style="background: #fef3c7; color: #78350f; text-align: left;">
+                                    <th style="padding: 9px 12px; width: 30%;">Field / Property</th>
+                                    <th style="padding: 9px 12px; width: 35%;">Previous Value (Before)</th>
+                                    <th style="padding: 9px 12px; width: 35%;">Updated Value (After)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            changedKeys.forEach(k => {
+                const label = formatAuditFieldLabel(k);
+                const beforeVal = formatAuditValueAsText(k, prevObj[k]);
+                const afterVal = formatAuditValueAsText(k, newObj[k]);
+
+                html += `
+                    <tr style="border-top: 1px solid #f3f4f6;">
+                        <td style="font-weight: 600; color: #1e293b; padding: 10px 12px; vertical-align: top;">${label}</td>
+                        <td style="color: #991b1b; background: #fff5f5; padding: 10px 12px; vertical-align: top;">${beforeVal}</td>
+                        <td style="color: #166534; background: #f0fdf4; font-weight: 600; padding: 10px 12px; vertical-align: top;">${afterVal}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show full updated record details
+        html += `
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                <h4 style="margin: 0 0 12px; font-size: 0.88rem; color: #475569; text-transform: uppercase; letter-spacing: 0.04em;">Current Record State (All Values)</h4>
+                <div class="audit-kv-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+        `;
+
+        Object.keys(newObj).forEach(k => {
+            const label = formatAuditFieldLabel(k);
+            const val = formatAuditValueAsText(k, newObj[k]);
+            html += `
+                <div class="audit-kv-item" style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f1f5f9; padding: 6px 0; gap: 12px;">
+                    <span class="audit-kv-label" style="color: #64748b; font-size: 0.84rem; flex-shrink: 0;">${label}:</span>
+                    <span class="audit-kv-val" style="font-weight: 600; color: #0f172a; font-size: 0.86rem; text-align: right;">${val}</span>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+    // CASE 2: New Record Created (prevObj is null or empty)
+    } else if (newObj) {
+        html += `
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16a34a;"></span>
+                    <strong style="color: #166534; font-size: 0.92rem;">New Record Created</strong>
+                    <span style="color: #15803d; font-size: 0.84rem;">— This entry was provisioned with the following details:</span>
+                </div>
+            </div>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                <h4 style="margin: 0 0 12px; font-size: 0.88rem; color: #475569; text-transform: uppercase; letter-spacing: 0.04em;">Registered Properties</h4>
+                <div class="audit-kv-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+        `;
+
+        if (typeof newObj === "object") {
+            Object.keys(newObj).forEach(k => {
+                const label = formatAuditFieldLabel(k);
+                const val = formatAuditValueAsText(k, newObj[k]);
+                html += `
+                    <div class="audit-kv-item" style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f1f5f9; padding: 6px 0; gap: 12px;">
+                        <span class="audit-kv-label" style="color: #64748b; font-size: 0.84rem; flex-shrink: 0;">${label}:</span>
+                        <span class="audit-kv-val" style="font-weight: 600; color: #0f172a; font-size: 0.86rem; text-align: right;">${val}</span>
+                    </div>
+                `;
+            });
+        } else {
+            html += `<div style="font-size: 0.9rem; color: #0f172a;">${escapeHtml(String(newObj))}</div>`;
+        }
+
+        html += `
+                </div>
+            </div>
+        `;
+
+    // CASE 3: Record Deleted (newObj is null or empty)
+    } else if (prevObj) {
+        html += `
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #dc2626;"></span>
+                    <strong style="color: #991b1b; font-size: 0.92rem;">Record Deleted</strong>
+                    <span style="color: #b91c1c; font-size: 0.84rem;">— This entry was removed from the database tables.</span>
+                </div>
+            </div>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                <h4 style="margin: 0 0 12px; font-size: 0.88rem; color: #475569; text-transform: uppercase; letter-spacing: 0.04em;">Archived Record Values Prior to Deletion</h4>
+                <div class="audit-kv-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+        `;
+
+        if (typeof prevObj === "object") {
+            Object.keys(prevObj).forEach(k => {
+                const label = formatAuditFieldLabel(k);
+                const val = formatAuditValueAsText(k, prevObj[k]);
+                html += `
+                    <div class="audit-kv-item" style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f1f5f9; padding: 6px 0; gap: 12px;">
+                        <span class="audit-kv-label" style="color: #64748b; font-size: 0.84rem; flex-shrink: 0;">${label}:</span>
+                        <span class="audit-kv-val" style="font-weight: 600; color: #0f172a; font-size: 0.86rem; text-align: right;">${val}</span>
+                    </div>
+                `;
+            });
+        } else {
+            html += `<div style="font-size: 0.9rem; color: #0f172a;">${escapeHtml(String(prevObj))}</div>`;
+        }
+
+        html += `
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div style="padding: 24px; text-align: center; color: #64748b;">
+                No additional record state was captured for this event.
+            </div>
+        `;
+    }
+
+    if (textSec) textSec.innerHTML = html;
+
+    // Show modal
+    const modal = document.getElementById("audit-details-modal");
+    if (modal) modal.classList.remove("hidden");
 };
 
 // ----------------- SGTIN CSV Generator -----------------

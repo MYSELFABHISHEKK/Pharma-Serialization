@@ -3,6 +3,7 @@ import json
 from typing import Optional
 from sqlalchemy.orm import Session
 from app.models.db_models import AuditLog
+from app.core.security import get_current_request_id
 
 class AuditLogRepository:
     @staticmethod
@@ -13,10 +14,13 @@ class AuditLogRepository:
         record_id: str,
         previous_value: Optional[dict] = None,
         updated_value: Optional[dict] = None,
-        performed_by: str = "system"
+        performed_by: str = "system",
+        client_ip: Optional[str] = None,
+        request_id: Optional[str] = None
     ):
         prev_json = json.dumps(previous_value) if previous_value is not None else None
         upd_json = json.dumps(updated_value) if updated_value is not None else None
+        req_id = request_id or get_current_request_id()
         
         log_entry = AuditLog(
             event_type=event_type,
@@ -25,6 +29,8 @@ class AuditLogRepository:
             previous_value=prev_json,
             updated_value=upd_json,
             performed_by=performed_by,
+            client_ip=client_ip,
+            request_id=req_id,
             timestamp=datetime.now(timezone.utc).isoformat()
         )
         db.add(log_entry)

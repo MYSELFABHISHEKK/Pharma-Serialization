@@ -90,3 +90,45 @@ def test_auth_lifecycle(db_session):
     assert "USER_LOGIN" in event_names
     assert "USER_SIGNUP" in event_names
     assert "USER_LOGOUT" in event_names
+
+def test_admin_user_provisioning_flow(db_session):
+    AuthService.seed_default_users(db_session)
+    
+    # 1. Admin logs in
+    admin_login = client.post("/api/v1/auth/login", json={"username": "admin", "password": "Admin@1234"})
+    assert admin_login.status_code == 200
+    admin_token = admin_login.json()["access_token"]
+    
+    # 2. Admin provisions a new operator
+    new_user_payload = {
+        "username": "line_supervisor_raj",
+        "email": "raj.k@pharma-corp.local",
+        "full_name": "Rajesh Kumar",
+        "password": "RajeshPassword@123",
+        "role": "Packaging Line Supervisor",
+        "plant": "PLANT-HYDERABAD-01"
+    }
+    create_resp = client.post(
+        "/api/v1/auth/users",
+        json=new_user_payload,
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    assert create_resp.status_code == 200
+    created_user = create_resp.json()
+    assert created_user["username"] == "line_supervisor_raj"
+    assert created_user["full_name"] == "Rajesh Kumar"
+    
+    # 3. Verify user is in list
+    users_resp = client.get("/api/v1/auth/users", headers={"Authorization": f"Bearer {admin_token}"})
+    assert users_resp.status_code == 200
+    users_list = users_resp.json()
+    assert any(u["username"] == "line_supervisor_raj" for u in users_list)
+    
+    # 4. New user logs in using provisioned credentials
+    raj_login = client.post("/api/v1/auth/login", json={
+        "username": "line_supervisor_raj",
+        "password": "RajeshPassword@123"
+    })
+    assert raj_login.status_code == 200
+    assert raj_login.json()["user"]["username"] == "line_supervisor_raj"
+    assert "access_token" in raj_login.json()

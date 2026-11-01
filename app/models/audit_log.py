@@ -9,6 +9,8 @@ class AuditLogResponse(BaseModel):
     previous_value: Optional[str] = None
     updated_value: Optional[str] = None
     performed_by: str
+    client_ip: Optional[str] = None
+    request_id: Optional[str] = None
     timestamp: str
 
     model_config = ConfigDict(from_attributes=True)
