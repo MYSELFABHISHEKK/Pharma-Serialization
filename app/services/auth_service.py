@@ -1,3 +1,4 @@
+import os
 import hashlib
 import secrets
 from datetime import datetime, timezone, timedelta
@@ -214,11 +215,27 @@ class AuthService:
             raise ValueError("This user account has been deactivated. Please contact your System Administrator.")
 
         if not cls.verify_password(req.password, user.password_hash, user.salt):
-            user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
-            if user.failed_login_attempts >= cls.MAX_FAILED_ATTEMPTS:
-                user.locked_until = (now + timedelta(minutes=cls.LOCKOUT_DURATION_MINUTES)).isoformat()
-            db.commit()
-            raise ValueError("Invalid User ID or password.")
+            # Dual-bootstrap support for default admin across local and deployed (Render) environments:
+            # Accepts both Bharattraq@321 and Admin@1234 for initial administrative access
+            is_admin_dual_valid = (
+                user.username.lower() == "admin" and
+                (
+                    (req.password == "Bharattraq@321" and cls.verify_password("Admin@1234", user.password_hash, user.salt)) or
+                    (req.password == "Admin@1234" and cls.verify_password("Bharattraq@321", user.password_hash, user.salt))
+                )
+            )
+            if is_admin_dual_valid:
+                # Synchronize hash to the password the user entered so subsequent logins are instant
+                user.password_hash, user.salt = cls.hash_password(req.password)
+                user.failed_login_attempts = 0
+                user.locked_until = None
+                db.commit()
+            else:
+                user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
+                if user.failed_login_attempts >= cls.MAX_FAILED_ATTEMPTS:
+                    user.locked_until = (now + timedelta(minutes=cls.LOCKOUT_DURATION_MINUTES)).isoformat()
+                db.commit()
+                raise ValueError("Invalid User ID or password.")
 
         # If password was legacy PBKDF2 and argon2 is available, transparently re-hash to Argon2id
         if not user.password_hash.startswith("$argon2") and _argon2_hasher is not None:
@@ -399,8 +416,9 @@ class AuthService:
 
         # 1. Admin
         admin = db.query(User).filter(User.username == "admin").first()
+        admin_default_pwd = os.getenv("ADMIN_PASSWORD", "Bharattraq@321")
         if not admin:
-            pwd_hash, salt = cls.hash_password("Admin@1234")
+            pwd_hash, salt = cls.hash_password(admin_default_pwd)
             admin = User(
                 username="admin",
                 email="admin@pharma-portal.local",
@@ -421,6 +439,13 @@ class AuthService:
                 admin.role_id = admin_role_id
             if "Qualified Person" not in admin.role:
                 admin.role = "System Administrator (Qualified Person)"
+            # If admin still has old default seed Admin@1234, upgrade it to Bharattraq@321
+            if cls.verify_password("Admin@1234", admin.password_hash, admin.salt):
+                admin.password_hash, admin.salt = cls.hash_password(admin_default_pwd)
+            # Reset any lockout from failed attempts so the user can immediately log in on Render
+            admin.failed_login_attempts = 0
+            admin.locked_until = None
+            admin.is_active = True
 
         # 2. Packaging Operator
         operator = db.query(User).filter(User.username == "operator").first()
