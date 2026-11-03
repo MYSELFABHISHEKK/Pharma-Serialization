@@ -1,4 +1,4 @@
-# BharatTraq Track & Trace Enterprise Serialization Portal (BT SN Portal)
+# BT Pharma Track-and-Trace (BT SN Portal)
 ## Comprehensive Business Requirements Document (BRD) & Technical Specification
 
 ---
