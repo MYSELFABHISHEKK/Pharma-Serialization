@@ -228,6 +228,12 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 def get_portal():
     return FileResponse("app/static/index.html")
 
+# Route to serve standalone Solutions page
+@app.get("/solutions")
+@app.get("/solutions.html")
+def get_solutions_page():
+    return FileResponse("app/static/solutions.html")
+
 # Route to serve favicon or static folder assets
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 

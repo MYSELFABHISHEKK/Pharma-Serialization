@@ -5,22 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>BT SN Portal | Serialization & Track Trace</title>
     <!-- Offline Plant Intranet Ready Font Stack (No External Google Fonts Dependency) -->
-    <link rel="stylesheet" href="/static/style.css?v=20261102_06">
+    <link rel="stylesheet" href="/static/style.css?v=20261119_03">
 </head>
 <body>
-    <div class="regulatory-ticker">
-        <span class="reg-label">REGULATORY CONFORMITY:</span>
-        <span class="reg-item"><strong class="reg-code">US-FDA</strong> DSCSA 21 CFR §201/211</span>
-        <span class="reg-sep">|</span>
-        <span class="reg-item"><strong class="reg-code">EU-FMD</strong> Directive 2011/62/EU</span>
-        <span class="reg-sep">|</span>
-        <span class="reg-item"><strong class="reg-code">INDIA-DGFT</strong> iVEDA GS1-India</span>
-        <span class="reg-sep">|</span>
-        <span class="reg-item"><strong class="reg-code">GS1</strong> SGTIN-96 / EPCIS 1.2</span>
-        <span class="reg-sep">|</span>
-        <span class="reg-item"><strong class="reg-code">GMP</strong> 21 CFR Part 11 Electronic Records</span>
-    </div>
-
     <header class="site-header">
         <a class="brand" href="#top" aria-label="BT SN Portal home">
             <span class="brand-mark">BT</span>
@@ -30,11 +17,36 @@
             </div>
         </a>
         <nav class="site-nav" aria-label="Primary navigation">
-            <a href="#compliance">Regulatory</a>
-            <a href="#architecture">Architecture</a>
-            <a href="#operations">Operations</a>
-            <a href="#process">Validation</a>
             <a href="#serialization" class="nav-cta" id="nav-open-portal" onclick="if(!window.isAuthenticated || !window.isAuthenticated()){ event.preventDefault(); if(window.showAuthOverlay) window.showAuthOverlay(); }">Serialization Console</a>
+            <div class="site-nav-dropdown solutions-nav-dropdown">
+                <a href="/solutions" class="site-nav-dropdown-toggle">Solutions <span class="nav-arrow">▼</span></a>
+                <div class="site-nav-dropdown-content solutions-dropdown-content">
+                    <div class="nested-dropdown-item">
+                        <a href="/solutions#sol-serialization" class="nested-parent-link">
+                            <span>Serialization</span>
+                            <span class="nested-caret">›</span>
+                        </a>
+                        <div class="nested-sub-menu">
+                            <a href="/solutions#sol-overview">Overview</a>
+                            <a href="/solutions#sol-compliance">Global Compliance</a>
+                            <a href="/solutions#sol-software">Software</a>
+                            <a href="/solutions#sol-hardware">Hardware</a>
+                        </div>
+                    </div>
+                    <a href="/solutions#sol-track-trace">Track &amp; Trace</a>
+                    <a href="/solutions#sol-product-authentication">Product Authentication</a>
+                    <a href="/solutions#sol-loyalty">Loyalty</a>
+                </div>
+            </div>
+            <div class="site-nav-dropdown">
+                <a href="#faq" class="site-nav-dropdown-toggle">FAQ's <span class="nav-arrow">▼</span></a>
+                <div class="site-nav-dropdown-content">
+                    <a href="#compliance">Regulatory</a>
+                    <a href="#architecture">Architecture</a>
+                    <a href="#operations">Operations</a>
+                    <a href="#process">Validation</a>
+                </div>
+            </div>
             <div class="auth-header-wrapper" id="auth-header-wrapper">
                 <button type="button" class="btn-nav-signin" id="btn-header-login" onclick="if(window.showAuthOverlay) window.showAuthOverlay();">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
@@ -45,253 +57,17 @@
     </header>
 
     <main id="top">
-        <section class="hero">
-            <div class="hero-copy">
-                <p class="eyebrow">Enterprise Pharmaceutical Serialization &bull; GAMP 5 Category 4</p>
-                <h1>Global Track &amp; Trace Serialization System</h1>
-                <p class="hero-text">
-                    Enterprise Level 3 Site Server and Level 4 Corporate Repository engineered for pharmaceutical solid orals, injectables, and biologics. Validated against US FDA DSCSA, EU FMD, and DGFT iVEDA mandates for tamper-evident unit coding and multi-tier parent-child aggregation.
-                </p>
-                <div class="hero-actions">
-                    <a class="btn primary-btn" href="#serialization">Open Serialization Console</a>
-                    <a class="btn secondary-btn" href="#operations">Technical Specifications</a>
+        <section class="serialization-section" id="serialization">
+            <div class="portal-header-row">
+                <div class="section-heading">
+                    <p class="eyebrow">Live Portal Facility</p>
+                    <h2>BT SN Portal Management Console</h2>
+                    <p>Register products, configure GTIN structures, generate serial batches, view audit changelogs, and run verification.</p>
                 </div>
-            </div>
-            <div class="hero-media" aria-label="Pharmaceutical packaging cleanroom">
-                <img src="/static/img/pharma_cleanroom.jpg" alt="Automated pharmaceutical packaging line in cleanroom">
-                <div class="live-card">
+                <div class="portal-live-status">
                     <span class="status-indicator online" id="db-status-dot"></span>
                     <span id="db-status-text">Packaging Line 04 &bull; Direct API Operational</span>
                 </div>
-            </div>
-        </section>
-
-        <section class="metrics-band" aria-label="Portal capabilities">
-            <div>
-                <span>Serialization Security</span>
-                <strong>CSPRNG Cryptographic Entropy</strong>
-            </div>
-            <div>
-                <span>Vision Inspection</span>
-                <strong>ISO/IEC 15415 Grade A/B Accuracy</strong>
-            </div>
-            <div>
-                <span>Line Throughput</span>
-                <strong>Industrial 450 Packs / Minute</strong>
-            </div>
-            <div>
-                <span>Interoperability</span>
-                <strong>GS1 EPCIS 1.2 &amp; SGTIN-96</strong>
-            </div>
-        </section>
-
-        <!-- Global Regulatory Compliance Frameworks -->
-        <section class="compliance-section" id="compliance">
-            <div class="section-heading">
-                <p class="eyebrow">Global Mandates &bull; Quality Management System</p>
-                <h2>Validated against international pharmaceutical regulatory directives.</h2>
-                <p>Engineered to ensure zero-friction pharmaceutical export compliance across all major global health authorities and national reporting hubs.</p>
-            </div>
-            <div class="compliance-grid">
-                <article class="compliance-card">
-                    <div class="compliance-badge-header">
-                        <span class="corp-jurisdiction-badge">US-FDA</span>
-                        <span class="corp-standard-tag">21 CFR §201/211</span>
-                    </div>
-                    <h3>US FDA DSCSA (2024)</h3>
-                    <p>Enforces 100% interoperable package-level electronic tracing, verification router service (VRS) readiness, exception handling, and transaction data exchange.</p>
-                </article>
-                <article class="compliance-card">
-                    <div class="compliance-badge-header">
-                        <span class="corp-jurisdiction-badge">EU-FMD</span>
-                        <span class="corp-standard-tag">Directive 2011/62/EU</span>
-                    </div>
-                    <h3>EU FMD Directive</h3>
-                    <p>End-to-end verification supporting Point-of-Dispense decommission, anti-tampering device verification, and integration with the European EMVO hub.</p>
-                </article>
-                <article class="compliance-card">
-                    <div class="compliance-badge-header">
-                        <span class="corp-jurisdiction-badge">DGFT</span>
-                        <span class="corp-standard-tag">iVEDA Portal</span>
-                    </div>
-                    <h3>India DGFT iVEDA</h3>
-                    <p>Full primary blister/strip unique coding, secondary shipper carton parent-child aggregation, and tertiary pallet track-and-trace export conformity.</p>
-                </article>
-                <article class="compliance-card">
-                    <div class="compliance-badge-header">
-                        <span class="corp-jurisdiction-badge">21 CFR 11</span>
-                        <span class="corp-standard-tag">GAMP 5</span>
-                    </div>
-                    <h3>Electronic Records &amp; Signatures</h3>
-                    <p>Cryptographically secured audit logs, automated before-and-after JSON change data capture, strict role separation, and electronic batch record traceability.</p>
-                </article>
-            </div>
-        </section>
-
-        <!-- Multi-Level Architecture Showcase -->
-        <section class="architecture-section" id="architecture">
-            <div class="section-heading">
-                <p class="eyebrow">ISA-95 Architecture</p>
-                <h2>End-to-End 5-Level Serialization Integration.</h2>
-                <p>Seamless bidirectional data flow connecting shop-floor printing heads directly to government reporting portals.</p>
-            </div>
-            <div class="architecture-pipeline">
-                <article class="arch-card">
-                    <span class="arch-badge">Level 1</span>
-                    <h4>Device Hardware</h4>
-                    <p>Industrial thermal inkjet, laser marking heads, and high-speed Cognex/Keyence camera vision stations.</p>
-                </article>
-                <article class="arch-card">
-                    <span class="arch-badge">Level 2</span>
-                    <h4>Line Automation</h4>
-                    <p>Packaging line controllers, pneumatic carton rejector mechanisms, and semi-automated bundling stations.</p>
-                </article>
-                <article class="arch-card">
-                    <span class="arch-badge">Level 3</span>
-                    <h4>Site Server (MES)</h4>
-                    <p>Plant batch management, work order scheduling, recipe configuration, and local sequence buffers.</p>
-                </article>
-                <article class="arch-card">
-                    <span class="arch-badge">Level 4</span>
-                    <h4>BT SN Enterprise</h4>
-                    <p>Centralized SGTIN serial repository, GS1 EPCIS event generator, partner portals, and verification state engine.</p>
-                </article>
-                <article class="arch-card">
-                    <span class="arch-badge">Level 5</span>
-                    <h4>Government Hubs</h4>
-                    <p>Direct compliance reporting to US FDA, European Medicines Hub (EMVS), and national health databases.</p>
-                </article>
-            </div>
-        </section>
-
-        <!-- Real-World Pharma Operations & Deep Dives -->
-        <section class="pharma-showcase-section" id="operations">
-            <div class="section-heading">
-                <p class="eyebrow">Manufacturing &bull; Cleanroom Operations</p>
-                <h2>Engineered for High-Speed Packaging Lines &amp; Global Traceability.</h2>
-                <p>Industrial Level 1 to Level 3 shop-floor capabilities designed for Good Manufacturing Practice (GMP) compliance.</p>
-            </div>
-
-            <!-- Deep Dive 1: In-line Vision -->
-            <div class="pharma-showcase-item">
-                <div class="showcase-media">
-                    <img src="/static/img/pharma_serialization_scanner.jpg" alt="High-speed vision inspection and printing station">
-                    <span class="showcase-media-tag">Packaging Line 02 &bull; High-Speed Vision Station</span>
-                </div>
-                <div class="showcase-content">
-                    <h3>In-Line Vision Inspection &amp; 2D DataMatrix Grading</h3>
-                    <p class="lead-text">
-                        Automated high-speed verification ensuring every printed carton conforms strictly to GS1 ISO/IEC print standards before cleanroom release.
-                    </p>
-                    <ul class="pharma-points-list">
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>ISO/IEC 15415 Quality Grading:</strong> Continuous grading (Grades A &amp; B) measuring axial non-uniformity and symbol contrast.</span>
-                        </li>
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>Synchronous OCR/OCV Verification:</strong> Automated optical recognition matching lot, expiry, GTIN, and serials against the 2D matrix.</span>
-                        </li>
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>Pneumatic Defect Rejection:</strong> High-speed automated carton ejection system operating at up to 450 packs per minute.</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Deep Dive 2: Warehouse Aggregation -->
-            <div class="pharma-showcase-item reverse">
-                <div class="showcase-content">
-                    <h3>Multi-Tier Parent-Child Packaging Aggregation</h3>
-                    <p class="lead-text">
-                        Hierarchical packaging genealogy enabling supply-chain partners to verify complete shipments at the pallet level with unique GS1 SSCC-18 codes.
-                    </p>
-                    <ul class="pharma-points-list">
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>Packaging Hierarchy:</strong> Systematic unit-to-bundle-to-shipper case-to-pallet aggregation with verifiable digital parentage.</span>
-                        </li>
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>Dynamic Rework &amp; De-Aggregation:</strong> Controlled case unbundling and rework protocols maintaining lineage integrity.</span>
-                        </li>
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>Industrial Scanner Integration:</strong> Seamless interoperability with standard warehouse handheld RF barcode terminals and automated AGVs.</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="showcase-media">
-                    <img src="/static/img/pharma_warehouse_logistics.jpg" alt="Pharmaceutical warehouse pallet tracking with SSCC label">
-                    <span class="showcase-media-tag">Distribution Hub 01 &bull; Pallet SSCC Verification</span>
-                </div>
-            </div>
-
-            <!-- Deep Dive 3: Quality Lab & Audit -->
-            <div class="pharma-showcase-item">
-                <div class="showcase-media">
-                    <img src="/static/img/pharma_lab_quality.jpg" alt="Pharmaceutical QA laboratory inspecting digital batch records">
-                    <span class="showcase-media-tag">QA Compliance Lab &bull; 21 CFR Part 11 Audit Review</span>
-                </div>
-                <div class="showcase-content">
-                    <h3>Quality Assurance &amp; Immutable Electronic Audit Trails</h3>
-                    <p class="lead-text">
-                        Validated compliance workflows enforcing 21 CFR Part 11 and GAMP 5 standards for Qualified Person (QP) batch release.
-                    </p>
-                    <ul class="pharma-points-list">
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>Change Data Capture (CDC):</strong> Automated immutable logging for all record creations, edits, and state transitions with actor attribution.</span>
-                        </li>
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>Side-by-Side JSON Diff Inspector:</strong> Visual audit inspector displaying before-and-after snapshots for regulatory inspections.</span>
-                        </li>
-                        <li>
-                            <span class="check-icon">✓</span>
-                            <span><strong>Targeted Mock Recall Capability:</strong> Rapid identification of affected serials and lot distributions within 60 seconds.</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <section class="process-section" id="process">
-            <div class="section-heading">
-                <p class="eyebrow">Standard Operating Procedure</p>
-                <h2>Serialization Lifecycle &amp; Validation Protocol</h2>
-                <p>Four-stage GAMP 5 Category 4 lifecycle governing serial identity from code commissioning through downstream verification.</p>
-            </div>
-            <div class="process-grid">
-                <article class="step-card">
-                    <span>01</span>
-                    <h3>Commission</h3>
-                    <p>CSPRNG cryptographic generation and sequence reservation against registered product GTINs.</p>
-                </article>
-                <article class="step-card">
-                    <span>02</span>
-                    <h3>Print &amp; Grade</h3>
-                    <p>In-line 2D DataMatrix thermal marking with synchronous ISO/IEC 15415 vision quality grading.</p>
-                </article>
-                <article class="step-card">
-                    <span>03</span>
-                    <h3>Aggregate</h3>
-                    <p>Multi-tier parent-child carton packaging reconciliation and electronic batch record authorization.</p>
-                </article>
-                <article class="step-card">
-                    <span>04</span>
-                    <h3>Verify</h3>
-                    <p>Verification Router Service (VRS) readiness, tamper status verification, and compliance audit reporting.</p>
-                </article>
-            </div>
-        </section>
-
-        <section class="serialization-section" id="serialization">
-            <div class="section-heading">
-                <p class="eyebrow">Live Portal Facility</p>
-                <h2>BT SN Portal Management Console</h2>
-                <p>Register products, configure GTIN structures, generate serial batches, view audit changelogs, and run verification.</p>
             </div>
 
             <!-- Dashboard Sub Navigation -->
@@ -463,7 +239,7 @@
                                 <div class="form-row">
                                     <div class="form-group flex-1">
                                         <label for="prod-regulatory">Regulatory Authority *</label>
-                                        <select id="prod-regulatory">
+                                        <select id="prod-regulatory" onchange="window.toggleAuthorityPanels ? window.toggleAuthorityPanels(this.value) : null">
                                             <option value="" disabled selected>-- Select Regulatory --</option>
                                             <option value="DSCSA">DSCSA (US)</option>
                                             <option value="EUFMD">EUFMD (Europe)</option>
@@ -618,7 +394,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-row">
+                                <div class="form-row" id="panel-material-nhrn">
                                     <div class="form-group flex-1">
                                         <label for="prod-materialnumber">Internal Material Number</label>
                                         <input type="text" id="prod-materialnumber" placeholder="MAT-10293" autocomplete="off">
@@ -1839,6 +1615,263 @@
             </div>
         </section>
 
+
+
+
+        <!-- System Knowledge Base, FAQ, Regulatory Directives & Architecture Blueprints -->
+        <section class="faq-section" id="faq">
+            <div class="faq-header-wrapper">
+                <div class="section-heading">
+                    <p class="eyebrow">Enterprise Reference &bull; Regulatory Compliance</p>
+                    <h2>Frequently Asked Questions (FAQ's) &amp; Technical Specifications</h2>
+                    <p>Overview of global serialization compliance directives, ISA-95 system architecture, packaging operations, and GAMP 5 validation protocols.</p>
+                </div>
+            </div>
+
+            <!-- Global Regulatory Compliance Frameworks -->
+        <section class="compliance-section" id="compliance">
+            <div class="section-heading">
+                <p class="eyebrow">Global Mandates &bull; Quality Management System</p>
+                <h2>Validated against international pharmaceutical regulatory directives.</h2>
+                <p>Engineered to ensure zero-friction pharmaceutical export compliance across all major global health authorities and national reporting hubs.</p>
+            </div>
+            <div class="compliance-grid">
+                <article class="compliance-card">
+                    <div class="compliance-badge-header">
+                        <span class="corp-jurisdiction-badge">US-FDA</span>
+                        <span class="corp-standard-tag">21 CFR §201/211</span>
+                    </div>
+                    <h3>US FDA DSCSA (2024)</h3>
+                    <p>Enforces 100% interoperable package-level electronic tracing, verification router service (VRS) readiness, exception handling, and transaction data exchange.</p>
+                </article>
+                <article class="compliance-card">
+                    <div class="compliance-badge-header">
+                        <span class="corp-jurisdiction-badge">EU-FMD</span>
+                        <span class="corp-standard-tag">Directive 2011/62/EU</span>
+                    </div>
+                    <h3>EU FMD Directive</h3>
+                    <p>End-to-end verification supporting Point-of-Dispense decommission, anti-tampering device verification, and integration with the European EMVO hub.</p>
+                </article>
+                <article class="compliance-card">
+                    <div class="compliance-badge-header">
+                        <span class="corp-jurisdiction-badge">DGFT</span>
+                        <span class="corp-standard-tag">iVEDA Portal</span>
+                    </div>
+                    <h3>India DGFT iVEDA</h3>
+                    <p>Full primary blister/strip unique coding, secondary shipper carton parent-child aggregation, and tertiary pallet track-and-trace export conformity.</p>
+                </article>
+                <article class="compliance-card">
+                    <div class="compliance-badge-header">
+                        <span class="corp-jurisdiction-badge">21 CFR 11</span>
+                        <span class="corp-standard-tag">GAMP 5</span>
+                    </div>
+                    <h3>Electronic Records &amp; Signatures</h3>
+                    <p>Cryptographically secured audit logs, automated before-and-after JSON change data capture, strict role separation, and electronic batch record traceability.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Multi-Level Architecture Showcase -->
+        <section class="architecture-section" id="architecture">
+            <div class="section-heading">
+                <p class="eyebrow">ISA-95 Architecture</p>
+                <h2>End-to-End 5-Level Serialization Integration.</h2>
+                <p>Seamless bidirectional data flow connecting shop-floor printing heads directly to government reporting portals.</p>
+            </div>
+            <div class="architecture-pipeline">
+                <article class="arch-card">
+                    <span class="arch-badge">Level 1</span>
+                    <h4>Device Hardware</h4>
+                    <p>Industrial thermal inkjet, laser marking heads, and high-speed Cognex/Keyence camera vision stations.</p>
+                </article>
+                <article class="arch-card">
+                    <span class="arch-badge">Level 2</span>
+                    <h4>Line Automation</h4>
+                    <p>Packaging line controllers, pneumatic carton rejector mechanisms, and semi-automated bundling stations.</p>
+                </article>
+                <article class="arch-card">
+                    <span class="arch-badge">Level 3</span>
+                    <h4>Site Server (MES)</h4>
+                    <p>Plant batch management, work order scheduling, recipe configuration, and local sequence buffers.</p>
+                </article>
+                <article class="arch-card">
+                    <span class="arch-badge">Level 4</span>
+                    <h4>BT SN Enterprise</h4>
+                    <p>Centralized SGTIN serial repository, GS1 EPCIS event generator, partner portals, and verification state engine.</p>
+                </article>
+                <article class="arch-card">
+                    <span class="arch-badge">Level 5</span>
+                    <h4>Government Hubs</h4>
+                    <p>Direct compliance reporting to US FDA, European Medicines Hub (EMVS), and national health databases.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Real-World Pharma Operations & Deep Dives -->
+        <section class="pharma-showcase-section" id="operations">
+            <div class="section-heading">
+                <p class="eyebrow">Manufacturing &bull; Cleanroom Operations</p>
+                <h2>Engineered for High-Speed Packaging Lines &amp; Global Traceability.</h2>
+                <p>Industrial Level 1 to Level 3 shop-floor capabilities designed for Good Manufacturing Practice (GMP) compliance.</p>
+            </div>
+
+            <!-- Deep Dive 1: In-line Vision -->
+            <div class="pharma-showcase-item">
+                <div class="showcase-media">
+                    <img src="/static/img/pharma_serialization_scanner.jpg" alt="High-speed vision inspection and printing station">
+                    <span class="showcase-media-tag">Packaging Line 02 &bull; High-Speed Vision Station</span>
+                </div>
+                <div class="showcase-content">
+                    <h3>In-Line Vision Inspection &amp; 2D DataMatrix Grading</h3>
+                    <p class="lead-text">
+                        Automated high-speed verification ensuring every printed carton conforms strictly to GS1 ISO/IEC print standards before cleanroom release.
+                    </p>
+                    <ul class="pharma-points-list">
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>ISO/IEC 15415 Quality Grading:</strong> Continuous grading (Grades A &amp; B) measuring axial non-uniformity and symbol contrast.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Synchronous OCR/OCV Verification:</strong> Automated optical recognition matching lot, expiry, GTIN, and serials against the 2D matrix.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Pneumatic Defect Rejection:</strong> High-speed automated carton ejection system operating at up to 450 packs per minute.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Deep Dive 2: Warehouse Aggregation -->
+            <div class="pharma-showcase-item reverse">
+                <div class="showcase-content">
+                    <h3>Multi-Tier Parent-Child Packaging Aggregation</h3>
+                    <p class="lead-text">
+                        Hierarchical packaging genealogy enabling supply-chain partners to verify complete shipments at the pallet level with unique GS1 SSCC-18 codes.
+                    </p>
+                    <ul class="pharma-points-list">
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Packaging Hierarchy:</strong> Systematic unit-to-bundle-to-shipper case-to-pallet aggregation with verifiable digital parentage.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Dynamic Rework &amp; De-Aggregation:</strong> Controlled case unbundling and rework protocols maintaining lineage integrity.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Industrial Scanner Integration:</strong> Seamless interoperability with standard warehouse handheld RF barcode terminals and automated AGVs.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="showcase-media">
+                    <img src="/static/img/pharma_warehouse_logistics.jpg" alt="Pharmaceutical warehouse pallet tracking with SSCC label">
+                    <span class="showcase-media-tag">Distribution Hub 01 &bull; Pallet SSCC Verification</span>
+                </div>
+            </div>
+
+            <!-- Deep Dive 3: Quality Lab & Audit -->
+            <div class="pharma-showcase-item">
+                <div class="showcase-media">
+                    <img src="/static/img/pharma_lab_quality.jpg" alt="Pharmaceutical QA laboratory inspecting digital batch records">
+                    <span class="showcase-media-tag">QA Compliance Lab &bull; 21 CFR Part 11 Audit Review</span>
+                </div>
+                <div class="showcase-content">
+                    <h3>Quality Assurance &amp; Immutable Electronic Audit Trails</h3>
+                    <p class="lead-text">
+                        Validated compliance workflows enforcing 21 CFR Part 11 and GAMP 5 standards for Qualified Person (QP) batch release.
+                    </p>
+                    <ul class="pharma-points-list">
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Change Data Capture (CDC):</strong> Automated immutable logging for all record creations, edits, and state transitions with actor attribution.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Side-by-Side JSON Diff Inspector:</strong> Visual audit inspector displaying before-and-after snapshots for regulatory inspections.</span>
+                        </li>
+                        <li>
+                            <span class="check-icon">✓</span>
+                            <span><strong>Targeted Mock Recall Capability:</strong> Rapid identification of affected serials and lot distributions within 60 seconds.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="process-section" id="process">
+            <div class="section-heading">
+                <p class="eyebrow">Standard Operating Procedure</p>
+                <h2>Serialization Lifecycle &amp; Validation Protocol</h2>
+                <p>Four-stage GAMP 5 Category 4 lifecycle governing serial identity from code commissioning through downstream verification.</p>
+            </div>
+            <div class="process-grid">
+                <article class="step-card">
+                    <span>01</span>
+                    <h3>Commission</h3>
+                    <p>CSPRNG cryptographic generation and sequence reservation against registered product GTINs.</p>
+                </article>
+                <article class="step-card">
+                    <span>02</span>
+                    <h3>Print &amp; Grade</h3>
+                    <p>In-line 2D DataMatrix thermal marking with synchronous ISO/IEC 15415 vision quality grading.</p>
+                </article>
+                <article class="step-card">
+                    <span>03</span>
+                    <h3>Aggregate</h3>
+                    <p>Multi-tier parent-child carton packaging reconciliation and electronic batch record authorization.</p>
+                </article>
+                <article class="step-card">
+                    <span>04</span>
+                    <h3>Verify</h3>
+                    <p>Verification Router Service (VRS) readiness, tamper status verification, and compliance audit reporting.</p>
+                </article>
+            </div>
+        </section>
+
+            <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Enterprise Pharmaceutical Serialization &bull; GAMP 5 Category 4</p>
+                <h2>Global Track &amp; Trace Serialization System</h2>
+                <p class="hero-text">
+                    Enterprise Level 3 Site Server and Level 4 Corporate Repository engineered for pharmaceutical solid orals, injectables, and biologics. Validated against US FDA DSCSA, EU FMD, and DGFT iVEDA mandates for tamper-evident unit coding and multi-tier parent-child aggregation.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn primary-btn" href="#serialization">Open Serialization Console</a>
+                    <a class="btn secondary-btn" href="#operations">Technical Specifications</a>
+                </div>
+            </div>
+            <div class="hero-media" aria-label="Pharmaceutical packaging cleanroom">
+                <img src="/static/img/pharma_cleanroom.jpg" alt="Automated pharmaceutical packaging line in cleanroom">
+                <div class="live-card">
+                    <span class="status-indicator online"></span>
+                    <span>Packaging Cleanroom Line 04 &bull; ISO Class 7</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="metrics-band" aria-label="Portal capabilities">
+            <div>
+                <span>Serialization Security</span>
+                <strong>CSPRNG Cryptographic Entropy</strong>
+            </div>
+            <div>
+                <span>Vision Inspection</span>
+                <strong>ISO/IEC 15415 Grade A/B Accuracy</strong>
+            </div>
+            <div>
+                <span>Line Throughput</span>
+                <strong>Industrial 450 Packs / Minute</strong>
+            </div>
+            <div>
+                <span>Interoperability</span>
+                <strong>GS1 EPCIS 1.2 &amp; SGTIN-96</strong>
+            </div>
+        </section>
+        
+        </section>
+
     </main>
 
     <footer class="site-footer">
@@ -1858,11 +1891,13 @@
             </div>
         </div>
         <div class="footer-links">
+            <a href="#serialization">Serialization Console</a>
+            <a href="/solutions">Solutions</a>
+            <a href="#faq">FAQ's</a>
             <a href="#compliance">Regulatory</a>
             <a href="#architecture">Architecture</a>
             <a href="#operations">Operations</a>
             <a href="#process">Validation</a>
-            <a href="#serialization">Serialization Console</a>
         </div>
     </footer>
 
@@ -2252,6 +2287,95 @@
         </div>
     </div>
 
-    <script src="/static/app.js?v=20261102_06"></script>
+    <!-- Dropdown Click & Touch Reliability Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.site-nav-dropdown-toggle').forEach(function(toggle) {
+            toggle.addEventListener('click', function(e) {
+                var parent = toggle.closest('.site-nav-dropdown');
+                if (parent) {
+                    var wasOpen = parent.classList.contains('is-open');
+                    document.querySelectorAll('.site-nav-dropdown').forEach(function(d) {
+                        d.classList.remove('is-open');
+                    });
+                    if (!wasOpen) {
+                        e.preventDefault();
+                        parent.classList.add('is-open');
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.nested-parent-link').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                var item = link.closest('.nested-dropdown-item');
+                if (item) {
+                    var wasOpen = item.classList.contains('is-open');
+                    if (!wasOpen) {
+                        e.preventDefault();
+                        item.classList.add('is-open');
+                    }
+                }
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.site-nav-dropdown')) {
+                document.querySelectorAll('.site-nav-dropdown, .nested-dropdown-item').forEach(function(el) {
+                    el.classList.remove('is-open');
+                });
+            }
+        });
+    });
+
+    // Authority dynamic visibility handler for Add Product
+    window.toggleAuthorityPanels = function(authority) {
+        var dscsaPanel = document.getElementById("panel-dscsa");
+        var eufmdPanel = document.getElementById("panel-eufmd");
+        var nhrnPanel = document.getElementById("panel-material-nhrn");
+
+        if (dscsaPanel) {
+            dscsaPanel.classList.add("hidden");
+            dscsaPanel.style.setProperty("display", "none", "important");
+        }
+        if (eufmdPanel) {
+            eufmdPanel.classList.add("hidden");
+            eufmdPanel.style.setProperty("display", "none", "important");
+        }
+
+        if (authority === "DSCSA") {
+            if (dscsaPanel) {
+                dscsaPanel.classList.remove("hidden");
+                dscsaPanel.style.setProperty("display", "flex", "important");
+            }
+            if (nhrnPanel) {
+                nhrnPanel.classList.add("hidden");
+                nhrnPanel.style.setProperty("display", "none", "important");
+            }
+        } else {
+            if (authority === "EUFMD" && eufmdPanel) {
+                eufmdPanel.classList.remove("hidden");
+                eufmdPanel.style.setProperty("display", "flex", "important");
+            }
+            if (nhrnPanel) {
+                nhrnPanel.classList.remove("hidden");
+                nhrnPanel.style.removeProperty("display");
+            }
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var reg = document.getElementById("prod-regulatory");
+        if (reg) {
+            reg.addEventListener("change", function(e) {
+                window.toggleAuthorityPanels(e.target.value);
+            });
+            if (reg.value) {
+                window.toggleAuthorityPanels(reg.value);
+            }
+        }
+    });
+    </script>
+    <script src="/static/app.js?v=20261119_03"></script>
 </body>
 </html>

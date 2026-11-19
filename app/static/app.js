@@ -1997,9 +1997,20 @@ function resetProductForm() {
     productBase64Image = "";
 
     const dscsa = document.getElementById("panel-dscsa");
-    if (dscsa) dscsa.classList.add("hidden");
+    if (dscsa) {
+        dscsa.classList.add("hidden");
+        dscsa.style.setProperty("display", "none", "important");
+    }
     const eufmd = document.getElementById("panel-eufmd");
-    if (eufmd) eufmd.classList.add("hidden");
+    if (eufmd) {
+        eufmd.classList.add("hidden");
+        eufmd.style.setProperty("display", "none", "important");
+    }
+    const nhrnPanel = document.getElementById("panel-material-nhrn");
+    if (nhrnPanel) {
+        nhrnPanel.classList.remove("hidden");
+        nhrnPanel.style.removeProperty("display");
+    }
 }
 
 function resetGtinForm() {
@@ -2354,16 +2365,38 @@ function setupFileHandlers() {
 function toggleAuthorityPanels(authority) {
     const dscsaPanel = document.getElementById("panel-dscsa");
     const eufmdPanel = document.getElementById("panel-eufmd");
+    const nhrnPanel = document.getElementById("panel-material-nhrn");
 
-    dscsaPanel.classList.add("hidden");
-    eufmdPanel.classList.add("hidden");
+    if (dscsaPanel) {
+        dscsaPanel.classList.add("hidden");
+        dscsaPanel.style.setProperty("display", "none", "important");
+    }
+    if (eufmdPanel) {
+        eufmdPanel.classList.add("hidden");
+        eufmdPanel.style.setProperty("display", "none", "important");
+    }
 
     if (authority === "DSCSA") {
-        dscsaPanel.classList.remove("hidden");
-    } else if (authority === "EUFMD") {
-        eufmdPanel.classList.remove("hidden");
+        if (dscsaPanel) {
+            dscsaPanel.classList.remove("hidden");
+            dscsaPanel.style.setProperty("display", "flex", "important");
+        }
+        if (nhrnPanel) {
+            nhrnPanel.classList.add("hidden");
+            nhrnPanel.style.setProperty("display", "none", "important");
+        }
+    } else {
+        if (authority === "EUFMD" && eufmdPanel) {
+            eufmdPanel.classList.remove("hidden");
+            eufmdPanel.style.setProperty("display", "flex", "important");
+        }
+        if (nhrnPanel) {
+            nhrnPanel.classList.remove("hidden");
+            nhrnPanel.style.removeProperty("display");
+        }
     }
 }
+window.toggleAuthorityPanels = toggleAuthorityPanels;
 
 // ----------------- Form Handlers & Event Listeners -----------------
 function setupEventListeners() {
@@ -2623,11 +2656,11 @@ async function handleProductSaveSubmit(e) {
         unit_price: getVal("prod-price") || null,
         ndc: getVal("prod-ndc") || null,
         ndc_type: getVal("prod-ndctype") || null,
-        country_drug_code_type: getVal("prod-countrycode-type") || null,
-        country_drug_code: getVal("prod-countrycode") || null,
-        internal_material_number: getVal("prod-materialnumber") || null,
-        nnhrn: getVal("prod-nnhrn") || null,
-        nhrn_ai_type: getVal("prod-nhrnai-type") || null,
+        country_drug_code_type: regulatory === "EUFMD" ? (getVal("prod-countrycode-type") || null) : null,
+        country_drug_code: regulatory === "EUFMD" ? (getVal("prod-countrycode") || null) : null,
+        internal_material_number: regulatory === "DSCSA" ? null : (getVal("prod-materialnumber") || null),
+        nnhrn: regulatory === "DSCSA" ? null : (getVal("prod-nnhrn") || null),
+        nhrn_ai_type: regulatory === "DSCSA" ? null : (getVal("prod-nhrnai-type") || null),
         item_code_type: itemCodeType,
         item_code: itemCode,
         is_active: isActive,

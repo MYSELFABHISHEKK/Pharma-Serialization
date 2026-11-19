@@ -177,6 +177,200 @@ a {
     background: #001933 !important;
 }
 
+/* Site Header Nav Dropdowns (Solutions & FAQ) - Ultra-Reliable & Snappy */
+.site-nav-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.site-nav-dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #334e68 !important;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 6px !important;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    user-select: none;
+}
+
+.site-nav-dropdown-toggle:hover,
+.site-nav-dropdown:hover .site-nav-dropdown-toggle,
+.site-nav-dropdown.is-open .site-nav-dropdown-toggle {
+    color: #0056b3 !important;
+}
+
+.solutions-nav-dropdown:hover .site-nav-dropdown-toggle,
+.solutions-nav-dropdown.is-open .site-nav-dropdown-toggle {
+    color: #0056b3 !important;
+}
+
+.site-nav-dropdown-toggle .nav-arrow {
+    font-size: 0.62rem;
+    color: #64748b;
+    transition: transform 0.15s ease;
+    pointer-events: none;
+}
+
+.site-nav-dropdown:hover .nav-arrow,
+.site-nav-dropdown.is-open .nav-arrow {
+    transform: rotate(180deg);
+}
+
+/* Invisible hover bridge to eliminate accidental closure gaps */
+.site-nav-dropdown::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    display: block;
+    z-index: 99;
+}
+
+.site-nav-dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 180px;
+    background-color: #ffffff;
+    box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.16), 0 4px 10px -2px rgba(15, 23, 42, 0.08);
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 6px;
+    z-index: 100;
+}
+
+.solutions-dropdown-content {
+    min-width: 220px;
+    padding: 6px;
+}
+
+.site-nav-dropdown:hover .site-nav-dropdown-content,
+.site-nav-dropdown.is-open .site-nav-dropdown-content {
+    display: block;
+}
+
+.site-nav-dropdown-content > a {
+    display: block;
+    padding: 10px 14px !important;
+    color: #1e293b !important;
+    text-decoration: none;
+    font-size: 0.86rem;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: background-color 0.12s ease, color 0.12s ease;
+    white-space: nowrap;
+}
+
+.site-nav-dropdown-content > a:hover {
+    background-color: #f1f5f9;
+    color: #0284c7 !important;
+    font-weight: 600;
+}
+
+.solutions-dropdown-content > a:hover {
+    background-color: #f1f5f9;
+    color: #0284c7 !important;
+}
+
+/* Nested Dropdown for Serialization with zero-gap hover bridge */
+.nested-dropdown-item {
+    position: relative;
+}
+
+.nested-parent-link {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px !important;
+    color: #1e293b !important;
+    text-decoration: none;
+    font-size: 0.86rem;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: background-color 0.12s ease, color 0.12s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.nested-parent-link .nested-caret {
+    font-size: 1.15rem;
+    line-height: 1;
+    color: #94a3b8;
+    margin-left: 14px;
+    transition: color 0.12s ease, transform 0.12s ease;
+    pointer-events: none;
+}
+
+.nested-dropdown-item:hover .nested-parent-link,
+.nested-dropdown-item.is-open .nested-parent-link {
+    background-color: #f1f5f9 !important;
+    color: #0284c7 !important;
+    font-weight: 600;
+}
+
+.nested-dropdown-item:hover .nested-caret,
+.nested-dropdown-item.is-open .nested-caret {
+    color: #0284c7;
+    transform: translateX(3px);
+}
+
+/* Invisible side bridge to prevent diagonal mouse departure */
+.nested-dropdown-item::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 14px;
+    height: 100%;
+    display: block;
+    z-index: 119;
+}
+
+.nested-sub-menu {
+    display: none;
+    position: absolute;
+    top: -4px;
+    left: calc(100% + 2px);
+    min-width: 205px;
+    background-color: #ffffff;
+    box-shadow: 0 14px 32px -4px rgba(15, 23, 42, 0.18), 0 6px 14px -2px rgba(15, 23, 42, 0.08);
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 6px;
+    z-index: 120;
+}
+
+.nested-dropdown-item:hover .nested-sub-menu,
+.nested-dropdown-item.is-open .nested-sub-menu {
+    display: block;
+}
+
+.nested-sub-menu a {
+    display: block;
+    padding: 10px 14px !important;
+    color: #1e293b !important;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: background-color 0.12s ease, color 0.12s ease;
+    white-space: nowrap;
+}
+
+.nested-sub-menu a:hover {
+    background-color: #f1f5f9 !important;
+    color: #0284c7 !important;
+    font-weight: 600;
+}
+
 /* Authentic Corporate Hero Section */
 .hero {
     min-height: auto;
@@ -392,7 +586,374 @@ a {
 }
 
 .serialization-section {
+    padding: 36px 48px 64px;
     background: #edf3f7;
+}
+
+.portal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.portal-header-row .section-heading {
+    margin-bottom: 0;
+}
+
+.portal-live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   SOLUTIONS SUITE STYLING (BT PHARMACEUTICALS BRAND STANDARDS)
+   ========================================================================== */
+.solutions-section {
+    background: #ffffff;
+    border-top: 1px solid #cbd5e1;
+    padding: 64px 48px;
+}
+
+.solutions-header-container {
+    max-width: 960px;
+    margin-bottom: 36px;
+}
+
+.solutions-quick-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.sol-pill-btn {
+    padding: 7px 16px;
+    background: #f1f5f9;
+    color: #334e68;
+    border-radius: 9999px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid #e2e8f0;
+    transition: all 0.15s ease;
+}
+
+.sol-pill-btn:hover,
+.sol-pill-btn.active {
+    background: #002855;
+    color: #ffffff;
+    border-color: #001933;
+}
+
+.solution-category {
+    margin-bottom: 56px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.solution-category-header {
+    margin-bottom: 28px;
+}
+
+.sol-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.solution-category-header h3 {
+    font-size: 1.65rem;
+    color: var(--navy);
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.solution-category-header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 820px;
+    margin: 0;
+}
+
+.solution-sub-block {
+    margin-top: 32px;
+    padding: 30px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.sol-sub-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sol-sub-title-row h4 {
+    font-size: 1.22rem;
+    color: var(--navy);
+    margin: 0;
+    font-weight: 700;
+}
+
+.sol-sub-tag {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    background: #ffffff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+}
+
+.solution-split {
+    display: grid;
+    grid-template-columns: minmax(320px, 1.15fr) minmax(320px, 0.85fr);
+    gap: 36px;
+    align-items: center;
+}
+
+.sol-copy-col {
+    min-width: 0;
+}
+
+.sol-lead {
+    font-size: 0.96rem;
+    color: #334e68;
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+.sol-feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sol-feature-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #334155;
+}
+
+.sol-check {
+    color: #16a34a;
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.sol-media-col {
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.sol-media-col img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+}
+
+.sol-media-caption {
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+}
+
+/* Solutions Cards Grid (Global Compliance & Loyalty) */
+.sol-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.sol-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 22px 20px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sol-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.sol-card-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #0284c7;
+    background: #f0f9ff;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #bae6fd;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.sol-card h5 {
+    font-size: 1.05rem;
+    color: var(--navy);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.sol-card p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Authentication Demo Card */
+.auth-demo-card {
+    padding: 24px;
+    background: #ffffff;
+}
+
+.auth-demo-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #16a34a;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+}
+
+.auth-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+.auth-status-pill.success {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+}
+
+.auth-kv-pair {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.82rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.auth-kv-pair span {
+    color: #64748b;
+}
+
+.auth-kv-pair strong {
+    color: #1e293b;
+    font-family: var(--font-mono, monospace);
+}
+
+.auth-demo-footer {
+    margin-top: 14px;
+    font-size: 0.74rem;
+    color: #64748b;
+    text-align: center;
+    background: #f8fafc;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+/* FAQ & Technical Knowledge Base Section */
+.faq-section {
+    background: #ffffff;
+    border-top: 1px solid #cbd5e1;
+    padding: 64px 48px;
+}
+
+.faq-header-wrapper {
+    max-width: 920px;
+    margin-bottom: 32px;
+}
+
+.faq-section .compliance-section,
+.faq-section .architecture-section,
+.faq-section .pharma-showcase-section,
+.faq-section .process-section {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 48px;
+    padding-bottom: 48px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.faq-section .hero {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 48px;
+    padding-bottom: 32px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.faq-section .metrics-band {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 24px;
 }
 
 .portal-grid {
@@ -1048,9 +1609,16 @@ select:focus {
     .content-section,
     .process-section,
     .serialization-section,
+    .solutions-section,
+    .faq-section,
     .site-footer {
         padding-left: 24px;
         padding-right: 24px;
+    }
+
+    .solution-split {
+        grid-template-columns: 1fr;
+        gap: 24px;
     }
 }
 
@@ -1088,9 +1656,24 @@ select:focus {
 
     .content-section,
     .process-section,
-    .serialization-section {
-        padding-top: 58px;
-        padding-bottom: 58px;
+    .serialization-section,
+    .solutions-section,
+    .faq-section {
+        padding-top: 42px;
+        padding-bottom: 42px;
+    }
+
+    .solution-sub-block {
+        padding: 18px 14px;
+    }
+
+    .nested-sub-menu {
+        position: static;
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+        margin-top: 4px;
+        margin-left: 0;
+        width: 100%;
     }
 
     .form-row,
@@ -1673,6 +2256,12 @@ select:focus {
 
 /* Utility hidden class used elsewhere */
 .hidden {
+    display: none !important;
+}
+
+#panel-dscsa.hidden,
+#panel-eufmd.hidden,
+#panel-material-nhrn.hidden {
     display: none !important;
 }
 
@@ -2591,6 +3180,19 @@ select:focus {
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
         border-radius: 6px !important;
+    }
+
+    /* 5. Portal Header & Live Status on Phone */
+    .portal-header-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+
+    .portal-live-status {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: flex-start !important;
     }
 }
 
