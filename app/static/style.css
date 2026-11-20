@@ -1753,12 +1753,12 @@ select:focus {
     background-color: #ffffff;
     min-width: 220px;
     box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
-    z-index: 50;
+    z-index: 100;
     border-radius: 6px;
     border: 1px solid #e2e8f0;
     padding: 6px;
     margin-top: 2px;
-    overflow: hidden;
+    overflow: visible !important;
 }
 
 .portal-nav-dropdown-content.show-dropdown {
@@ -1790,6 +1790,99 @@ select:focus {
 
 .portal-nav-dropdown:hover .portal-nav-dropdown-content {
     display: block;
+}
+
+/* ============================================================
+   Portal Navigation Nested Flyout Menus
+   ============================================================ */
+.portal-nav-nested-item {
+    position: relative;
+    width: 100%;
+}
+
+.portal-nav-nested-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 9px 14px;
+    color: #334155;
+    background: #ffffff;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-align: left;
+    border-radius: 4px;
+    transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.portal-nav-nested-item:hover > .portal-nav-nested-toggle,
+.portal-nav-nested-item.is-open > .portal-nav-nested-toggle {
+    background-color: #f1f5f9;
+    color: #0284c7;
+    font-weight: 600;
+}
+
+.portal-nav-nested-item:hover > .portal-nav-nested-toggle .nested-caret,
+.portal-nav-nested-item.is-open > .portal-nav-nested-toggle .nested-caret {
+    color: #0284c7;
+    transform: translateX(3px);
+}
+
+/* Invisible side hover bridge to eliminate accidental closure gaps */
+.portal-nav-nested-item::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 20px;
+    height: 100%;
+    display: block;
+    z-index: 110;
+}
+
+.portal-nav-nested-menu {
+    display: none;
+    position: absolute;
+    top: -4px;
+    left: calc(100% + 2px);
+    background-color: #ffffff;
+    min-width: 195px;
+    padding: 6px;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.18), 0 8px 10px -6px rgba(15, 23, 42, 0.10);
+    border: 1px solid #cbd5e1;
+    z-index: 120;
+}
+
+.portal-nav-nested-item:hover > .portal-nav-nested-menu,
+.portal-nav-nested-item.is-open > .portal-nav-nested-menu {
+    display: block !important;
+}
+
+.portal-nav-nested-menu .portal-nav-sub-btn {
+    color: #334155;
+    background: #ffffff;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-size: 0.82rem;
+    font-weight: 500;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.portal-nav-nested-menu .portal-nav-sub-btn:hover {
+    background-color: #f1f5f9;
+    color: #0284c7;
+    font-weight: 600;
 }
 
 .portal-view-container {

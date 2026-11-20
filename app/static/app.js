@@ -117,34 +117,70 @@ function filterNavigationByPermissions() {
     if (batchesDropdown) {
         batchesDropdown.style.display = hasPermission("batches", "view") ? "" : "none";
     }
+    const canReports = hasPermission("reports", "view") || hasPermission("audit_logs", "view");
+    const canVerif = hasPermission("verification", "view");
+    const canSgtin = hasPermission("sgtin", "view");
+
     const reportsDropdown = document.querySelector("#sub-audit-logs")?.closest(".portal-nav-dropdown");
     if (reportsDropdown) {
-        reportsDropdown.style.display = hasPermission("reports", "view") || hasPermission("audit_logs", "view") ? "" : "none";
+        reportsDropdown.style.display = (canReports || canVerif || canSgtin) ? "" : "none";
     }
-    const verifBtn = document.querySelector('.portal-nav-btn[data-view="view-verification"]');
+    const verifBtn = document.querySelector('[data-view="view-verification"]');
     if (verifBtn) {
-        verifBtn.style.display = hasPermission("verification", "view") ? "" : "none";
+        verifBtn.style.display = canVerif ? "" : "none";
     }
-    const sgtinBtn = document.querySelector('.portal-nav-btn[data-view="view-sgtin"]');
+    const sgtinBtn = document.querySelector('[data-view="view-sgtin"]');
     if (sgtinBtn) {
-        sgtinBtn.style.display = hasPermission("sgtin", "view") ? "" : "none";
+        sgtinBtn.style.display = canSgtin ? "" : "none";
+    }
+    const verifNested = document.getElementById("nested-menu-verification");
+    if (verifNested) {
+        verifNested.style.display = (canVerif || canSgtin) ? "" : "none";
     }
 
     // Sub-items based on specific action permissions
     const subAddProd = document.getElementById("sub-add-product");
     if (subAddProd) subAddProd.style.display = hasPermission("products", "create") ? "" : "none";
 
+    const subManageProd = document.getElementById("sub-manage-products");
+    if (subManageProd) subManageProd.style.display = hasPermission("products", "view") ? "" : "none";
+
     const subAddGtin = document.getElementById("sub-add-gtin");
     if (subAddGtin) subAddGtin.style.display = hasPermission("gtin_store", "create") ? "" : "none";
 
+    const subManageGtin = document.getElementById("sub-manage-gtins");
+    if (subManageGtin) subManageGtin.style.display = hasPermission("gtin_store", "view") ? "" : "none";
+
     const subImportSn = document.getElementById("sub-import-sn");
     if (subImportSn) subImportSn.style.display = hasPermission("code_pool", "import") ? "" : "none";
+
+    const prodNested = document.getElementById("nested-menu-product");
+    if (prodNested) {
+        const canProd = hasPermission("products", "view") || hasPermission("products", "create");
+        prodNested.style.display = canProd ? "" : "none";
+    }
+    const gtinNested = document.getElementById("nested-menu-gtin");
+    if (gtinNested) {
+        const canGtin = hasPermission("gtin_store", "view") || hasPermission("gtin_store", "create");
+        gtinNested.style.display = canGtin ? "" : "none";
+    }
 
     const subAddLine = document.getElementById("sub-add-line");
     if (subAddLine) subAddLine.style.display = hasPermission("lines", "create") ? "" : "none";
 
     const subAddBatch = document.getElementById("sub-add-batch");
     if (subAddBatch) subAddBatch.style.display = hasPermission("batches", "create") ? "" : "none";
+
+    const adminDropdown = document.getElementById("nav-dropdown-admin");
+    const canUserMgmt = hasPermission("user_management", "view");
+    const canRoles = hasPermission("roles", "view");
+    if (adminDropdown) {
+        adminDropdown.style.display = (canUserMgmt || canRoles) ? "inline-block" : "none";
+    }
+    const adminTab = document.getElementById("nav-btn-users");
+    if (adminTab) adminTab.style.display = canUserMgmt ? "" : "none";
+    const rolesTab = document.getElementById("nav-btn-roles");
+    if (rolesTab) rolesTab.style.display = canRoles ? "" : "none";
 }
 
 function showAuthOverlay() {
@@ -185,6 +221,7 @@ function setAuthError(msg) {
 function updateAuthUI() {
     const user = getAuthUser();
     const wrapper = document.getElementById("auth-header-wrapper");
+    const adminDropdown = document.getElementById("nav-dropdown-admin");
     const adminTab = document.getElementById("nav-btn-users");
     const rolesTab = document.getElementById("nav-btn-roles");
 
@@ -217,11 +254,16 @@ function updateAuthUI() {
             if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
         }
 
+        const canUserMgmt = hasPermission("user_management", "view");
+        const canRoles = hasPermission("roles", "view");
+        if (adminDropdown) {
+            adminDropdown.style.display = (canUserMgmt || canRoles) ? "inline-block" : "none";
+        }
         if (adminTab) {
-            adminTab.style.display = hasPermission("user_management", "view") ? "inline-flex" : "none";
+            adminTab.style.display = canUserMgmt ? "" : "none";
         }
         if (rolesTab) {
-            rolesTab.style.display = hasPermission("roles", "view") ? "inline-flex" : "none";
+            rolesTab.style.display = canRoles ? "" : "none";
         }
 
         filterNavigationByPermissions();
@@ -240,6 +282,7 @@ function updateAuthUI() {
             const loginBtn = document.getElementById("btn-header-login");
             if (loginBtn) loginBtn.addEventListener("click", showAuthOverlay);
         }
+        if (adminDropdown) adminDropdown.style.display = "none";
         if (adminTab) adminTab.style.display = "none";
         if (rolesTab) rolesTab.style.display = "none";
     }
@@ -1195,6 +1238,9 @@ function setupDropdownToggles() {
         document.querySelectorAll(".portal-nav-dropdown-content").forEach(c => {
             c.classList.remove("show-dropdown");
         });
+        document.querySelectorAll(".portal-nav-nested-item").forEach(item => {
+            item.classList.remove("is-open");
+        });
     }
 
     // Toggle buttons (parent dropdown labels) — only open/close the dropdown
@@ -1207,6 +1253,22 @@ function setupDropdownToggles() {
             closeAllDropdowns();
             if (!isOpen) {
                 content.classList.add("show-dropdown");
+            }
+        });
+    });
+
+    // Nested toggles (e.g., Product, GTIN's)
+    document.querySelectorAll(".portal-nav-nested-toggle").forEach(toggle => {
+        toggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const parent = toggle.closest(".portal-nav-nested-item");
+            if (!parent) return;
+            const wasOpen = parent.classList.contains("is-open");
+            parent.parentElement.querySelectorAll(".portal-nav-nested-item").forEach(item => {
+                item.classList.remove("is-open");
+            });
+            if (!wasOpen) {
+                parent.classList.add("is-open");
             }
         });
     });
@@ -1236,6 +1298,9 @@ function setupRouting() {
             // Close all dropdowns
             document.querySelectorAll(".portal-nav-dropdown-content").forEach(c => {
                 c.classList.remove("show-dropdown");
+            });
+            document.querySelectorAll(".portal-nav-nested-item").forEach(item => {
+                item.classList.remove("is-open");
             });
 
             const viewId = btn.getAttribute("data-view");

@@ -234,6 +234,12 @@ def get_portal():
 def get_solutions_page():
     return FileResponse("app/static/solutions.html")
 
+# Route to serve standalone FAQ's & Technical Specifications page
+@app.get("/faq")
+@app.get("/faq.html")
+def get_faq_page():
+    return FileResponse("app/static/faq.html")
+
 # Route to serve favicon or static folder assets
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
