@@ -391,7 +391,7 @@ a {
     align-items: center;
     gap: 48px;
     padding: 56px 48px 64px;
-    background: #ffffff;
+    background: transparent;
     border-bottom: 1px solid var(--line);
 }
 
@@ -524,7 +524,7 @@ a {
     grid-template-columns: minmax(280px, 0.85fr) minmax(340px, 1fr);
     gap: 56px;
     align-items: start;
-    background: var(--surface);
+    background: transparent;
 }
 
 .split-section h2,
@@ -549,7 +549,7 @@ a {
 }
 
 .process-section {
-    background: var(--surface-soft);
+    background: transparent;
 }
 
 .process-grid {
@@ -663,7 +663,7 @@ a {
    SOLUTIONS SUITE STYLING (BT PHARMACEUTICALS BRAND STANDARDS)
    ========================================================================== */
 .solutions-section {
-    background: #ffffff;
+    background: transparent;
     border-top: 1px solid #cbd5e1;
     padding: 64px 48px;
 }
@@ -740,9 +740,10 @@ a {
 .solution-sub-block {
     margin-top: 32px;
     padding: 30px;
-    background: #f8fafc;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .sol-sub-title-row {
@@ -962,7 +963,7 @@ a {
 
 /* FAQ & Technical Knowledge Base Section */
 .faq-section {
-    background: #ffffff;
+    background: transparent;
     border-top: 1px solid #cbd5e1;
     padding: 64px 48px;
 }
@@ -2517,7 +2518,7 @@ select:focus {
    ============================================================ */
 .compliance-section {
     padding: 60px 48px;
-    background: #ffffff;
+    background: transparent;
     border-bottom: 1px solid var(--line);
 }
 
@@ -2584,7 +2585,7 @@ select:focus {
 /* Multi-Level Architecture Pipeline */
 .architecture-section {
     padding: 60px 48px;
-    background: var(--bg);
+    background: transparent;
 }
 
 .architecture-pipeline {
@@ -2631,7 +2632,7 @@ select:focus {
 /* Pharmaceutical Industry Deep Dives */
 .pharma-showcase-section {
     padding: 70px 48px;
-    background: #ffffff;
+    background: transparent;
 }
 
 .pharma-showcase-item {
@@ -2639,7 +2640,12 @@ select:focus {
     grid-template-columns: 1.1fr 1fr;
     gap: 48px;
     align-items: center;
-    margin-bottom: 70px;
+    margin-bottom: 48px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .pharma-showcase-item.reverse {
