@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="104" viewBox="0 0 120 104">
+  <defs>
+    <pattern id="dot-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="0.75" fill="#0284c7" fill-opacity="0.10"/>
+    </pattern>
+  </defs>
+  <!-- Micro GS1 Serialization Alignment Matrix -->
+  <rect width="120" height="104" fill="url(#dot-grid)"/>
+  
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Technical Camera / Inspection Crosshair Marks -->
+    <path d="M0,0 L6,0 M0,0 L0,6 M120,0 L114,0 M120,0 L120,6 M0,104 L6,104 M0,104 L0,98 M120,104 L114,104 M120,104 L120,98" stroke="#0284c7" stroke-width="0.8" stroke-opacity="0.20"/>
+    <path d="M60,0 L60,4 M60,104 L60,100 M0,52 L4,52 M120,52 L116,52" stroke="#0f2d59" stroke-width="0.8" stroke-opacity="0.16"/>
+
+    <!-- Molecular Hexagonal Ring 1 (Center) -->
+    <!-- Center at (60, 52), R = 22 -->
+    <polygon points="60,30 79.05,41 79.05,63 60,74 40.95,63 40.95,41" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+    <!-- Double chemical bond simulation -->
+    <line x1="58" y1="33" x2="75" y2="43" stroke="#0284c7" stroke-width="0.9" stroke-opacity="0.12"/>
+    <line x1="43" y1="61" x2="58" y2="71" stroke="#0284c7" stroke-width="0.9" stroke-opacity="0.12"/>
+    <line x1="76" y1="61" x2="76" y2="43" stroke="#0284c7" stroke-width="0.9" stroke-opacity="0.12" stroke-dasharray="2,2"/>
+    
+    <!-- Central Active Pharmaceutical Site -->
+    <circle cx="60" cy="52" r="2.5" stroke="#0284c7" stroke-width="0.8" stroke-opacity="0.18" fill="none"/>
+    <circle cx="60" cy="52" r="1" fill="#0284c7" fill-opacity="0.25"/>
+
+    <!-- Connecting Covalent Bonds from Center Hexagon -->
+    <line x1="60" y1="30" x2="60" y2="16" stroke="#0f2d59" stroke-width="1.0" stroke-opacity="0.08"/>
+    <line x1="60" y1="74" x2="60" y2="88" stroke="#0f2d59" stroke-width="1.0" stroke-opacity="0.08"/>
+    <line x1="79.05" y1="52" x2="92" y2="52" stroke="#0f2d59" stroke-width="1.0" stroke-opacity="0.08"/>
+    <line x1="40.95" y1="52" x2="28" y2="52" stroke="#0f2d59" stroke-width="1.0" stroke-opacity="0.08"/>
+
+    <!-- Corner / Border Hexagons (Seamless Tiling across 120x104) -->
+    <!-- Top-Left (0, 0) -->
+    <polyline points="19.05,0 19.05,11 0,22" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+    <!-- Top-Right (120, 0) -->
+    <polyline points="100.95,0 100.95,11 120,22" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+    <!-- Bottom-Left (0, 104) -->
+    <polyline points="0,82 19.05,93 19.05,104" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+    <!-- Bottom-Right (120, 104) -->
+    <polyline points="120,82 100.95,93 100.95,104" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+
+    <!-- Hexagons at Left edge (0, 52) and Right edge (120, 52) -->
+    <polyline points="0,30 19.05,41 19.05,63 0,74" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+    <line x1="19.05" y1="52" x2="28" y2="52" stroke="#0f2d59" stroke-width="1.0" stroke-opacity="0.08"/>
+    <polyline points="120,30 100.95,41 100.95,63 120,74" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+    <line x1="100.95" y1="52" x2="92" y2="52" stroke="#0f2d59" stroke-width="1.0" stroke-opacity="0.08"/>
+
+    <!-- Top and Bottom edge partial hexagons (60, 0) and (60, 104) -->
+    <polyline points="40.95,0 60,11 79.05,0" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+    <line x1="60" y1="11" x2="60" y2="16" stroke="#0f2d59" stroke-width="1.0" stroke-opacity="0.08"/>
+    <polyline points="40.95,104 60,93 79.05,104" stroke="#0f2d59" stroke-width="1.1" stroke-opacity="0.09"/>
+    <line x1="60" y1="93" x2="60" y2="88" stroke="#0f2d59" stroke-width="1.0" stroke-opacity="0.08"/>
+
+    <!-- Molecular Atom Nodes (Vertices) -->
+    <!-- Center Hexagon Atoms -->
+    <circle cx="60" cy="30" r="1.8" fill="#0284c7" fill-opacity="0.25"/>
+    <circle cx="79.05" cy="41" r="1.8" fill="#0f2d59" fill-opacity="0.18"/>
+    <circle cx="79.05" cy="63" r="1.8" fill="#0284c7" fill-opacity="0.25"/>
+    <circle cx="60" cy="74" r="1.8" fill="#0f2d59" fill-opacity="0.18"/>
+    <circle cx="40.95" cy="63" r="1.8" fill="#0284c7" fill-opacity="0.25"/>
+    <circle cx="40.95" cy="41" r="1.8" fill="#0f2d59" fill-opacity="0.18"/>
+
+    <!-- Edge Atoms -->
+    <circle cx="19.05" cy="41" r="1.5" fill="#0284c7" fill-opacity="0.20"/>
+    <circle cx="19.05" cy="63" r="1.5" fill="#0f2d59" fill-opacity="0.16"/>
+    <circle cx="100.95" cy="41" r="1.5" fill="#0284c7" fill-opacity="0.20"/>
+    <circle cx="100.95" cy="63" r="1.5" fill="#0f2d59" fill-opacity="0.16"/>
+
+    <circle cx="60" cy="11" r="1.5" fill="#0284c7" fill-opacity="0.20"/>
+    <circle cx="60" cy="93" r="1.5" fill="#0284c7" fill-opacity="0.20"/>
+
+    <circle cx="19.05" cy="11" r="1.4" fill="#0f2d59" fill-opacity="0.16"/>
+    <circle cx="100.95" cy="11" r="1.4" fill="#0f2d59" fill-opacity="0.16"/>
+    <circle cx="19.05" cy="93" r="1.4" fill="#0f2d59" fill-opacity="0.16"/>
+    <circle cx="100.95" cy="93" r="1.4" fill="#0f2d59" fill-opacity="0.16"/>
+
+    <!-- Connecting Link Nodes -->
+    <circle cx="28" cy="52" r="1.3" fill="#0284c7" fill-opacity="0.22"/>
+    <circle cx="92" cy="52" r="1.3" fill="#0284c7" fill-opacity="0.22"/>
+    <circle cx="60" cy="16" r="1.3" fill="#0284c7" fill-opacity="0.22"/>
+    <circle cx="60" cy="88" r="1.3" fill="#0284c7" fill-opacity="0.22"/>
+  </g>
+</svg>

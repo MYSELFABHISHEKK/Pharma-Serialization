@@ -1205,6 +1205,12 @@ document.addEventListener("DOMContentLoaded", () => {
 function initApp() {
     checkSystemHealth();
     setInterval(checkSystemHealth, 10000);
+    setInterval(() => {
+        const dashView = document.getElementById("view-dashboard");
+        if (dashView && !dashView.classList.contains("hidden")) {
+            loadBatches();
+        }
+    }, 15000);
     
     // Auth & Identity Governance
     setupAuthListeners();
@@ -1389,6 +1395,7 @@ async function loadAllCounts() {
         if (res.ok) {
             const data = await res.json();
             if (batchCount) batchCount.textContent = data.length;
+            renderLiveBatches(data);
         }
     } catch (e) {
         console.error("Failed to load batch count for dashboard.", e);
@@ -1429,6 +1436,7 @@ async function loadBatches() {
         if (res.ok) {
             const batches = await res.json();
             renderBatchList(batches);
+            renderLiveBatches(batches);
             loadAllCounts();
         }
     } catch (e) {
@@ -1668,6 +1676,113 @@ function renderBatchList(batches) {
     });
 }
 
+function formatBatchTimestamp(ts) {
+    if (!ts) return "Just now";
+    try {
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return ts;
+        return d.toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    } catch (_) {
+        return ts;
+    }
+}
+
+function renderLiveBatches(batches) {
+    const tbody = document.getElementById("live-batches-body");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    if (!batches || batches.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-muted" style="padding: 32px 16px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <span style="font-weight: 500; color: #64748b;">No active live batches found.</span>
+                        <button class="btn primary-btn btn-sm" onclick="window.goToAddBatch()" style="margin-top: 4px; font-size: 0.8rem;">+ Create First Batch</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    // Sort by created_at descending and take up to five batches
+    const liveFive = [...batches].sort((a, b) => {
+        const tA = new Date(a.created_at || 0).getTime();
+        const tB = new Date(b.created_at || 0).getTime();
+        return tB - tA;
+    }).slice(0, 5);
+
+    liveFive.forEach(b => {
+        const tr = document.createElement("tr");
+
+        let statusClass = "badge-secondary";
+        let statusLabel = b.status || "UNKNOWN";
+        if (b.status === "COMPLETED") { statusClass = "badge-success"; }
+        else if (b.status === "LOADED") { statusClass = "badge-info"; }
+        else if (b.status === "STARTED") { statusClass = "badge-warning"; statusLabel = "● IN PROGRESS"; }
+        else if (b.status === "RECONCILED") { statusClass = "badge-primary"; }
+        else if (b.status === "CLOSED") { statusClass = "badge-dark"; statusLabel = "🔒 CLOSED"; }
+        else if (b.status === "FAILED") { statusClass = "badge-danger"; }
+
+        const prod = registeredProducts.find(p => p.product_id === b.product_id);
+        const prodName = prod ? prod.name : b.product_id;
+        const timeStr = formatBatchTimestamp(b.created_at);
+        const qty = (b.generated_quantity || b.requested_quantity || 0).toLocaleString();
+        const lotBadge = b.batch_lot ? `<span class="badge badge-secondary" style="font-size:0.72rem; margin-left:6px; font-weight:500; font-family:'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;">Lot: ${escapeHtml(b.batch_lot)}</span>` : "";
+        const lineSubtitle = b.line_id ? `<div style="font-size:0.75rem; color:#64748b; margin-top:2px;">Packaging Line: <strong>${escapeHtml(b.line_id)}</strong></div>` : "";
+
+        tr.innerHTML = `
+            <td>
+                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                    <strong style="color:#0f172a; font-size:0.84rem; font-family:'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing:-0.01em;">${escapeHtml(b.batch_id)}</strong>
+                    ${lotBadge}
+                </div>
+                ${lineSubtitle}
+            </td>
+            <td>
+                <div style="font-weight:600; color:#1e293b;">${escapeHtml(prodName)}</div>
+                <div style="font-size:0.75rem; color:#64748b;">Product ID: ${escapeHtml(b.product_id)}</div>
+            </td>
+            <td>
+                <div style="font-weight:600; color:#1e293b; font-size:0.83rem;">${timeStr}</div>
+            </td>
+            <td>
+                <span style="font-weight:600; color:#0f172a; font-variant-numeric:tabular-nums;">${qty}</span> <span style="font-size:0.78rem; color:#64748b;">units</span>
+            </td>
+            <td>
+                <span class="badge ${statusClass}" style="font-size:0.72rem;">${statusLabel}</span>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+window.renderLiveBatches = renderLiveBatches;
+window.refreshLiveBatches = async function(btnFeedback) {
+    const btn = document.getElementById("btn-refresh-live-batches");
+    if (btn && btnFeedback) {
+        btn.disabled = true;
+        btn.style.opacity = "0.6";
+    }
+    try {
+        await loadBatches();
+    } finally {
+        if (btn && btnFeedback) {
+            btn.disabled = false;
+            btn.style.opacity = "";
+        }
+    }
+};
+
 function renderAuditLogs(logs) {
     window.currentAuditLogs = logs || [];
     const tbody = document.getElementById("audit-logs-body");
@@ -1760,7 +1875,10 @@ function switchView(viewId) {
     }
 
     // Auto-refresh data when landing on views
-    if (viewId === "view-line-list") {
+    if (viewId === "view-dashboard") {
+        loadBatches();
+        loadAllCounts();
+    } else if (viewId === "view-line-list") {
         loadLines();
     } else if (viewId === "view-line-io") {
         populateIoForm();
@@ -1877,9 +1995,11 @@ window.editProduct = function(productId) {
         previewInfo.textContent = "";
     }
 
-    // Profile accordion settings
-    document.getElementById("prof-len").value = product.profile.length;
-    document.getElementById("prof-dups").value = product.profile.allow_duplicate_characters ? "true" : "false";
+    // Profile accordion settings (if present)
+    const profLenEl = document.getElementById("prof-len");
+    if (profLenEl && product.profile) profLenEl.value = product.profile.length;
+    const profDupsEl = document.getElementById("prof-dups");
+    if (profDupsEl && product.profile) profDupsEl.value = product.profile.allow_duplicate_characters ? "true" : "false";
 
     // Toggle panels based on authority selection
     toggleAuthorityPanels(product.regulatory_authority);

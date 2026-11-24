@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>BT SN Portal | Serialization & Track Trace</title>
     <!-- Offline Plant Intranet Ready Font Stack (No External Google Fonts Dependency) -->
-    <link rel="stylesheet" href="/static/style.css?v=20261120_10">
+    <link rel="stylesheet" href="/static/style.css?v=20261124_02">
 </head>
 <body>
     <header class="site-header">
@@ -132,12 +132,48 @@
                             <p class="dash-metric" id="dash-batch-count">0</p>
                         </div>
                     </div>
-                    <div class="minimal-notice mt-4" style="padding: 16px 20px;">
-                        <div style="display: flex; flex-direction: column; gap: 3px;">
-                            <strong style="color: #0f2d59; font-size: 0.92rem; font-weight: 600;">Serialization Operations Console</strong>
-                            <span style="color: #475569; font-size: 0.84rem;">Select any workflow module from the command bar above to manage master products, packaging lines, serialization batches, and compliance reports.</span>
+
+                    <!-- Live Packaging Batches Activity Feed (Up to 5 Batches) -->
+                    <div class="card mt-4 live-batches-card" id="live-batches-section">
+                        <div class="card-header flex-header">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <h3 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: #0f172a;">Batches</h3>
+                                <span class="live-status-pill">
+                                    <span class="live-dot-pulse"></span>
+                                    <span>LIVE FEED</span>
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" class="btn secondary-btn btn-sm" id="btn-refresh-live-batches" onclick="window.refreshLiveBatches(true)" title="Refresh live batch feed" style="font-size: 0.8rem; padding: 6px 12px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                    <span>Sync</span>
+                                </button>
+                                <button type="button" class="btn secondary-btn btn-sm" onclick="switchView('view-batch-list')" style="font-size: 0.8rem; padding: 6px 12px;">
+                                    <span>View All Batches &rarr;</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-container" style="margin-top: 0; border: none; box-shadow: none;">
+                            <table class="table live-batches-table" id="live-batches-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Batch Name &amp; Lot</th>
+                                        <th style="width: 25%;">Product Formulation</th>
+                                        <th style="width: 22%;">Execution Timestamp</th>
+                                        <th style="width: 14%;">Quantity</th>
+                                        <th style="width: 14%;">Operational Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="live-batches-body">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted" style="padding: 24px;">Loading live batches feed...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- 2. SGTIN CSV GENERATOR VIEW -->
@@ -439,28 +475,6 @@
                                     <div class="img-preview-container mt-2">
                                         <img id="prod-img-preview" src="" alt="No Image Selected" class="hidden">
                                         <span id="prod-img-size-info" class="hint"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Section: Serialization Profile settings -->
-                            <div class="accordion mt-4">
-                                <div class="accordion-header" id="profile-toggle">
-                                    <span>Serialization profile</span>
-                                    <span class="arrow">Show</span>
-                                </div>
-                                <div class="accordion-content hidden" id="profile-settings">
-                                    <div class="form-row">
-                                        <div class="form-group flex-1">
-                                            <label for="prof-len">Serial length</label>
-                                            <input type="number" id="prof-len" value="20" min="10" max="30">
-                                        </div>
-                                        <div class="form-group flex-1">
-                                            <label for="prof-dups">Character repeats</label>
-                                            <select id="prof-dups">
-                                                <option value="false">Unique only</option>
-                                            </select>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2148,6 +2162,6 @@
         }
     });
     </script>
-    <script src="/static/app.js?v=20261120_10"></script>
+    <script src="/static/app.js?v=20261124_01"></script>
 </body>
 </html>
