@@ -181,17 +181,25 @@ a {
 }
 
 .nav-cta {
-    padding: 8px 16px !important;
-    background: #002855 !important;
-    color: #ffffff !important;
-    border-radius: 4px !important;
+    display: inline-flex;
+    align-items: center;
+    color: #334e68 !important;
+    text-decoration: none;
     font-weight: 600 !important;
-    border: 1px solid #001933;
-    transition: background 0.15s ease !important;
+    padding: 8px 6px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    transition: color 0.15s ease !important;
+    user-select: none;
 }
 
 .nav-cta:hover {
-    background: #001933 !important;
+    color: #0056b3 !important;
+    background: transparent !important;
 }
 
 /* Site Header Nav Dropdowns (Solutions & FAQ) - Ultra-Reliable & Snappy */
@@ -1690,7 +1698,7 @@ select:focus {
     }
 
     .nav-cta {
-        padding: 8px 12px;
+        padding: 6px 0 !important;
     }
 
     .hero {
@@ -2797,19 +2805,29 @@ select:focus {
     align-items: center;
     gap: 7px;
     padding: 7px 16px;
-    background: transparent;
-    color: var(--primary);
-    border: 1px solid var(--primary);
+    background: #ffffff;
+    color: #334e68;
+    border: 1px solid var(--line-strong);
     border-radius: var(--radius);
     font-size: 0.82rem;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
+    outline: none !important;
+    box-shadow: none !important;
     transition: all 0.15s ease;
 }
 
 .btn-nav-signin:hover {
-    background: var(--primary);
-    color: #ffffff;
+    background: var(--surface-soft);
+    border-color: #94a3b8;
+    color: #0056b3;
+}
+
+.btn-nav-signin:focus,
+.btn-nav-signin:focus-visible,
+.btn-nav-signin:active {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .user-session-badge {
