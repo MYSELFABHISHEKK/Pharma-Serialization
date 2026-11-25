@@ -121,17 +121,25 @@ a {
 }
 
 .brand-mark {
-    width: 36px;
     height: 36px;
-    display: grid;
-    place-items: center;
-    background: #0f2d59;
-    border-radius: 6px;
-    color: #ffffff;
-    font-size: 0.88rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    border: 1px solid #0a192f;
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+.brand-mark img {
+    height: 36px;
+    width: auto;
+    max-height: 36px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.08));
 }
 
 .brand-text-wrap {
@@ -1588,8 +1596,8 @@ select:focus {
 }
 
 .site-footer .brand-mark {
-    background: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    border: none;
 }
 
 .footer-brand {
@@ -2185,25 +2193,47 @@ select:focus {
     background: rgba(16, 32, 51, 0.5);
     backdrop-filter: blur(4px);
     z-index: 1000;
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
     background: #ffffff;
-    border-radius: 4px;
+    border-radius: 6px;
     border: 1px solid #cbd5e1;
     border-top: 4px solid #002855;
     padding: 28px;
     max-width: 480px;
     width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 16px 40px rgba(15, 35, 58, 0.18);
     text-align: left;
+    margin: auto;
+    box-sizing: border-box;
 }
 
 .large-modal {
     max-width: 900px;
+}
+
+#create-role-modal .table-container,
+#user-overrides-modal .table-container {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+}
+
+#create-role-modal .role-matrix-table th,
+#user-overrides-modal .role-matrix-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
 }
 
 .audit-comparison {
@@ -2964,17 +2994,25 @@ select:focus {
 }
 
 .auth-brand-symbol {
-    width: 38px;
     height: 38px;
-    background: #ffffff;
-    color: #0f2d59;
-    font-weight: 800;
-    font-size: 0.95rem;
-    display: grid;
-    place-items: center;
-    border-radius: 6px;
-    letter-spacing: 0.03em;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+.auth-brand-symbol img {
+    height: 38px;
+    width: auto;
+    max-height: 38px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
 }
 
 .auth-brand-names {
@@ -3267,11 +3305,17 @@ select:focus {
     }
 
     .auth-brand-symbol {
-        width: 32px !important;
         height: 32px !important;
-        font-size: 0.82rem !important;
-        font-weight: 800 !important;
-        border-radius: 6px !important;
+        width: auto !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .auth-brand-symbol img {
+        height: 32px !important;
+        width: auto !important;
+        max-height: 32px !important;
     }
 
     .auth-brand-main {
@@ -3476,16 +3520,22 @@ select:focus {
 }
 
 .auth-brand-mark {
-    width: 34px;
+    width: auto;
     height: 34px;
-    background: #ffffff;
-    color: #0f2d59;
-    font-weight: 700;
-    font-size: 0.9rem;
-    display: grid;
-    place-items: center;
-    border-radius: 4px;
-    letter-spacing: 0.04em;
+    background: transparent;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.auth-brand-mark img {
+    height: 34px;
+    width: auto;
+    max-height: 34px;
+    object-fit: contain;
+    display: block;
 }
 
 .auth-brand-text {
