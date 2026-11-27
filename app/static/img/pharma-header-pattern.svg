@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="60" viewBox="0 0 300 60">
+  <defs>
+    <!-- Technical micro dot grid -->
+    <pattern id="header-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="0.75" fill="#ffffff" fill-opacity="0.25"/>
+    </pattern>
+  </defs>
+
+  <!-- Micro dot matrix background -->
+  <rect width="300" height="60" fill="url(#header-dots)"/>
+
+  <!-- Pharmaceutical vector elements -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- 1. Seamless DNA Biologics Double-Helix Wave -->
+    <path d="M 0,46 Q 75,56 150,46 T 300,46" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.30"/>
+    <path d="M 0,46 Q 75,36 150,46 T 300,46" stroke="#002855" stroke-width="0.8" stroke-opacity="0.18"/>
+    <!-- Base pair rungs -->
+    <line x1="25" y1="42.5" x2="25" y2="49.5" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.25"/>
+    <line x1="50" y1="40" x2="50" y2="52" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.30"/>
+    <line x1="75" y1="37" x2="75" y2="55" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.30"/>
+    <line x1="100" y1="40" x2="100" y2="52" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.30"/>
+    <line x1="125" y1="42.5" x2="125" y2="49.5" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.25"/>
+    <line x1="175" y1="49.5" x2="175" y2="42.5" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.25"/>
+    <line x1="200" y1="52" x2="200" y2="40" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.30"/>
+    <line x1="225" y1="55" x2="225" y2="37" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.30"/>
+    <line x1="250" y1="52" x2="250" y2="40" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.30"/>
+    <line x1="275" y1="49.5" x2="275" y2="42.5" stroke="#ffffff" stroke-width="0.75" stroke-opacity="0.25"/>
+
+    <!-- 2. Active Pharmaceutical Molecule 1 (API Synthesis Ring) at (46, 22) -->
+    <polygon points="46,8 58,15 58,29 46,36 34,29 34,15" stroke="#002855" stroke-width="1.1" stroke-opacity="0.20"/>
+    <!-- Double chemical bond inside -->
+    <line x1="44" y1="11" x2="55" y2="17" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.35"/>
+    <line x1="36" y1="28" x2="44" y2="33" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.35"/>
+    <!-- Side functional groups -->
+    <line x1="46" y1="8" x2="46" y2="2" stroke="#002855" stroke-width="0.9" stroke-opacity="0.18"/>
+    <circle cx="46" cy="2" r="1.5" fill="#ffffff" fill-opacity="0.4"/>
+    <line x1="58" y1="29" x2="68" y2="34" stroke="#002855" stroke-width="0.9" stroke-opacity="0.18"/>
+    <circle cx="68" cy="34" r="1.5" fill="#002855" fill-opacity="0.20"/>
+    <line x1="34" y1="15" x2="24" y2="10" stroke="#002855" stroke-width="0.9" stroke-opacity="0.18"/>
+    <circle cx="24" cy="10" r="1.5" fill="#ffffff" fill-opacity="0.4"/>
+
+    <!-- 3. Automated Vision Camera Inspection Crosshairs (at x=105, y=18) -->
+    <circle cx="105" cy="18" r="7" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.35"/>
+    <circle cx="105" cy="18" r="2" fill="#002855" fill-opacity="0.25"/>
+    <line x1="95" y1="18" x2="115" y2="18" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.4"/>
+    <line x1="105" y1="8" x2="105" y2="28" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.4"/>
+    <!-- Inspection corner brackets -->
+    <path d="M96,12 L96,9 L99,9 M114,9 L114,12 M111,9 L114,9 M96,24 L96,27 L99,27 M114,24 L114,27 L111,27" stroke="#002855" stroke-width="0.8" stroke-opacity="0.25"/>
+
+    <!-- 4. Pharmaceutical Solid Oral Capsule Outline (at x=155, y=18, tilted 15 deg) -->
+    <g transform="translate(155, 18) rotate(-18)">
+      <rect x="-14" y="-5.5" width="28" height="11" rx="5.5" stroke="#ffffff" stroke-width="1.1" stroke-opacity="0.40"/>
+      <line x1="0" y1="-5.5" x2="0" y2="5.5" stroke="#002855" stroke-width="1" stroke-opacity="0.22"/>
+      <!-- Capsule cap fill -->
+      <path d="M 0,-5.5 L 8.5,-5.5 A 5.5,5.5 0 0,1 14,0 A 5.5,5.5 0 0,1 8.5,5.5 L 0,5.5 Z" fill="#ffffff" fill-opacity="0.12"/>
+    </g>
+
+    <!-- 5. Secondary Molecule Ring & Covalent Chain at (220, 22) -->
+    <polygon points="220,9 231,15 231,28 220,34 209,28 209,15" stroke="#002855" stroke-width="1" stroke-opacity="0.18"/>
+    <line x1="218" y1="12" x2="228" y2="17" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.30"/>
+    <!-- Connecting chain to GS1 Datamatrix -->
+    <line x1="231" y1="21.5" x2="245" y2="21.5" stroke="#002855" stroke-width="0.9" stroke-opacity="0.18"/>
+    <circle cx="245" cy="21.5" r="1.5" fill="#002855" fill-opacity="0.22"/>
+
+    <!-- 6. GS1 2D DataMatrix Quality Verification Glyph at (268, 16) -->
+    <!-- Solid 'L' boundary -->
+    <path d="M260,10 L260,24 L274,24" stroke="#002855" stroke-width="1.3" stroke-opacity="0.25"/>
+    <!-- Alternating clocking pattern on top & right -->
+    <circle cx="264" cy="10" r="0.9" fill="#ffffff" fill-opacity="0.5"/>
+    <circle cx="269" cy="10" r="0.9" fill="#002855" fill-opacity="0.25"/>
+    <circle cx="274" cy="10" r="0.9" fill="#ffffff" fill-opacity="0.5"/>
+    <circle cx="274" cy="15" r="0.9" fill="#ffffff" fill-opacity="0.5"/>
+    <circle cx="274" cy="20" r="0.9" fill="#002855" fill-opacity="0.25"/>
+    <!-- Internal matrix data dots -->
+    <rect x="264" y="14" width="2" height="2" fill="#002855" fill-opacity="0.20"/>
+    <rect x="268" y="14" width="2" height="2" fill="#ffffff" fill-opacity="0.45"/>
+    <rect x="264" y="18" width="2" height="2" fill="#ffffff" fill-opacity="0.45"/>
+    <rect x="268" y="18" width="2" height="2" fill="#002855" fill-opacity="0.20"/>
+
+  </g>
+</svg>
