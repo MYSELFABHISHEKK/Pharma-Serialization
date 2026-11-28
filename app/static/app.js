@@ -164,6 +164,11 @@ function filterNavigationByPermissions() {
         const canGtin = hasPermission("gtin_store", "view") || hasPermission("gtin_store", "create");
         gtinNested.style.display = canGtin ? "" : "none";
     }
+    const lineNested = document.getElementById("nested-menu-line");
+    if (lineNested) {
+        const canLine = hasPermission("lines", "view") || hasPermission("lines", "create");
+        lineNested.style.display = canLine ? "" : "none";
+    }
 
     const subAddLine = document.getElementById("sub-add-line");
     if (subAddLine) subAddLine.style.display = hasPermission("lines", "create") ? "" : "none";

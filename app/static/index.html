@@ -73,9 +73,20 @@
                 <div class="portal-nav-dropdown">
                     <button class="portal-nav-btn portal-nav-toggle">LINES <span class="arrow-down">▼</span></button>
                     <div class="portal-nav-dropdown-content">
-                        <button class="portal-nav-sub-btn" data-view="view-line-add" id="sub-add-line">1. Add Line</button>
+                        <!-- 1. Line Submenu -->
+                        <div class="portal-nav-nested-item" id="nested-menu-line">
+                            <button type="button" class="portal-nav-nested-toggle">
+                                <span>1. Line</span>
+                                <span class="nested-caret">›</span>
+                            </button>
+                            <div class="portal-nav-nested-menu">
+                                <button class="portal-nav-sub-btn" data-view="view-line-add" id="sub-add-line">Add Line</button>
+                                <button class="portal-nav-sub-btn" data-view="view-line-list" id="sub-manage-lines">Manage Lines</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Add I/O -->
                         <button class="portal-nav-sub-btn" data-view="view-line-io" id="sub-add-io">2. Add I/O</button>
-                        <button class="portal-nav-sub-btn" data-view="view-line-list" id="sub-manage-lines">3. Manage Lines</button>
                     </div>
                 </div>
                 <div class="portal-nav-dropdown">
@@ -1616,7 +1627,7 @@
                 </div>
             </a>
             <p style="margin-top: 12px; max-width: 480px; font-size: 0.85rem; color: #9bb0c7; line-height: 1.55;">
-                Enterprise Level 3 Site Server &amp; Level 4 Corporate Repository compliant with US FDA DSCSA (21 CFR §201/211), EU FMD (Directive 2011/62/EU), and DGFT iVEDA mandates.
+                Dedicated to patient safety and global healthcare integrity through advanced pharmaceutical serialization, end-to-end track-and-trace systems, and trusted medicine authentication.
             </p>
         </div>
         <div class="footer-links">
